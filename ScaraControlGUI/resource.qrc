@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/new/icons">
+        <file>lc_dbformopen.png</file>
+        <file>lc_adddirect.png</file>
+        <file>lc_redo.png</file>
+        <file>lc_undo.png</file>
+        <file>lc_save.png</file>
+        <file>lc_saveas.png</file>
+        <file>lc_quit.png</file>
+        <file>lc_reload.png</file>
+        <file>avl02049.png</file>
+        <file>avl02050.png</file>
+        <file>avl02051.png</file>
+        <file>avl02052.png</file>
+        <file>lc_copy.png</file>
+        <file>lc_cut.png</file>
+        <file>lc_paste.png</file>
+        <file>lc040.png</file>
+        <file>lc05961.png</file>
+        <file>lc_navigateback.png</file>
+        <file>lc_navigateforward.png</file>
+        <file>lc_absoluterecord.png</file>
+        <file>lc_grafmode.png</file>
+        <file>pro_file.jpg</file>
+    </qresource>
+</RCC>
