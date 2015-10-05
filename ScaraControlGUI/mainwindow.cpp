@@ -68,25 +68,21 @@ MainWindow::~MainWindow()
 
 void MainWindow::setActiveProject(const QString &projectName)
 {
-    QList<QTreeWidgetItem*> l1 = ui->projectExplorer->findItems(m_activeProject,Qt::MatchExactly,2);
-    QList<QTreeWidgetItem*> l2 = ui->projectExplorer->findItems(m_activeProject,Qt::MatchExactly,0);
-    QList<QTreeWidgetItem*> l3 = ui->projectExplorer->findItems(m_activeProject,Qt::MatchExactly,1);
-
-
-
-
-
-
     if ( !m_activeProject.isEmpty() )
-        foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(m_activeProject,Qt::MatchExactly,2))
+        for ( unsigned index=0; index<ui->projectExplorer->topLevelItemCount(); ++index)
         {
-            QFont font=item->font(0);
-            QString tempStr = item->text(0);
+            QTreeWidgetItem* item = ui->projectExplorer->topLevelItem(index);
 
-            font.setBold(false);
-            item->setFont(0,font);
-            item->setText(0,item->text(2));
-            item->setText(2,tempStr);
+            if ( item->text(0).length() > item->text(2).length() )
+            {
+                QString tmpStr = item->text(0);
+                QFont font=item->font(0);
+
+                font.setBold(false);
+                item->setFont(0,font);
+                item->setText(0,item->text(2));
+                item->setText(2, tmpStr);
+            }
         }
 
     foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchExactly,0))
