@@ -28,6 +28,7 @@ private:
     static const int FileType       = QTreeWidgetItem::UserType + 2;
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
+    QSignalMapper* m_setActiveMapper;
     QSignalMapper* m_saveAllSignalMapper;
     QSignalMapper* m_closeSignalMapper;
     QSignalMapper* m_reloadSignalMapper;
@@ -60,17 +61,18 @@ private slots:
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
 
-    void saveAllClicked (QString const& name);
-    void closeClicked   (QString const& name);
-    void reloadClicked  (QString const& name);
-    void cloneClicked   (QString const& name);
-    void addNewClicked  (QString const& name);
-    void addExistClicked(QString const& name);
-    void removeClicked  (QString const& name);
-    void runClicked     (QString const& name);
-    void pauseClicked   (QString const& name);
-    void stopClicked    (QString const& name);
-    void restartClicked (QString const& name);
+    void setActiveClicked   (QString const& name);
+    void saveAllClicked     (QString const& name);
+    void closeClicked       (QString const& name);
+    void reloadClicked      (QString const& name);
+    void cloneClicked       (QString const& name);
+    void addNewClicked      (QString const& name);
+    void addExistClicked    (QString const& name);
+    void removeClicked      (QString const& name);
+    void runClicked         (QString const& name);
+    void pauseClicked       (QString const& name);
+    void stopClicked        (QString const& name);
+    void restartClicked     (QString const& name);
 };
 
 #endif // MAINWINDOW_H

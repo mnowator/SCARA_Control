@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->workspace->hide();
 
+    m_setActiveMapper       =   new QSignalMapper(this);
     m_saveAllSignalMapper   =   new QSignalMapper(this);
     m_closeSignalMapper     =   new QSignalMapper(this);
     m_reloadSignalMapper    =   new QSignalMapper(this);
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_stopSignalMapper      =   new QSignalMapper(this);
     m_restartSignalMapper   =   new QSignalMapper(this);
 
+    connect(m_setActiveMapper,      SIGNAL(mapped(QString)),this,SLOT(setActiveClicked  (QString)));
     connect(m_saveAllSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(saveAllClicked    (QString)));
     connect(m_closeSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(closeClicked      (QString)));
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
@@ -370,6 +372,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         {
         case ProjectType:
         {
+            QAction* setActive  = new QAction(tr("Set as Active"),      this);
             QAction* addNew     = new QAction(tr("Add New"),            this);
             QAction* addExist   = new QAction(tr("Add Existing File"),  this);
             QAction* saveAll    = new QAction(tr("Save Project"),       this);
@@ -391,6 +394,8 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(addNew);
             menu.addAction(addExist);
             menu.addSeparator();
+            menu.addAction(setActive);
+            menu.addSeparator();
             menu.addAction(saveAll);
             menu.addSeparator();
             menu.addAction(run);
@@ -403,18 +408,20 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(remove);
             menu.addAction(close);
 
-            m_saveAllSignalMapper   ->  setMapping(saveAll, item->text(0));
-            m_reloadSignalMapper    ->  setMapping(reload,  item->text(0));
-            m_cloneSignalMapper     ->  setMapping(clone,   item->text(0));
-            m_addNewSignalMapper    ->  setMapping(addNew,  item->text(0));
-            m_addExistSignalMapper  ->  setMapping(addExist,item->text(0));
-            m_removeSignalMapper    ->  setMapping(remove,  item->text(0));
-            m_runSignalMapper       ->  setMapping(run,     item->text(0));
-            m_pauseSignalMapper     ->  setMapping(pause,   item->text(0));
-            m_stopSignalMapper      ->  setMapping(stop,    item->text(0));
-            m_restartSignalMapper   ->  setMapping(restart, item->text(0));
-            m_closeSignalMapper     ->  setMapping(close,   item->text(0));
+            m_setActiveMapper       ->  setMapping(setActive,   item->text(0));
+            m_saveAllSignalMapper   ->  setMapping(saveAll,     item->text(0));
+            m_reloadSignalMapper    ->  setMapping(reload,      item->text(0));
+            m_cloneSignalMapper     ->  setMapping(clone,       item->text(0));
+            m_addNewSignalMapper    ->  setMapping(addNew,      item->text(0));
+            m_addExistSignalMapper  ->  setMapping(addExist,    item->text(0));
+            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
+            m_runSignalMapper       ->  setMapping(run,         item->text(0));
+            m_pauseSignalMapper     ->  setMapping(pause,       item->text(0));
+            m_stopSignalMapper      ->  setMapping(stop,        item->text(0));
+            m_restartSignalMapper   ->  setMapping(restart,     item->text(0));
+            m_closeSignalMapper     ->  setMapping(close,       item->text(0));
 
+            connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
             connect(saveAll,    SIGNAL(triggered(bool)),m_saveAllSignalMapper,  SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
             connect(clone,      SIGNAL(triggered(bool)),m_cloneSignalMapper,    SLOT(map()));
@@ -441,6 +448,12 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
     }
 
     menu.exec( ui->projectExplorer->mapToGlobal(pos));
+}
+
+void MainWindow::setActiveClicked(const QString &name)
+{
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+        setActiveProject(name);
 }
 
 void MainWindow::saveAllClicked(const QString &name)
