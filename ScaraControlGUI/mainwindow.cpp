@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->workspace->hide();
 
+    m_saveSignalMapper      =   new QSignalMapper(this);
+    m_saveAsSignalMapper    =   new QSignalMapper(this);
     m_setActiveMapper       =   new QSignalMapper(this);
     m_saveAllSignalMapper   =   new QSignalMapper(this);
     m_closeSignalMapper     =   new QSignalMapper(this);
@@ -29,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_stopSignalMapper      =   new QSignalMapper(this);
     m_restartSignalMapper   =   new QSignalMapper(this);
 
+    connect(m_saveSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(saveClicked       (QString)));
+    connect(m_saveAsSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(saveAsClicked     (QString)));
     connect(m_setActiveMapper,      SIGNAL(mapped(QString)),this,SLOT(setActiveClicked  (QString)));
     connect(m_saveAllSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(saveAllClicked    (QString)));
     connect(m_closeSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(closeClicked      (QString)));
@@ -99,6 +103,11 @@ void MainWindow::setActiveProject(const QString &projectName)
         project->setText(2,tempStr);
         project->font(0);
     }
+}
+
+void MainWindow::attachFileToProject(const QString &fileName, const QString &projectName)
+{
+
 }
 
 void MainWindow::newProjectClicked()
@@ -440,6 +449,41 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         {
             break;
         }
+        case FileType:
+        {
+            QAction* remove = new QAction(tr("Remove file"), this);
+            QAction* rename = new QAction(tr("Rename"),      this);
+            QAction* save   = new QAction(tr("Save"),        this);
+            QAction* saveAs = new QAction(tr("Save As..."),  this);
+
+            save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
+            saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
+
+            menu.addAction(save);
+            menu.addAction(saveAs);
+            menu.addSeparator();
+            menu.addAction(rename);
+            menu.addSeparator();
+            menu.addAction(remove);
+
+
+            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
+
+            connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
+            connect(saveAll,    SIGNAL(triggered(bool)),m_saveAllSignalMapper,  SLOT(map()));
+            connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
+            connect(clone,      SIGNAL(triggered(bool)),m_cloneSignalMapper,    SLOT(map()));
+            connect(addNew,     SIGNAL(triggered(bool)),m_addNewSignalMapper,   SLOT(map()));
+            connect(addExist,   SIGNAL(triggered(bool)),m_addExistSignalMapper, SLOT(map()));
+            connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
+            connect(run,        SIGNAL(triggered(bool)),m_runSignalMapper,      SLOT(map()));
+            connect(pause,      SIGNAL(triggered(bool)),m_pauseSignalMapper,    SLOT(map()));
+            connect(stop,       SIGNAL(triggered(bool)),m_stopSignalMapper,     SLOT(map()));
+            connect(restart,    SIGNAL(triggered(bool)),m_restartSignalMapper,  SLOT(map()));
+            connect(close,      SIGNAL(triggered(bool)),m_closeSignalMapper,    SLOT(map()));
+
+            break;
+        }
         default:
         {
             break;
@@ -448,6 +492,19 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
     }
 
     menu.exec( ui->projectExplorer->mapToGlobal(pos));
+}
+
+void MainWindow::saveClicked(const QString &name)
+{
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+
+    }
+}
+
+void MainWindow::saveAsClicked(const QString &name)
+{
+
 }
 
 void MainWindow::setActiveClicked(const QString &name)
@@ -503,6 +560,7 @@ void MainWindow::addNewClicked(const QString &name)
         QTreeWidgetItem* file = new QTreeWidgetItem(FileType);
         file->setText(0,fileName+'*');
         file->setText(1,item->text(1)+fileName);
+        file->setText(2,fileName);
 
         item->addChild(file);
     }

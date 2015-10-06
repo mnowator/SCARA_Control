@@ -28,6 +28,8 @@ private:
     static const int FileType       = QTreeWidgetItem::UserType + 2;
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
+    QSignalMapper* m_saveSignalMapper;
+    QSignalMapper* m_saveAsSignalMapper;
     QSignalMapper* m_setActiveMapper;
     QSignalMapper* m_saveAllSignalMapper;
     QSignalMapper* m_closeSignalMapper;
@@ -51,6 +53,7 @@ private:
     NewFileDialog* m_newFileDialog;
 
     void setActiveProject(QString const& projectName);
+    void attachFileToProject(QString const& fileName, QString const& projectName);
 
 private slots:
 
@@ -61,6 +64,8 @@ private slots:
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
 
+    void saveClicked        (QString const& name);
+    void saveAsClicked      (QString const& name);
     void setActiveClicked   (QString const& name);
     void saveAllClicked     (QString const& name);
     void closeClicked       (QString const& name);
