@@ -29,6 +29,7 @@ private:
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
     QSignalMapper* m_saveSignalMapper;
+    QSignalMapper* m_renameSignalMapper;
     QSignalMapper* m_saveAsSignalMapper;
     QSignalMapper* m_setActiveMapper;
     QSignalMapper* m_saveAllSignalMapper;
@@ -45,7 +46,8 @@ private:
 
     Ui::MainWindow *ui;
 
-    QHash<QString, ScaraRobot> m_projects;
+    QHash<QString, ScaraRobot> m_scaraRobots;
+    QHash<QString, QString> m_files;
 
     QString m_activeProject;
 
@@ -64,6 +66,7 @@ private slots:
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
 
+    void renameClicked      (QString const& name);
     void saveClicked        (QString const& name);
     void saveAsClicked      (QString const& name);
     void setActiveClicked   (QString const& name);
