@@ -110,9 +110,10 @@ void MainWindow::setActiveProject(const QString &projectName)
 void MainWindow::attachFileToProject(const QString &fileName, const QString &projectName)
 {
     QDomDocument dom;
-    QString errorStr, errorLine, errorColumn;
-s
-    if (!dom.setContent(fileName, false, &errorStr, &errorLine, &errorColumn))
+    QString errorStr;
+    int errorLine, errorColumn;
+
+    if (!dom.setContent(m_files[fileName], false, &errorStr, &errorLine, &errorColumn))
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
         msgBox.exec();
