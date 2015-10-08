@@ -56,6 +56,7 @@ private:
 
     void setActiveProject(QString const& projectName);
     void attachFileToProject(QString const& fileName, QString const& projectName);
+    void saveFile(QString const& filePath, QString const& fileName);
 
 private slots:
 
