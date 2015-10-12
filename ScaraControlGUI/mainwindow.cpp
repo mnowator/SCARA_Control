@@ -55,7 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProject()));
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
 
-    connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(projectExplorerContextMenuRequested(QPoint)));
+    connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
+    connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
+
+    connect(ui->fileEditor, SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
 }
 
 MainWindow::~MainWindow()
@@ -109,10 +112,10 @@ void MainWindow::setActiveProject(const QString &projectName)
     }
 }
 
-void MainWindow::attachFileToProject(const QString &fileName, const QString &projectName)
+void MainWindow::attachFileToProject(const QString &fileName,const QString &filePath, const QString &projectName)
 {
     QDomDocument domProject;
-    QDomElement root, filesElement, fileElement;
+    QDomElement root, filesElement, fileElement, nameElement, pathElement;
     QDomNode filesNode;
     QString errorStr;
     int errorLine, errorColumn;
@@ -126,16 +129,23 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &pro
 
     root = domProject.documentElement();
 
-    filesNode = root.namedItem("Files");
+        filesNode = root.namedItem("Files");
 
-    if ( filesElement.isNull() )
-       filesElement = domProject.createElement("Files");
-    else filesElement = filesNode.toElement();
+        if ( filesElement.isNull() )
+           filesElement = domProject.createElement("Files");
+        else filesElement = filesNode.toElement();
 
-    fileElement = domProject.createElement("File");
-    fileElement.appendChild(domProject.createTextNode(fileName));
+            fileElement = domProject.createElement("File");
+                nameElement = domProject.createElement("Name");
+                nameElement.appendChild(domProject.createTextNode(fileName));
 
-    filesElement.appendChild(fileElement);
+                pathElement = domProject.createElement("Path");
+                pathElement.appendChild(domProject.createTextNode(filePath));
+
+            fileElement.appendChild(nameElement);
+            fileElement.appendChild(pathElement);
+
+        filesElement.appendChild(fileElement);
 
     root.appendChild(filesElement);
 
@@ -171,7 +181,7 @@ void MainWindow::openProjectProject()
     QString fullPath, projectFileName, projectName, projectPath;
     QFileDialog folderDialog;
     QDomDocument projectDom;
-    QDomElement root, element;
+    QDomElement root;
 
     folderDialog.setDirectory(QDir::home());
 
@@ -253,6 +263,44 @@ void MainWindow::openProjectProject()
 
     setActiveProject(projectName);
 
+    QDomElement files = root.namedItem("Files").toElement();
+    for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = files.nextSiblingElement("File") )
+    {
+        QTreeWidgetItem* fileTreeWidgetItem = new QTreeWidgetItem(FileType);
+        QDomElement name = file.namedItem("Name").toElement();
+        QDomElement path = file.namedItem("Path").toElement();
+
+        if ( !name.isNull() )
+        {
+            fileTreeWidgetItem->setText(0,name.text());
+            fileTreeWidgetItem->setText(2,name.text()+'*');
+        }
+        else
+        {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
+                                                                     "'Name' tag is missing in one file."));
+            msgBox.exec();
+            continue;
+        }
+
+        if ( !path.isNull() )
+            fileTreeWidgetItem->setText(1,path.text());
+        else
+        {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
+                                                                     "'Path' tag is missing in one file."));
+            msgBox.exec();
+            continue;
+        }
+
+        project->addChild(fileTreeWidgetItem);
+    }
+
+    ui->projectExplorer->addTopLevelItem(project);
+
+    m_scaraRobots[projectName] = ScaraRobot();
+    m_files[projectName+".pro"] = projectDom.toString();
+
     ui->workspace->show();
     ui->actionCloseAll->setEnabled(true);
 
@@ -271,6 +319,8 @@ void MainWindow::exitAppClicked()
 
 void MainWindow::closeAllClicked()
 {
+    m_scaraRobots.clear();
+    m_files.clear();
     ui->projectExplorer->clear();
     ui->workspace->hide();
 }
@@ -558,28 +608,31 @@ void MainWindow::saveClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        QTextEdit* textEdit;
-        QTreeWidgetItem* parent = item->parent();
-        QString projectName = parent->text(0).length()<parent->text(2).length() ? parent->text(0) : parent->text(2);
+        if ( item->type() == FileType )
+        {
+            QTextEdit* textEdit;
+            QTreeWidgetItem* parent = item->parent();
+            QString projectName = parent->text(0).length()<parent->text(2).length() ? parent->text(0) : parent->text(2);
 
-        for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-            if ( ui->fileEditor->tabText(i) == name )
-            {
-                textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
-                ui->fileEditor->setTabText(i,item->text(2));
-                break;
-            }
+            for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+                if ( ui->fileEditor->tabText(i) == name )
+                {
+                    textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
+                    ui->fileEditor->setTabText(i,item->text(2));
+                    break;
+                }
 
 
-        m_files[item->text(2)] = textEdit->toPlainText();
-        attachFileToProject(item->text(2),projectName+".pro");
+            m_files[item->text(2)] = textEdit->toPlainText();
+            attachFileToProject(item->text(2),item->text(1),projectName+".pro");
 
-        saveFile(parent->text(1),projectName+".pro");
-        saveFile(item->text(1),item->text(2));
+            saveFile(parent->text(1),projectName+".pro");
+            saveFile(item->text(1),item->text(2));
 
-        item->setText(0,item->text(2));
+            item->setText(0,item->text(2));
 
-        m_files.remove(name);
+            m_files.remove(name);
+        }
     }
 }
 
@@ -602,8 +655,15 @@ void MainWindow::saveAllClicked(const QString &name)
 
 void MainWindow::closeClicked(const QString &name)
 {
+
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        if ( item->text(0) < item->text(2) )
+            m_scaraRobots.remove(item->text(0));
+        else m_scaraRobots.remove(item->text(2));
+
         ui->projectExplorer->takeTopLevelItem(ui->projectExplorer->indexOfTopLevelItem(item));
+    }
 
     if ( ui->projectExplorer->topLevelItemCount() == 0)
         ui->workspace->hide();
@@ -677,6 +737,56 @@ void MainWindow::stopClicked(const QString &name)
 void MainWindow::restartClicked(const QString &name)
 {
 
+}
+
+void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
+    {
+        if (ui->fileEditor->tabText(idx)==item->text(0) ||
+                ui->fileEditor->tabText(idx)==item->text(2))
+        {
+            ui->fileEditor->setCurrentIndex(idx);
+            return;
+        }
+    }
+
+
+    switch ( item->type() )
+    {
+    case FileType:
+    {
+        QString name = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
+        QFile file(item->text(1)+name);
+
+        if ( file.open(QFile::ReadOnly | QFile::Text))
+        {
+
+            QTextStream textStream(&file);
+            QTextEdit* textEdit = new QTextEdit(this);
+
+            textEdit->setText(textStream.readAll());
+
+            ui->fileEditor->addTab(textEdit,name);
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void MainWindow::tabCloseClicked(int idx)
+{
+    QString tabName = ui->fileEditor->tabText(idx);
+
+    if ( tabName[tabName.length()-1] == '*' )
+    {
+        return;
+    }
+
+    ui->fileEditor->removeTab(idx);
 }
 
 

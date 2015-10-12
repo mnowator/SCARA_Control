@@ -55,7 +55,7 @@ private:
     NewFileDialog* m_newFileDialog;
 
     void setActiveProject(QString const& projectName);
-    void attachFileToProject(QString const& fileName, QString const& projectName);
+    void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName);
     void saveFile(QString const& filePath, QString const& fileName);
 
 private slots:
@@ -66,6 +66,8 @@ private slots:
     void closeAllClicked();
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
+    void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);
+    void tabCloseClicked(int idx);
 
     void renameClicked      (QString const& name);
     void saveClicked        (QString const& name);
