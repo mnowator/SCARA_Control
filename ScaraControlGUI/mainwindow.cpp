@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_pauseSignalMapper     =   new QSignalMapper(this);
     m_stopSignalMapper      =   new QSignalMapper(this);
     m_restartSignalMapper   =   new QSignalMapper(this);
+    m_textChangedMapper     =   new QSignalMapper(this);
 
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
     connect(m_saveSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(saveClicked       (QString)));
@@ -49,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_pauseSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(pauseClicked      (QString)));
     connect(m_stopSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(stopClicked       (QString)));
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
+    connect(m_textChangedMapper,    SIGNAL(mapped(QString)),this,SLOT(textChanged       (QString)));
 
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
@@ -683,6 +685,8 @@ void MainWindow::cloneClicked(const QString &name)
 void MainWindow::addNewClicked(const QString &name)
 {
     QString fileName, fileType;
+    QTextEdit* textEdit;
+
     m_newFileDialog = new NewFileDialog(this);
 
     if ( m_newFileDialog->exec() )
@@ -705,6 +709,10 @@ void MainWindow::addNewClicked(const QString &name)
 
         item->addChild(file);
     }
+
+    textEdit = new QTextEdit(fileName,this);
+    m_textChangedMapper->setMapping(textEdit,fileName);
+    connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
     ui->fileEditor->addTab(new QTextEdit(this),fileName+ '*');
     ui->fileEditor->currentWidget()->setFocus();
@@ -739,6 +747,21 @@ void MainWindow::restartClicked(const QString &name)
 
 }
 
+void MainWindow::textChanged(const QString &name)
+{
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
+    {
+        QString tmpStr = item->text(0);
+
+        item->setText(0,item->text(2));
+        item->setText(2,tmpStr);
+    }
+
+    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+        if ( ui->fileEditor->tabText(i) == name )
+            ui->fileEditor->setTabText(i,name+'*');
+}
+
 void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 {
     for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
@@ -763,9 +786,12 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         {
 
             QTextStream textStream(&file);
-            QTextEdit* textEdit = new QTextEdit(this);
+            QTextEdit* textEdit = new QTextEdit(name,this);
 
             textEdit->setText(textStream.readAll());
+
+            m_textChangedMapper->setMapping(textEdit,name);
+            connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
             ui->fileEditor->addTab(textEdit,name);
         }
