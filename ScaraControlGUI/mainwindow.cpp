@@ -114,15 +114,19 @@ void MainWindow::setActiveProject(const QString &projectName)
     }
 }
 
-void MainWindow::attachFileToProject(const QString &fileName,const QString &filePath, const QString &projectName)
+void MainWindow::attachFileToProject(const QString &fileName, const QString &filePath, const QString &projectName, const QString &projectPath)
 {
     QDomDocument domProject;
     QDomElement root, filesElement, fileElement, nameElement, pathElement;
     QDomNode filesNode;
-    QString errorStr;
+    QString errorStr, projectFileContent;
     int errorLine, errorColumn;
 
-    if (!domProject.setContent(m_files[projectName], false, &errorStr, &errorLine, &errorColumn))
+    projectFileContent = loadFile(projectPath,projectName);
+
+    if ( projectFileContent.isEmpty() ) return;
+
+    if (!domProject.setContent(projectFileContent, false, &errorStr, &errorLine, &errorColumn))
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
         msgBox.exec();
@@ -135,7 +139,16 @@ void MainWindow::attachFileToProject(const QString &fileName,const QString &file
 
         if ( filesElement.isNull() )
            filesElement = domProject.createElement("Files");
-        else filesElement = filesNode.toElement();
+        else
+        {
+            for ( QDomElement file = filesElement.firstChildElement("File"); !file.isNull(); file = filesElement.nextSiblingElement("File"))
+            {
+                if ( file.namedItem("Name").toElement().text() == fileName )
+                    return;
+            }
+
+            filesElement = filesNode.toElement();
+        }
 
             fileElement = domProject.createElement("File");
                 nameElement = domProject.createElement("Name");
@@ -151,23 +164,46 @@ void MainWindow::attachFileToProject(const QString &fileName,const QString &file
 
     root.appendChild(filesElement);
 
-    m_files[projectName] = domProject.toString();
+    saveFile(filePath,fileName,domProject.toString());
 }
 
-void MainWindow::saveFile(const QString &filePath, const QString &fileName)
+void MainWindow::saveFile(const QString &filePath, const QString &fileName, const QString &fileContent)
 {
     QFile file(filePath+'/'+fileName);
 
     if ( file.open(QFile::WriteOnly | QFile::Text))
     {
         QTextStream ts(&file);
-        ts << m_files[fileName];
+        ts << fileContent;
 
         file.close();
     }
     else
     {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot save file.\n\n")+
+                                                                 tr("Path: ") +filePath+"\n"+
+                                                                 tr("Name: ") +fileName);
+        msgBox.exec();
+    }
+}
 
+QString MainWindow::loadFile(const QString &filePath, const QString &fileName)
+{
+    QFile file(filePath+fileName);
+
+    if ( file.open(QFile::ReadOnly | QFile::Text) )
+    {
+        QTextStream textStream(&file);
+
+        return textStream.readAll();
+    }
+    else
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot load file.\n\n")+
+                                                                 tr("Path: ") +filePath+"\n"+
+                                                                 tr("Name: ") +fileName);
+        msgBox.exec();
+        return QString();
     }
 }
 
@@ -255,13 +291,13 @@ void MainWindow::openProjectProject()
     QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
     projectProFile->setText(0,projectName + ".pro");
     projectProFile->setText(1,projectPath);
+    projectProFile->setText(2,projectName + ".pro*");
     projectProFile->setIcon(0,*(new QIcon(":/new/icons/pro_file.jpg")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
 
     m_scaraRobots[projectName] = ScaraRobot();
-    m_files[projectName+".pro"] = projectDom.toString();
 
     setActiveProject(projectName);
 
@@ -301,7 +337,6 @@ void MainWindow::openProjectProject()
     ui->projectExplorer->addTopLevelItem(project);
 
     m_scaraRobots[projectName] = ScaraRobot();
-    m_files[projectName+".pro"] = projectDom.toString();
 
     ui->workspace->show();
     ui->actionCloseAll->setEnabled(true);
@@ -322,7 +357,6 @@ void MainWindow::exitAppClicked()
 void MainWindow::closeAllClicked()
 {
     m_scaraRobots.clear();
-    m_files.clear();
     ui->projectExplorer->clear();
     ui->workspace->hide();
 }
@@ -427,10 +461,9 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 //        el.setAttribute("flow_control", "");
     root.appendChild(elHigher);
 
-    m_files[projectName+".pro"] = dom.toString();
     m_scaraRobots[projectName] = ScaraRobot();
 
-    saveFile(projectPath+'/'+projectName,projectName+".pro");
+    saveFile(projectPath+'/'+projectName,projectName+".pro",dom.toString());
 
     QTreeWidgetItem* header = new QTreeWidgetItem();
     header->setText(0, tr("Projects"));
@@ -610,7 +643,10 @@ void MainWindow::saveClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        if ( item->type() == FileType )
+        QString tmpStr = item->text(0);
+
+        if ( item->text(0) < item->text(2)) continue;
+        else if ( item->type() == FileType )
         {
             QTextEdit* textEdit;
             QTreeWidgetItem* parent = item->parent();
@@ -618,22 +654,18 @@ void MainWindow::saveClicked(const QString &name)
 
             for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
                 if ( ui->fileEditor->tabText(i) == name )
-                {
+                {                    
                     textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
                     ui->fileEditor->setTabText(i,item->text(2));
                     break;
                 }
 
+            attachFileToProject(item->text(2),item->text(1),projectName+".pro",parent->text(1));
 
-            m_files[item->text(2)] = textEdit->toPlainText();
-            attachFileToProject(item->text(2),item->text(1),projectName+".pro");
-
-            saveFile(parent->text(1),projectName+".pro");
-            saveFile(item->text(1),item->text(2));
+            saveFile(item->text(1),item->text(2),textEdit->toPlainText());
 
             item->setText(0,item->text(2));
-
-            m_files.remove(name);
+            item->setText(2,tmpStr);
         }
     }
 }
@@ -657,14 +689,35 @@ void MainWindow::saveAllClicked(const QString &name)
 
 void MainWindow::closeClicked(const QString &name)
 {
+    bool prevent = false;
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
-    {
-        if ( item->text(0) < item->text(2) )
-            m_scaraRobots.remove(item->text(0));
-        else m_scaraRobots.remove(item->text(2));
+    {        
+        for ( unsigned i=0; i<item->childCount(); ++i )
+        {
+            QTreeWidgetItem* child = item->child(i);
 
-        ui->projectExplorer->takeTopLevelItem(ui->projectExplorer->indexOfTopLevelItem(item));
+            if ( child->text(0) > child->text(2) )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Preventing from close. Need save."));
+                msgBox.exec();
+                prevent = true;
+                continue;
+            }
+
+            for ( unsigned j=0; j<ui->fileEditor->count(); ++j)
+                if ( child->text(0) == ui->fileEditor->tabText(j) )
+                     ui->fileEditor->removeTab(j);
+        }
+
+        if ( !prevent )
+        {
+            if ( item->text(0) < item->text(2) )
+                m_scaraRobots.remove(item->text(0));
+            else m_scaraRobots.remove(item->text(2));
+
+            ui->projectExplorer->takeTopLevelItem(ui->projectExplorer->indexOfTopLevelItem(item));
+        }
     }
 
     if ( ui->projectExplorer->topLevelItemCount() == 0)

@@ -48,7 +48,6 @@ private:
     Ui::MainWindow *ui;
 
     QHash<QString, ScaraRobot> m_scaraRobots;
-    QHash<QString, QString> m_files;
 
     QString m_activeProject;
 
@@ -56,8 +55,10 @@ private:
     NewFileDialog* m_newFileDialog;
 
     void setActiveProject(QString const& projectName);
-    void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName);
-    void saveFile(QString const& filePath, QString const& fileName);
+    void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName, QString const& projectPath);
+
+    void saveFile(QString const& filePath, QString const& fileName, QString const& fileContent);
+    QString loadFile(QString const& filePath, QString const& fileName);
 
 private slots:
 
