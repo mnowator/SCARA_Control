@@ -135,19 +135,25 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
 
     root = domProject.documentElement();
 
-        filesNode = root.namedItem("Files");
+    if ( root.tagName() != "Project")
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
+        msgBox.exec();
+        return;
+    }
+
+
+        filesElement = root.namedItem("Files").toElement();
 
         if ( filesElement.isNull() )
            filesElement = domProject.createElement("Files");
         else
         {
-            for ( QDomElement file = filesElement.firstChildElement("File"); !file.isNull(); file = filesElement.nextSiblingElement("File"))
+            for ( QDomElement file = filesElement.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File"))
             {
                 if ( file.namedItem("Name").toElement().text() == fileName )
                     return;
             }
-
-            filesElement = filesNode.toElement();
         }
 
             fileElement = domProject.createElement("File");
@@ -164,7 +170,7 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
 
     root.appendChild(filesElement);
 
-    saveFile(filePath,fileName,domProject.toString());
+    saveFile(projectPath,projectName,domProject.toString());
 }
 
 void MainWindow::saveFile(const QString &filePath, const QString &fileName, const QString &fileContent)
@@ -292,7 +298,7 @@ void MainWindow::openProjectProject()
     projectProFile->setText(0,projectName + ".pro");
     projectProFile->setText(1,projectPath);
     projectProFile->setText(2,projectName + ".pro*");
-    projectProFile->setIcon(0,*(new QIcon(":/new/icons/pro_file.jpg")));
+    projectProFile->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
@@ -302,7 +308,7 @@ void MainWindow::openProjectProject()
     setActiveProject(projectName);
 
     QDomElement files = root.namedItem("Files").toElement();
-    for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = files.nextSiblingElement("File") )
+    for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
     {
         QTreeWidgetItem* fileTreeWidgetItem = new QTreeWidgetItem(FileType);
         QDomElement name = file.namedItem("Name").toElement();
@@ -330,6 +336,8 @@ void MainWindow::openProjectProject()
             msgBox.exec();
             continue;
         }
+
+        fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
 
         project->addChild(fileTreeWidgetItem);
     }
@@ -471,14 +479,14 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 
     QTreeWidgetItem* project = new QTreeWidgetItem(ProjectType);
     project->setText(0,projectName);
-    project->setText(1,projectPath);
+    project->setText(1,projectPath + '/' + projectName);
     project->setText(2,projectName + tr(" ( Active )"));
     project->setIcon(0,*(new QIcon(":/new/icons/lc_dbformopen.png")));
 
     QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
     projectProFile->setText(0,projectName + ".pro");
-    projectProFile->setText(1,projectPath);
-    projectProFile->setIcon(0,*(new QIcon(":/new/icons/pro_file.jpg")));
+    projectProFile->setText(1,projectPath  + '/' + projectName);
+    projectProFile->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
@@ -759,6 +767,7 @@ void MainWindow::addNewClicked(const QString &name)
         file->setText(0,fileName+'*');
         file->setText(1,item->text(1));
         file->setText(2,fileName);
+        file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
 
         item->addChild(file);
     }
@@ -767,7 +776,12 @@ void MainWindow::addNewClicked(const QString &name)
     m_textChangedMapper->setMapping(textEdit,fileName);
     connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
-    ui->fileEditor->addTab(new QTextEdit(this),fileName+ '*');
+    ui->fileEditor->addTab(textEdit,fileName+ '*');
+
+    for ( unsigned i=0; ui->fileEditor->count(); ++i )
+        if ( ui->fileEditor->tabText(i) == fileName+'*')
+            ui->fileEditor->setCurrentIndex(i);
+
     ui->fileEditor->currentWidget()->setFocus();
 }
 
@@ -827,7 +841,6 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         }
     }
 
-
     switch ( item->type() )
     {
     case FileType:
@@ -847,6 +860,15 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
             ui->fileEditor->addTab(textEdit,name);
+
+            for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
+            {
+                if (ui->fileEditor->tabText(idx)==item->text(0) ||
+                        ui->fileEditor->tabText(idx)==item->text(2))
+                {
+                    ui->fileEditor->setCurrentIndex(idx);
+                }
+            }
         }
 
         break;

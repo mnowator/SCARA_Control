@@ -25,12 +25,14 @@ LIBS += -L../ScaraRobot/debug -lScaraRobot\
 SOURCES += \
     mainwindow.cpp \
     newprojectdialog.cpp \
-    newfiledialog.cpp
+    newfiledialog.cpp \
+    savechanges.cpp
 
 HEADERS += \
     mainwindow.h \
     newprojectdialog.h \
-    newfiledialog.h
+    newfiledialog.h \
+    savechanges.h
 
 unix {
     target.path = /usr/lib
@@ -40,7 +42,8 @@ unix {
 FORMS += \
     mainwindow.ui \
     newprojectdialog.ui \
-    newfiledialog.ui
+    newfiledialog.ui \
+    savechanges.ui
 
 RESOURCES += \
     resource.qrc
