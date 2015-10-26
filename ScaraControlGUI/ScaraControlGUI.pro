@@ -6,6 +6,8 @@
 
 QT       += widgets xml
 
+CONFIG += c++11
+
 TARGET = ScaraControlGUI
 TEMPLATE = lib
 
@@ -26,13 +28,13 @@ SOURCES += \
     mainwindow.cpp \
     newprojectdialog.cpp \
     newfiledialog.cpp \
-    savechanges.cpp
+    savechangesdialog.cpp
 
 HEADERS += \
     mainwindow.h \
     newprojectdialog.h \
     newfiledialog.h \
-    savechanges.h
+    savechangesdialog.h
 
 unix {
     target.path = /usr/lib
@@ -43,7 +45,7 @@ FORMS += \
     mainwindow.ui \
     newprojectdialog.ui \
     newfiledialog.ui \
-    savechanges.ui
+    savechangesdialog.ui
 
 RESOURCES += \
     resource.qrc

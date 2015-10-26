@@ -77,6 +77,7 @@ MainWindow::~MainWindow()
 
     delete m_newProjectDialog;
     delete m_newFileDialog;
+    delete m_saveChangesDialog;
 
     delete ui;
 }
@@ -700,22 +701,25 @@ void MainWindow::closeClicked(const QString &name)
     bool prevent = false;
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
-    {        
+    {
+        QList<QPair<QString, QString> > selectedFiles;
+        QList<QString> preventedFiles;
+
+        m_saveChangesDialog = new SaveChangesDialog(this);
+
         for ( unsigned i=0; i<item->childCount(); ++i )
         {
             QTreeWidgetItem* child = item->child(i);
 
             if ( child->text(0) > child->text(2) )
             {
-                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Preventing from close. Need save."));
-                msgBox.exec();
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
+                preventedFiles.append(child->text(0));
+
                 prevent = true;
+
                 continue;
             }
-
-            for ( unsigned j=0; j<ui->fileEditor->count(); ++j)
-                if ( child->text(0) == ui->fileEditor->tabText(j) )
-                     ui->fileEditor->removeTab(j);
         }
 
         if ( !prevent )
@@ -726,6 +730,27 @@ void MainWindow::closeClicked(const QString &name)
 
             ui->projectExplorer->takeTopLevelItem(ui->projectExplorer->indexOfTopLevelItem(item));
         }
+        else
+        {
+            if ( m_saveChangesDialog->exec() )
+            {
+                for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
+                    saveClicked(file);
+
+                for ( QString& file : preventedFiles)
+                    for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
+                        if ( file.left(file.length()-1) == ui->fileEditor->tabText(i) || file == ui->fileEditor->tabText(i) )
+                            ui->fileEditor->removeTab(i);
+
+                if ( item->text(0) < item->text(2) )
+                    m_scaraRobots.remove(item->text(0));
+                else m_scaraRobots.remove(item->text(2));
+
+                delete item;
+            }
+        }
+
+        delete m_saveChangesDialog;
     }
 
     if ( ui->projectExplorer->topLevelItemCount() == 0)

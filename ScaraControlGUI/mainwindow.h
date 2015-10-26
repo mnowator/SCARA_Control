@@ -10,6 +10,7 @@
 #include "scararobot.h"
 #include "newprojectdialog.h"
 #include "newfiledialog.h"
+#include "savechangesdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -53,6 +54,7 @@ private:
 
     NewProjectDialog* m_newProjectDialog;
     NewFileDialog* m_newFileDialog;
+    SaveChangesDialog* m_saveChangesDialog;
 
     void setActiveProject(QString const& projectName);
     void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName, QString const& projectPath);
