@@ -77,8 +77,8 @@ private slots:
     void currentTabChanged(int idx);
 
     void renameClicked      (QString const& name);
-    void saveClicked        (QString const& name);
-    void saveAsClicked      (QString const& name);
+    void saveClicked        (QString const& _name);
+    void saveAsClicked      (QString const& name="current");
     void setActiveClicked   (QString const& name);
     void saveAllClicked     (QString const& name);
     void closeClicked       (QString const& name);

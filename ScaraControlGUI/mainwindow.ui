@@ -148,9 +148,9 @@ border-bottom-color: rgb(255, 255, 255);</string>
     <addaction name="actionRecent_Files"/>
     <addaction name="actionRecent_Projects"/>
     <addaction name="separator"/>
-    <addaction name="actionSave_2"/>
-    <addaction name="actionSave_as"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
+    <addaction name="actionSaveAll"/>
     <addaction name="actionCloseAll"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -233,7 +233,7 @@ border-bottom-color: rgb(255, 255, 255);</string>
    </attribute>
    <addaction name="actionNew_Project"/>
    <addaction name="actionOpen_Project_or_File"/>
-   <addaction name="actionSave_2"/>
+   <addaction name="actionSave"/>
    <addaction name="actionReload"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
@@ -298,7 +298,7 @@ border-bottom-color: rgb(255, 255, 255);</string>
     <string>Recent Projects</string>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="actionSaveAll">
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -320,7 +320,7 @@ border-bottom-color: rgb(255, 255, 255);</string>
     <string>Ctrl+Shift+W</string>
    </property>
   </action>
-  <action name="actionSave_2">
+  <action name="actionSave">
    <property name="enabled">
     <bool>false</bool>
    </property>

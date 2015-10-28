@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
     connect(m_textChangedMapper,    SIGNAL(mapped(QString)),this,SLOT(textChanged       (QString)));
 
+    m_saveSignalMapper->setMapping(ui->actionSave,"current");
+    connect(ui->actionSave,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
+
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProject()));
@@ -657,8 +660,13 @@ void MainWindow::renameClicked(const QString &name)
 
 }
 
-void MainWindow::saveClicked(const QString &name)
+void MainWindow::saveClicked(const QString &_name)
 {
+    QString name = _name;
+
+    if ( name == "current" )
+        name = ui->fileEditor->tabText(ui->fileEditor->currentIndex());
+
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
         QString tmpStr = item->text(0);
@@ -672,7 +680,7 @@ void MainWindow::saveClicked(const QString &name)
 
             for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
                 if ( ui->fileEditor->tabText(i) == name )
-                {                    
+                {
                     textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
                     ui->fileEditor->setTabText(i,item->text(2));
                     break;
@@ -686,6 +694,8 @@ void MainWindow::saveClicked(const QString &name)
             item->setText(2,tmpStr);
         }
     }
+
+    ui->actionSave->setEnabled(false);
 }
 
 void MainWindow::saveAsClicked(const QString &name)
@@ -875,6 +885,8 @@ void MainWindow::textChanged(const QString &name)
     for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
         if ( ui->fileEditor->tabText(i) == name )
             ui->fileEditor->setTabText(i,name+'*');
+
+    ui->actionSave->setEnabled(true);
 }
 
 void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
