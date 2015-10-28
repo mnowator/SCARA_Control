@@ -68,10 +68,13 @@ private slots:
     void openProjectProject();
     void exitAppClicked();
     void closeAllClicked();
+    void backClicked();
+    void forwardClicked();
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
     void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);
     void tabCloseClicked(int idx);
+    void currentTabChanged(int idx);
 
     void renameClicked      (QString const& name);
     void saveClicked        (QString const& name);

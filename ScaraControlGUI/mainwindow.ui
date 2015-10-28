@@ -521,7 +521,7 @@ border-bottom-color: rgb(255, 255, 255);</string>
     <string>Back</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Left</string>
+    <string>Alt+Left</string>
    </property>
   </action>
   <action name="actionForward">
@@ -536,7 +536,7 @@ border-bottom-color: rgb(255, 255, 255);</string>
     <string>Forward</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Right</string>
+    <string>Alt+Right</string>
    </property>
   </action>
   <action name="actionRecent_Files">

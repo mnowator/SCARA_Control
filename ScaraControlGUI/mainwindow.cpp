@@ -56,11 +56,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProject()));
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
+    connect(ui->actionBack,                 SIGNAL(triggered(bool)),this,SLOT(backClicked()));
+    connect(ui->actionForward,              SIGNAL(triggered(bool)),this,SLOT(forwardClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
 
-    connect(ui->fileEditor, SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
+    connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
+    connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 }
 
 MainWindow::~MainWindow()
@@ -74,10 +77,6 @@ MainWindow::~MainWindow()
     delete m_pauseSignalMapper;
     delete m_stopSignalMapper;
     delete m_restartSignalMapper;
-
-    delete m_newProjectDialog;
-    delete m_newFileDialog;
-    delete m_saveChangesDialog;
 
     delete ui;
 }
@@ -368,6 +367,16 @@ void MainWindow::closeAllClicked()
     m_scaraRobots.clear();
     ui->projectExplorer->clear();
     ui->workspace->hide();
+}
+
+void MainWindow::backClicked()
+{
+    ui->fileEditor->setCurrentIndex(ui->fileEditor->currentIndex()-1);
+}
+
+void MainWindow::forwardClicked()
+{
+    ui->fileEditor->setCurrentIndex(ui->fileEditor->currentIndex()+1);
 }
 
 void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath)
@@ -717,8 +726,6 @@ void MainWindow::closeClicked(const QString &name)
                 preventedFiles.append(child->text(0));
 
                 prevent = true;
-
-                continue;
             }
         }
 
@@ -728,7 +735,16 @@ void MainWindow::closeClicked(const QString &name)
                 m_scaraRobots.remove(item->text(0));
             else m_scaraRobots.remove(item->text(2));
 
-            ui->projectExplorer->takeTopLevelItem(ui->projectExplorer->indexOfTopLevelItem(item));
+            for ( unsigned i=0; i<item->childCount(); ++i )
+            {
+                QTreeWidgetItem* child = item->child(i);
+
+                for ( unsigned j=0; j<ui->fileEditor->count(); ++j )
+                    if (child->text(0) == ui->fileEditor->tabText(j))
+                        ui->fileEditor->removeTab(j);
+            }
+
+            delete item;
         }
         else
         {
@@ -737,14 +753,18 @@ void MainWindow::closeClicked(const QString &name)
                 for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
                     saveClicked(file);
 
-                for ( QString& file : preventedFiles)
-                    for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
-                        if ( file.left(file.length()-1) == ui->fileEditor->tabText(i) || file == ui->fileEditor->tabText(i) )
-                            ui->fileEditor->removeTab(i);
-
                 if ( item->text(0) < item->text(2) )
                     m_scaraRobots.remove(item->text(0));
                 else m_scaraRobots.remove(item->text(2));
+
+                for ( unsigned i=0; i<item->childCount(); ++i )
+                {
+                    QTreeWidgetItem* child = item->child(i);
+
+                    for ( unsigned j=0; j<ui->fileEditor->count(); ++j )
+                        if (child->text(0) == ui->fileEditor->tabText(j))
+                            ui->fileEditor->removeTab(j);
+                }
 
                 delete item;
             }
@@ -802,10 +822,13 @@ void MainWindow::addNewClicked(const QString &name)
     connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
     ui->fileEditor->addTab(textEdit,fileName+ '*');
+    ui->fileEditor->setCurrentWidget(textEdit);
 
-    for ( unsigned i=0; ui->fileEditor->count(); ++i )
-        if ( ui->fileEditor->tabText(i) == fileName+'*')
-            ui->fileEditor->setCurrentIndex(i);
+    textEdit->clear();
+
+//    for ( unsigned i=0; ui->fileEditor->count(); ++i )
+//        if ( ui->fileEditor->tabText(i) == fileName+'*')
+//            ui->fileEditor->setCurrentIndex(i);
 
     ui->fileEditor->currentWidget()->setFocus();
 }
@@ -913,6 +936,19 @@ void MainWindow::tabCloseClicked(int idx)
     }
 
     ui->fileEditor->removeTab(idx);
+}
+
+void MainWindow::currentTabChanged(int idx)
+{
+    if ( ui->fileEditor->currentIndex() > 0 )
+        ui->actionBack->setEnabled(true);
+    else
+        ui->actionBack->setEnabled(false);
+
+    if ( ui->fileEditor->currentIndex() < ui->fileEditor->count()-1 )
+        ui->actionForward->setEnabled(true);
+    else
+        ui->actionForward->setEnabled(false);
 }
 
 
