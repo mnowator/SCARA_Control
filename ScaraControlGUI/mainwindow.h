@@ -29,6 +29,8 @@ private:
     static const int FileType       = QTreeWidgetItem::UserType + 2;
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
+    QClipboard* m_clipboard;
+
     QSignalMapper* m_saveSignalMapper;
     QSignalMapper* m_renameSignalMapper;
     QSignalMapper* m_saveAsSignalMapper;
@@ -70,9 +72,15 @@ private slots:
     void closeAllClicked();
     void backClicked();
     void forwardClicked();
+    void copyClicked();
+    void cutClicked();
+    void pasteClicked();
+    void clipboardChange();
+
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
     void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);
+
     void tabCloseClicked(int idx);
     void currentTabChanged(int idx);
 
@@ -93,6 +101,7 @@ private slots:
     void restartClicked     (QString const& name);
 
     void textChanged        (QString const& name);
+    void copyAvailable      (bool yes);
 };
 
 #endif // MAINWINDOW_H

@@ -8,6 +8,9 @@
 #include <QDomDocument>
 #include <QFileDialog>
 #include <QTextEdit>
+#include <QClipboard>
+#include <QMimeData>
+#include <QKeyEvent>
 
 #include <QDebug>
 
@@ -35,6 +38,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_restartSignalMapper   =   new QSignalMapper(this);
     m_textChangedMapper     =   new QSignalMapper(this);
 
+    m_clipboard = QApplication::clipboard();
+    connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
+    clipboardChange();
+
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
     connect(m_saveSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(saveClicked       (QString)));
     connect(m_saveAsSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(saveAsClicked     (QString)));
@@ -61,12 +68,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
     connect(ui->actionBack,                 SIGNAL(triggered(bool)),this,SLOT(backClicked()));
     connect(ui->actionForward,              SIGNAL(triggered(bool)),this,SLOT(forwardClicked()));
+    connect(ui->actionCopy,                 SIGNAL(triggered(bool)),this,SLOT(copyClicked()));
+    connect(ui->actionCut,                  SIGNAL(triggered(bool)),this,SLOT(cutClicked()));
+    connect(ui->actionPaste,                SIGNAL(triggered(bool)),this,SLOT(pasteClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
 
     connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
-    connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+    connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));    
 }
 
 MainWindow::~MainWindow()
@@ -380,6 +390,62 @@ void MainWindow::backClicked()
 void MainWindow::forwardClicked()
 {
     ui->fileEditor->setCurrentIndex(ui->fileEditor->currentIndex()+1);
+}
+
+void MainWindow::copyClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_C,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_C,
+                                                Qt::ControlModifier ));
+    }
+}
+
+void MainWindow::cutClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_X,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_X,
+                                                Qt::ControlModifier ));
+    }
+}
+
+void MainWindow::pasteClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_V,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_V,
+                                                Qt::ControlModifier ));
+    }
+}
+
+void MainWindow::clipboardChange()
+{
+    if ( m_clipboard->text().isEmpty() )
+        ui->actionPaste->setEnabled(false);
+    else
+        ui->actionPaste->setEnabled(true);
 }
 
 void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath)
@@ -830,6 +896,7 @@ void MainWindow::addNewClicked(const QString &name)
     textEdit = new QTextEdit(fileName,this);
     m_textChangedMapper->setMapping(textEdit,fileName);
     connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+    connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
     ui->fileEditor->addTab(textEdit,fileName+ '*');
     ui->fileEditor->setCurrentWidget(textEdit);
@@ -889,6 +956,20 @@ void MainWindow::textChanged(const QString &name)
     ui->actionSave->setEnabled(true);
 }
 
+void MainWindow::copyAvailable(bool yes)
+{
+    if ( yes )
+    {
+        ui->actionCopy->setEnabled(true);
+        ui->actionCut->setEnabled(true);
+    }
+    else
+    {
+        ui->actionCopy->setEnabled(false);
+        ui->actionCut->setEnabled(false);
+    }
+}
+
 void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 {
     for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
@@ -918,6 +999,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 
             m_textChangedMapper->setMapping(textEdit,name);
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
             ui->fileEditor->addTab(textEdit,name);
 
