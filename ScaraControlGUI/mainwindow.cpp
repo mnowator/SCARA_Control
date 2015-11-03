@@ -1026,10 +1026,28 @@ void MainWindow::tabCloseClicked(int idx)
 
     if ( tabName[tabName.length()-1] == '*' )
     {
-        return;
-    }
+        m_saveChangesDialog = new SaveChangesDialog(this);
 
-    ui->fileEditor->removeTab(idx);
+        foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(tabName,Qt::MatchExactly | Qt::MatchRecursive,0) )
+            m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),item->text(0),item->text(1));
+
+        if ( m_saveChangesDialog->exec() )
+        {
+            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(file);
+
+            foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(tabName,Qt::MatchExactly | Qt::MatchRecursive,0) )
+            {
+                QString tmp = item->text(0);
+                item->setText(0,item->text(2));
+                item->setText(2,tmp);
+            }
+
+            ui->fileEditor->removeTab(idx);
+        }
+    }
+    else
+        ui->fileEditor->removeTab(idx);
 }
 
 void MainWindow::currentTabChanged(int idx)
