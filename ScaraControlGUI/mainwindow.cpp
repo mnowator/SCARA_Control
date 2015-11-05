@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_saveSignalMapper      =   new QSignalMapper(this);
     m_saveAsSignalMapper    =   new QSignalMapper(this);
     m_setActiveMapper       =   new QSignalMapper(this);
-    m_saveAllSignalMapper   =   new QSignalMapper(this);
     m_closeSignalMapper     =   new QSignalMapper(this);
     m_reloadSignalMapper    =   new QSignalMapper(this);
     m_cloneSignalMapper     =   new QSignalMapper(this);
@@ -46,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_saveSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(saveClicked       (QString)));
     connect(m_saveAsSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(saveAsClicked     (QString)));
     connect(m_setActiveMapper,      SIGNAL(mapped(QString)),this,SLOT(setActiveClicked  (QString)));
-    connect(m_saveAllSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(saveAllClicked    (QString)));
     connect(m_closeSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(closeClicked      (QString)));
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
     connect(m_cloneSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(cloneClicked      (QString)));
@@ -72,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCut,                  SIGNAL(triggered(bool)),this,SLOT(cutClicked()));
     connect(ui->actionPaste,                SIGNAL(triggered(bool)),this,SLOT(pasteClicked()));
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
+    connect(ui->actionSaveAll,              SIGNAL(triggered(bool)),this,SLOT(saveAllClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
@@ -82,7 +81,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete m_saveAllSignalMapper;
     delete m_closeSignalMapper;
     delete m_reloadSignalMapper;
     delete m_cloneSignalMapper;
@@ -401,6 +399,7 @@ void MainWindow::closeAllClicked()
     if ( preventedFiles.isEmpty() )
     {
         m_scaraRobots.clear();
+        
         ui->projectExplorer->clear();
         ui->fileEditor->clear();
         ui->workspace->hide();
@@ -413,9 +412,12 @@ void MainWindow::closeAllClicked()
                 saveClicked(file);
 
             m_scaraRobots.clear();
+            
             ui->projectExplorer->clear();
             ui->fileEditor->clear();
             ui->workspace->hide();
+
+            ui->actionSaveAll->setEnabled(false);
         }
     }
 }
@@ -484,6 +486,24 @@ void MainWindow::clipboardChange()
         ui->actionPaste->setEnabled(false);
     else
         ui->actionPaste->setEnabled(true);
+}
+
+void MainWindow::saveAllClicked()
+{
+    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
+
+        for ( unsigned j=0; j<project->childCount(); ++j )
+        {
+            QTreeWidgetItem* child = project->child(j);
+
+            if ( child->text(0) > child->text(2) )
+                saveClicked(child->text(0));
+        }
+    }
+
+    ui->actionSaveAll->setEnabled(false);
 }
 
 void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath)
@@ -664,7 +684,6 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(close);
 
             m_setActiveMapper       ->  setMapping(setActive,   item->text(0));
-            m_saveAllSignalMapper   ->  setMapping(saveAll,     item->text(0));
             m_reloadSignalMapper    ->  setMapping(reload,      item->text(0));
             m_cloneSignalMapper     ->  setMapping(clone,       item->text(0));
             m_addNewSignalMapper    ->  setMapping(addNew,      item->text(0));
@@ -677,7 +696,6 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             m_closeSignalMapper     ->  setMapping(close,       item->text(0));
 
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
-            connect(saveAll,    SIGNAL(triggered(bool)),m_saveAllSignalMapper,  SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
             connect(clone,      SIGNAL(triggered(bool)),m_cloneSignalMapper,    SLOT(map()));
             connect(addNew,     SIGNAL(triggered(bool)),m_addNewSignalMapper,   SLOT(map()));
@@ -766,6 +784,7 @@ void MainWindow::renameClicked(const QString &name)
 
 void MainWindow::saveClicked(const QString &_name)
 {
+    bool futherSavingPossible = false;
     QString name = _name;
 
     if ( name == "current" )
@@ -783,12 +802,21 @@ void MainWindow::saveClicked(const QString &_name)
             QString projectName = parent->text(0).length()<parent->text(2).length() ? parent->text(0) : parent->text(2);
 
             for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+            {
                 if ( ui->fileEditor->tabText(i) == name )
                 {
                     textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
                     ui->fileEditor->setTabText(i,item->text(2));
                     break;
                 }
+                else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*')
+                    futherSavingPossible = true;
+            }
+
+            if ( futherSavingPossible )
+                ui->actionSaveAll->setEnabled(true);
+            else
+                ui->actionSaveAll->setEnabled(false);
 
             attachFileToProject(item->text(2),item->text(1),projectName+".pro",parent->text(1));
 
@@ -812,12 +840,6 @@ void MainWindow::setActiveClicked(const QString &name)
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
         setActiveProject(name);
 }
-
-void MainWindow::saveAllClicked(const QString &name)
-{
-
-}
-
 
 void MainWindow::closeClicked(const QString &name)
 {
@@ -986,6 +1008,7 @@ void MainWindow::textChanged(const QString &name)
         if ( ui->fileEditor->tabText(i) == name )
             ui->fileEditor->setTabText(i,name+'*');
 
+    ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
 }
 

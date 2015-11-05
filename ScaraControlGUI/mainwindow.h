@@ -35,7 +35,6 @@ private:
     QSignalMapper* m_renameSignalMapper;
     QSignalMapper* m_saveAsSignalMapper;
     QSignalMapper* m_setActiveMapper;
-    QSignalMapper* m_saveAllSignalMapper;
     QSignalMapper* m_closeSignalMapper;
     QSignalMapper* m_reloadSignalMapper;
     QSignalMapper* m_cloneSignalMapper;
@@ -76,6 +75,7 @@ private slots:
     void cutClicked();
     void pasteClicked();
     void clipboardChange();
+    void saveAllClicked();
 
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
@@ -88,7 +88,6 @@ private slots:
     void saveClicked        (QString const& _name);
     void saveAsClicked      (QString const& name="current");
     void setActiveClicked   (QString const& name);
-    void saveAllClicked     (QString const& name);
     void closeClicked       (QString const& name);
     void reloadClicked      (QString const& name);
     void cloneClicked       (QString const& name);
