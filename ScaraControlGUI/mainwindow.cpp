@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCopy,                 SIGNAL(triggered(bool)),this,SLOT(copyClicked()));
     connect(ui->actionCut,                  SIGNAL(triggered(bool)),this,SLOT(cutClicked()));
     connect(ui->actionPaste,                SIGNAL(triggered(bool)),this,SLOT(pasteClicked()));
+    connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
@@ -377,9 +378,46 @@ void MainWindow::exitAppClicked()
 
 void MainWindow::closeAllClicked()
 {
-    m_scaraRobots.clear();
-    ui->projectExplorer->clear();
-    ui->workspace->hide();
+    QList<QString> preventedFiles;
+
+    m_saveChangesDialog = new SaveChangesDialog(this);
+
+    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
+
+        for ( unsigned j=0; j<project->childCount(); ++j )
+        {
+            QTreeWidgetItem* child = project->child(j);
+
+            if ( child->text(0) > child->text(2) )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
+                preventedFiles.append(child->text(0));
+            }
+        }
+    }
+
+    if ( preventedFiles.isEmpty() )
+    {
+        m_scaraRobots.clear();
+        ui->projectExplorer->clear();
+        ui->fileEditor->clear();
+        ui->workspace->hide();
+    }
+    else
+    {
+        if ( m_saveChangesDialog->exec() )
+        {
+            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(file);
+
+            m_scaraRobots.clear();
+            ui->projectExplorer->clear();
+            ui->fileEditor->clear();
+            ui->workspace->hide();
+        }
+    }
 }
 
 void MainWindow::backClicked()
@@ -783,11 +821,8 @@ void MainWindow::saveAllClicked(const QString &name)
 
 void MainWindow::closeClicked(const QString &name)
 {
-    bool prevent = false;
-
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
     {
-        QList<QPair<QString, QString> > selectedFiles;
         QList<QString> preventedFiles;
 
         m_saveChangesDialog = new SaveChangesDialog(this);
@@ -800,12 +835,10 @@ void MainWindow::closeClicked(const QString &name)
             {
                 m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
                 preventedFiles.append(child->text(0));
-
-                prevent = true;
             }
         }
 
-        if ( !prevent )
+        if ( preventedFiles.isEmpty() )
         {
             if ( item->text(0) < item->text(2) )
                 m_scaraRobots.remove(item->text(0));
