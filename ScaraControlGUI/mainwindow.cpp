@@ -281,6 +281,13 @@ void MainWindow::openProjectProject()
     QDomDocument projectDom;
     QDomElement root;
 
+    QStringList filters;
+    filters << "Any files (*)"
+            << "Project files (*.pro)"
+            << "Python files (*.py)";
+
+    folderDialog.setNameFilters(filters);
+
     folderDialog.setDirectory(QDir::home());
 
     if ( folderDialog.exec() == QDialog::Accepted )
