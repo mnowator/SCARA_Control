@@ -141,6 +141,9 @@ void MainWindow::setActiveProject(const QString &projectName)
 
             if ( item->text(0).length() > item->text(2).length() )
             {
+                if ( item->text(0) == projectName )
+                    return;
+
                 QString tmpStr = item->text(0);
                 QFont font=item->font(0);
 
