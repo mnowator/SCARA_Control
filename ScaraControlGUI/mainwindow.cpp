@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_stopSignalMapper      =   new QSignalMapper(this);
     m_restartSignalMapper   =   new QSignalMapper(this);
     m_textChangedMapper     =   new QSignalMapper(this);
+    m_saveProjectMapper     =   new QSignalMapper(this);
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -56,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_stopSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(stopClicked       (QString)));
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
     connect(m_textChangedMapper,    SIGNAL(mapped(QString)),this,SLOT(textChanged       (QString)));
+    connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
 
     m_saveSignalMapper->setMapping(ui->actionSave,"current");
     connect(ui->actionSave,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
@@ -650,7 +652,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* setActive  = new QAction(tr("Set as Active"),      this);
             QAction* addNew     = new QAction(tr("Add New"),            this);
             QAction* addExist   = new QAction(tr("Add Existing File"),  this);
-            QAction* saveAll    = new QAction(tr("Save Project"),       this);
+            QAction* saveProject= new QAction(tr("Save Project"),       this);
             QAction* run        = new QAction(tr("Run"),                this);
             QAction* pause      = new QAction(tr("Pause"),              this);
             QAction* stop       = new QAction(tr("Stop"),               this);
@@ -660,18 +662,18 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* remove     = new QAction(tr("Remove"),             this);
             QAction* close      = new QAction(tr("Close"),              this);
 
-            saveAll ->setIcon(QIcon(":/new/icons/lc_save.png"));
-            run     ->setIcon(QIcon(":/new/icons/avl02049.png"));
-            pause   ->setIcon(QIcon(":/new/icons/avl02050.png"));
-            stop    ->setIcon(QIcon(":/new/icons/avl02051.png"));
-            restart ->setIcon(QIcon(":/new/icons/avl02052.png"));
+            saveProject ->setIcon(QIcon(":/new/icons/lc_save.png"));
+            run         ->setIcon(QIcon(":/new/icons/avl02049.png"));
+            pause       ->setIcon(QIcon(":/new/icons/avl02050.png"));
+            stop        ->setIcon(QIcon(":/new/icons/avl02051.png"));
+            restart     ->setIcon(QIcon(":/new/icons/avl02052.png"));
 
             menu.addAction(addNew);
             menu.addAction(addExist);
             menu.addSeparator();
             menu.addAction(setActive);
             menu.addSeparator();
-            menu.addAction(saveAll);
+            menu.addAction(saveProject);
             menu.addSeparator();
             menu.addAction(run);
             menu.addAction(pause);
@@ -694,6 +696,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             m_stopSignalMapper      ->  setMapping(stop,        item->text(0));
             m_restartSignalMapper   ->  setMapping(restart,     item->text(0));
             m_closeSignalMapper     ->  setMapping(close,       item->text(0));
+            m_saveProjectMapper     ->  setMapping(saveProject, item->text(0));
 
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
@@ -706,6 +709,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             connect(stop,       SIGNAL(triggered(bool)),m_stopSignalMapper,     SLOT(map()));
             connect(restart,    SIGNAL(triggered(bool)),m_restartSignalMapper,  SLOT(map()));
             connect(close,      SIGNAL(triggered(bool)),m_closeSignalMapper,    SLOT(map()));
+            connect(saveProject,SIGNAL(triggered(bool)),m_saveProjectMapper,    SLOT(map()));
 
             break;
         }
@@ -991,7 +995,23 @@ void MainWindow::stopClicked(const QString &name)
 
 void MainWindow::restartClicked(const QString &name)
 {
+    
+}
 
+void MainWindow::saveProjectClicked(const QString &name)
+{
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        for ( unsigned i=0; i<project->childCount(); ++i )
+        {
+            QTreeWidgetItem* child = project->child(i);
+
+            if ( child->text(0) > child->text(2) )
+            {
+                saveClicked(child->text(0));
+            }
+        }
+    }
 }
 
 void MainWindow::textChanged(const QString &name)

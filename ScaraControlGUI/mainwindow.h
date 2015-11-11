@@ -46,6 +46,7 @@ private:
     QSignalMapper* m_stopSignalMapper;
     QSignalMapper* m_restartSignalMapper;
     QSignalMapper* m_textChangedMapper;
+    QSignalMapper* m_saveProjectMapper;
 
     Ui::MainWindow *ui;
 
@@ -98,6 +99,7 @@ private slots:
     void pauseClicked       (QString const& name);
     void stopClicked        (QString const& name);
     void restartClicked     (QString const& name);
+    void saveProjectClicked (QString const& name);
 
     void textChanged        (QString const& name);
     void copyAvailable      (bool yes);
