@@ -97,7 +97,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QList<QString> preventedFiles;
+    bool prevent = false;
 
     m_saveChangesDialog = new SaveChangesDialog(this);
 
@@ -112,12 +112,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
             if ( child->text(0) > child->text(2) )
             {
                 m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
-                preventedFiles.append(child->text(0));
+                prevent = true;
             }
         }
     }
 
-    if ( preventedFiles.isEmpty() )
+    if ( !prevent )
         event->accept();
     else
     {
@@ -425,7 +425,7 @@ void MainWindow::exitAppClicked()
 
 void MainWindow::closeAllClicked()
 {
-    QList<QString> preventedFiles;
+    bool prevent = false;
 
     m_saveChangesDialog = new SaveChangesDialog(this);
 
@@ -440,12 +440,12 @@ void MainWindow::closeAllClicked()
             if ( child->text(0) > child->text(2) )
             {
                 m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
-                preventedFiles.append(child->text(0));
+                prevent = false;
             }
         }
     }
 
-    if ( preventedFiles.isEmpty() )
+    if ( !prevent )
     {
         m_scaraRobots.clear();
         
@@ -896,7 +896,7 @@ void MainWindow::closeClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
     {
-        QList<QString> preventedFiles;
+        bool prevent = false;
 
         m_saveChangesDialog = new SaveChangesDialog(this);
 
@@ -907,11 +907,11 @@ void MainWindow::closeClicked(const QString &name)
             if ( child->text(0) > child->text(2) )
             {
                 m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
-                preventedFiles.append(child->text(0));
+                prevent = true;
             }
         }
 
-        if ( preventedFiles.isEmpty() )
+        if ( !prevent )
         {
             if ( item->text(0) < item->text(2) )
                 m_scaraRobots.remove(item->text(0));
