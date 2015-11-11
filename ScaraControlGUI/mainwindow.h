@@ -58,6 +58,8 @@ private:
     NewFileDialog* m_newFileDialog;
     SaveChangesDialog* m_saveChangesDialog;
 
+    void closeEvent(QCloseEvent *event);
+
     void setActiveProject(QString const& projectName);
     void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName, QString const& projectPath);
 

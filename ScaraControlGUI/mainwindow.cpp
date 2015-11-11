@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
 
     connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
-    connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));    
+    connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 }
 
 MainWindow::~MainWindow()
@@ -93,6 +93,43 @@ MainWindow::~MainWindow()
     delete m_restartSignalMapper;
 
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QList<QString> preventedFiles;
+
+    m_saveChangesDialog = new SaveChangesDialog(this);
+
+    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
+
+        for ( unsigned j=0; j<project->childCount(); ++j )
+        {
+            QTreeWidgetItem* child = project->child(j);
+
+            if ( child->text(0) > child->text(2) )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
+                preventedFiles.append(child->text(0));
+            }
+        }
+    }
+
+    if ( preventedFiles.isEmpty() )
+        event->accept();
+    else
+    {
+        if ( m_saveChangesDialog->exec() )
+        {
+            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(file);
+
+            event->accept();
+        }
+        else event->ignore();
+    }
 }
 
 void MainWindow::setActiveProject(const QString &projectName)
