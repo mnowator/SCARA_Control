@@ -284,12 +284,12 @@ void MainWindow::openProjectProject()
     QDomElement root;
 
     QStringList filters;
-    filters << "Any files (*)"
+    filters << "Openable (*.pro *.py)"
             << "Project files (*.pro)"
-            << "Python files (*.py)";
+            << "Python files (*.py)"
+            << "Any files (*)";
 
     folderDialog.setNameFilters(filters);
-
     folderDialog.setDirectory(QDir::home());
 
     if ( folderDialog.exec() == QDialog::Accepted )
@@ -1019,6 +1019,7 @@ void MainWindow::addNewClicked(const QString &name)
     foreach( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
     {
         QTreeWidgetItem* file = new QTreeWidgetItem(FileType);
+
         file->setText(0,fileName+'*');
         file->setText(1,item->text(1));
         file->setText(2,fileName);
@@ -1026,13 +1027,70 @@ void MainWindow::addNewClicked(const QString &name)
 
         item->addChild(file);
 
-        projectExplorerDoubleClicked(item,0);
+        projectExplorerDoubleClicked(file,0);
     }
 }
 
 void MainWindow::addExistClicked(const QString &name)
 {
+    QFileDialog folderDialog;
+    QString fullPath, fullFileName, filePath;
 
+    QStringList filters;
+    filters << "Openable (*.py)"
+            << "Python files (*.py)"
+            << "Any files (*)";
+
+    folderDialog.setNameFilters(filters);
+    folderDialog.setDirectory(QDir::home());
+
+    if ( folderDialog.exec() == QDialog::Accepted )
+    {
+        fullPath = folderDialog.selectedFiles()[0];
+    }
+    else return;
+
+    for (unsigned i=fullPath.length();i!=0;--i)
+    {
+        if ( fullPath[i-1] == '\\' || fullPath[i-1] == '/' )
+        {
+            filePath = fullPath.left(i);
+            fullFileName = fullPath.right(fullPath.length()-i);
+            break;
+        }
+    }
+
+    foreach( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0 ) )
+    {
+        QString projectName = project->text(0) < project->text(2) ? project->text(0) : project->text(2);
+        QTreeWidgetItem* file;
+
+        for ( unsigned i=0; i<project->childCount(); ++i )
+        {
+            QTreeWidgetItem* child = project->child(i);
+
+            if ( child->text(0) == fullFileName ||
+                 child->text(2) == fullFileName )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
+                                                                         "Please change name."));
+                msgBox.exec();
+                return;
+            }
+        }
+
+        file = new QTreeWidgetItem(FileType);
+
+        file->setText(0,fullFileName);
+        file->setText(1,filePath);
+        file->setText(2,fullFileName+'*');
+        file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+
+        attachFileToProject(fullFileName,filePath,projectName+".pro",project->text(1));
+
+        project->addChild(file);
+        projectExplorerDoubleClicked(file,0);
+    }
 }
 
 void MainWindow::removeClicked(const QString &name)
