@@ -976,20 +976,45 @@ void MainWindow::cloneClicked(const QString &name)
 
 void MainWindow::addNewClicked(const QString &name)
 {
+    bool bOrNot2b = true;
     QString fileName, fileType;
 
     m_newFileDialog = new NewFileDialog(this);
 
-    if ( m_newFileDialog->exec() )
+    while(bOrNot2b)
     {
-        QStringList data = m_newFileDialog->retrieveData();
-        fileName = data[0];
-        fileType = data[1];
-    }
-    else return;
+        bOrNot2b = false;
 
-    if ( fileType == "Program ( Python File )")
-        fileName += ".py";
+        if ( m_newFileDialog->exec() )
+        {
+            QStringList data = m_newFileDialog->retrieveData();
+            fileName = data[0];
+            fileType = data[1];
+        }
+        else return;
+
+        if ( fileType == "Program ( Python File )")
+            fileName += ".py";
+
+
+        foreach( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
+        {
+            for ( unsigned i=0; project->childCount(); ++i)
+            {
+                QTreeWidgetItem* child = project->child(i);
+
+                if ( child->text(0) == fileName ||
+                     child->text(2) == fileName )
+                {
+                    QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
+                                                                             "Please change name."));
+                    msgBox.exec();
+                    bOrNot2b = true;
+                    break;
+                }
+            }
+        }
+    }
 
     foreach( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
     {
@@ -1071,37 +1096,6 @@ void MainWindow::textChanged(QWidget* widget)
             disconnect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
         }
     }
-
-
-
-
-
-
-//    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
-//    {
-//        if ( item->parent()->text(0) == owner || item->parent()->text(2) == owner )
-//        {
-//            QString tmpStr = item->text(0);
-
-//            item->setText(0,item->text(2));
-//            item->setText(2,tmpStr);
-
-//            for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-//            {
-//                if ( ui->fileEditor->tabText(i) == name )
-//                {
-//                    TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
-
-//                    if ( textEdit->path == item->text(1) )
-//                        ui->fileEditor->setTabText(i,name+'*');
-//                }
-//            }
-//        }
-//    }
-
-//    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-//        if ( ui->fileEditor->tabText(i) == name )
-//            ui->fileEditor->setTabText(i,name+'*');
 
     ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
