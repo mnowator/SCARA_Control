@@ -103,7 +103,8 @@ private slots:
     void restartClicked     (QString const& name);
     void saveProjectClicked (QString const& name);
 
-    void textChanged        (QString const& name);
+    void textChanged        (QWidget* widget);
+
     void copyAvailable      (bool yes);
 };
 

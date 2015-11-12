@@ -7,10 +7,11 @@
 #include <QMessageBox>
 #include <QDomDocument>
 #include <QFileDialog>
-#include <QTextEdit>
 #include <QClipboard>
 #include <QMimeData>
 #include <QKeyEvent>
+
+#include "textedit.h"
 
 #include <QDebug>
 
@@ -56,8 +57,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_pauseSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(pauseClicked      (QString)));
     connect(m_stopSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(stopClicked       (QString)));
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
-    connect(m_textChangedMapper,    SIGNAL(mapped(QString)),this,SLOT(textChanged       (QString)));
     connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
+
+    connect(m_textChangedMapper,    SIGNAL(mapped(QWidget*)),this,SLOT(textChanged       (QWidget*)));
 
     m_saveSignalMapper->setMapping(ui->actionSave,"current");
     connect(ui->actionSave,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
@@ -848,7 +850,7 @@ void MainWindow::saveClicked(const QString &_name)
         if ( item->text(0) < item->text(2)) continue;
         else if ( item->type() == FileType )
         {
-            QTextEdit* textEdit;
+            TextEdit* textEdit;
             QTreeWidgetItem* parent = item->parent();
             QString projectName = parent->text(0).length()<parent->text(2).length() ? parent->text(0) : parent->text(2);
 
@@ -856,7 +858,7 @@ void MainWindow::saveClicked(const QString &_name)
             {
                 if ( ui->fileEditor->tabText(i) == name )
                 {
-                    textEdit = dynamic_cast<QTextEdit*>( ui->fileEditor->widget(i) );
+                    textEdit = dynamic_cast<TextEdit*>( ui->fileEditor->widget(i) );
                     ui->fileEditor->setTabText(i,item->text(2));
                     break;
                 }
@@ -870,8 +872,10 @@ void MainWindow::saveClicked(const QString &_name)
                 ui->actionSaveAll->setEnabled(false);
 
             attachFileToProject(item->text(2),item->text(1),projectName+".pro",parent->text(1));
-
             saveFile(item->text(1),item->text(2),textEdit->toPlainText());
+
+            m_textChangedMapper->setMapping(textEdit,textEdit);
+            connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
             item->setText(0,item->text(2));
             item->setText(2,tmpStr);
@@ -973,7 +977,6 @@ void MainWindow::cloneClicked(const QString &name)
 void MainWindow::addNewClicked(const QString &name)
 {
     QString fileName, fileType;
-    QTextEdit* textEdit;
 
     m_newFileDialog = new NewFileDialog(this);
 
@@ -997,27 +1000,14 @@ void MainWindow::addNewClicked(const QString &name)
         file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
 
         item->addChild(file);
+
+        projectExplorerDoubleClicked(item,0);
     }
-
-    textEdit = new QTextEdit(fileName,this);
-    m_textChangedMapper->setMapping(textEdit,fileName);
-    connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-    connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
-
-    ui->fileEditor->addTab(textEdit,fileName+ '*');
-    ui->fileEditor->setCurrentWidget(textEdit);
-
-    textEdit->clear();
-
-//    for ( unsigned i=0; ui->fileEditor->count(); ++i )
-//        if ( ui->fileEditor->tabText(i) == fileName+'*')
-//            ui->fileEditor->setCurrentIndex(i);
-
-    ui->fileEditor->currentWidget()->setFocus();
 }
 
 void MainWindow::addExistClicked(const QString &name)
 {
+
 }
 
 void MainWindow::removeClicked(const QString &name)
@@ -1061,19 +1051,57 @@ void MainWindow::saveProjectClicked(const QString &name)
     }
 }
 
-void MainWindow::textChanged(const QString &name)
+void MainWindow::textChanged(QWidget* widget)
 {
+    TextEdit* textEdit = dynamic_cast<TextEdit*>(widget);
+    QString name = ui->fileEditor->tabText(ui->fileEditor->indexOf(widget));
+
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        QString tmpStr = item->text(0);
+        if ( textEdit->path == item->text(1))
+        {
+            QString tmpStr = item->text(0);
 
-        item->setText(0,item->text(2));
-        item->setText(2,tmpStr);
+            item->setText(0,item->text(2));
+            item->setText(2,tmpStr);
+
+            ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
+
+            m_textChangedMapper->removeMappings(textEdit);
+            disconnect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+        }
     }
 
-    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-        if ( ui->fileEditor->tabText(i) == name )
-            ui->fileEditor->setTabText(i,name+'*');
+
+
+
+
+
+//    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
+//    {
+//        if ( item->parent()->text(0) == owner || item->parent()->text(2) == owner )
+//        {
+//            QString tmpStr = item->text(0);
+
+//            item->setText(0,item->text(2));
+//            item->setText(2,tmpStr);
+
+//            for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+//            {
+//                if ( ui->fileEditor->tabText(i) == name )
+//                {
+//                    TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+
+//                    if ( textEdit->path == item->text(1) )
+//                        ui->fileEditor->setTabText(i,name+'*');
+//                }
+//            }
+//        }
+//    }
+
+//    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+//        if ( ui->fileEditor->tabText(i) == name )
+//            ui->fileEditor->setTabText(i,name+'*');
 
     ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
@@ -1095,45 +1123,44 @@ void MainWindow::copyAvailable(bool yes)
 
 void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
-    {
-        if (ui->fileEditor->tabText(idx)==item->text(0) ||
-                ui->fileEditor->tabText(idx)==item->text(2))
-        {
-            ui->fileEditor->setCurrentIndex(idx);
-            return;
-        }
-    }
-
     switch ( item->type() )
     {
     case FileType:
     {
         QString name = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
+
+        for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
+        {
+            if (ui->fileEditor->tabText(idx)==item->text(0) ||
+                    ui->fileEditor->tabText(idx)==item->text(2) )
+            {
+                TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(idx));
+
+                if ( textEdit->path == item->text(1) )
+                {
+                    ui->fileEditor->setCurrentIndex(idx);
+                    return;
+                }
+            }
+        }
+
         QFile file(item->text(1)+name);
 
         if ( file.open(QFile::ReadOnly | QFile::Text))
         {
-
+            TextEdit* textEdit = new TextEdit(name,this);
             QTextStream textStream(&file);
-            QTextEdit* textEdit = new QTextEdit(name,this);
 
             textEdit->setText(textStream.readAll());
+            textEdit->path = item->text(1);
 
-            m_textChangedMapper->setMapping(textEdit,name);
+            m_textChangedMapper->setMapping(textEdit,textEdit);
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
             connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
             ui->fileEditor->addTab(textEdit,name);
-
-            for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
-            {
-                if (ui->fileEditor->tabText(idx)==item->text(0) ||
-                        ui->fileEditor->tabText(idx)==item->text(2))
-                {
-                    ui->fileEditor->setCurrentIndex(idx);
-                }
-            }
+            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
+            ui->fileEditor->currentWidget()->setFocus();
         }
 
         break;

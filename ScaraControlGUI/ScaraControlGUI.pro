@@ -28,13 +28,15 @@ SOURCES += \
     mainwindow.cpp \
     newprojectdialog.cpp \
     newfiledialog.cpp \
-    savechangesdialog.cpp
+    savechangesdialog.cpp \
+    textedit.cpp
 
 HEADERS += \
     mainwindow.h \
     newprojectdialog.h \
     newfiledialog.h \
-    savechangesdialog.h
+    savechangesdialog.h \
+    textedit.h
 
 unix {
     target.path = /usr/lib
