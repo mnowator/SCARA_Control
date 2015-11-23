@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SaveChangesDialog</class>
- <widget class="QDialog" name="SaveChangesDialog">
+ <class>RenameFileDialog</class>
+ <widget class="QDialog" name="RenameFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>336</height>
+    <width>434</width>
+    <height>73</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Save Changes</string>
-  </property>
-  <property name="styleSheet">
-   <string notr="true"/>
+   <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>The following files have unsaved changes:</string>
+          <string>New Filename</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QTableWidget" name="tableWidget"/>
+        <widget class="QLineEdit" name="filename"/>
        </item>
       </layout>
      </item>
@@ -49,19 +46,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="saveButton">
-         <property name="styleSheet">
-          <string notr="true"/>
-         </property>
+        <widget class="QPushButton" name="renameButton">
          <property name="text">
-          <string>Save All</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="doNotSaveButton">
-         <property name="text">
-          <string>Do not Save</string>
+          <string>Raname</string>
          </property>
         </widget>
        </item>
@@ -83,16 +70,32 @@
   <connection>
    <sender>cancelButton</sender>
    <signal>clicked()</signal>
-   <receiver>SaveChangesDialog</receiver>
+   <receiver>RenameFileDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>531</x>
-     <y>307</y>
+     <x>387</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>287</x>
-     <y>167</y>
+     <x>217</x>
+     <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>renameButton</sender>
+   <signal>clicked()</signal>
+   <receiver>RenameFileDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>56</y>
     </hint>
    </hints>
   </connection>

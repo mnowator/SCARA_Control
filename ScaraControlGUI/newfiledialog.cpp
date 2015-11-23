@@ -1,6 +1,8 @@
 #include "newfiledialog.h"
 #include "ui_newfiledialog.h"
 
+#include "styles.h"
+
 NewFileDialog::NewFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NewFileDialog)
@@ -9,6 +11,13 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     connect(ui->createButton,SIGNAL(clicked(bool)),this,SLOT(createClicked()));
     connect(ui->cancelButton,SIGNAL(clicked(bool)),this,SLOT(cancelClicked()));
+
+    ui->cancelButton->setStyleSheet(currentButtonTheme);
+    ui->createButton->setStyleSheet(currentButtonTheme);
+
+    ui->fileTypeComboBox->setStyleSheet(currentComboBoxTheme);
+
+    ui->fileName->setStyleSheet(currentLineEditTheme);
 }
 
 NewFileDialog::~NewFileDialog()

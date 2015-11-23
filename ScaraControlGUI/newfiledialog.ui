@@ -14,8 +14,7 @@
    <string>New File</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(60, 63, 65);
-color: rgb(230, 230, 230)</string>
+   <string notr="true"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -43,46 +42,10 @@ color: rgb(230, 230, 230)</string>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLineEdit" name="fileName">
-           <property name="styleSheet">
-            <string notr="true">QLineEdit {
-    border: 2px solid rgb(230, 230, 230);
-    border-radius: 1px;
-}
-QLineEdit:hover {
-	background-color: rgb(64, 64, 64);
-	border: 2px solid #8f8f91;
-	border-color: rgb(60, 187, 255);
-}
-
-QLineEdit:focus {
-	background-color: rgb(64, 64, 64);
-	border: 2px solid #8f8f91;
-	border-color: rgb(60, 187, 255);
-}</string>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="fileName"/>
          </item>
          <item>
           <widget class="QComboBox" name="fileTypeComboBox">
-           <property name="styleSheet">
-            <string notr="true">QComboBox {
-    border: 2px solid rgb(230, 230, 230);
-    border-radius: 1px;
-}
-QComboBox:hover {
-	background-color: rgb(64, 64, 64);
-	border: 2px solid #8f8f91;
-	border-color: rgb(60, 187, 255);
-}
-
-QComboBox:focus {
-	background-color: rgb(64, 64, 64);
-	border: 2px solid #8f8f91;
-	border-color: rgb(60, 187, 255);
-}
-</string>
-           </property>
            <item>
             <property name="text">
              <string>Program ( Python File )</string>
@@ -111,18 +74,6 @@ QComboBox:focus {
        </item>
        <item>
         <widget class="QPushButton" name="createButton">
-         <property name="styleSheet">
-          <string notr="true">QPushButton {
-    border: 2px solid #8f8f91;
-    border-radius: 3px;
-	height: 30px;
-	width: 60;
-}
-QPushButton:hover {
-	background-color: rgb(60, 187, 255);
-}
-</string>
-         </property>
          <property name="text">
           <string>Create</string>
          </property>
@@ -130,17 +81,6 @@ QPushButton:hover {
        </item>
        <item>
         <widget class="QPushButton" name="cancelButton">
-         <property name="styleSheet">
-          <string notr="true">QPushButton {
-    border: 2px solid #8f8f91;
-    border-radius: 3px;
-	height: 30px;
-	width: 60;
-}
-QPushButton:hover {
-	background-color: rgb(60, 187, 255);
-}</string>
-         </property>
          <property name="text">
           <string>Cancel</string>
          </property>

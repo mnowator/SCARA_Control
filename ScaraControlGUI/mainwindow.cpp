@@ -11,6 +11,7 @@
 #include <QMimeData>
 #include <QKeyEvent>
 
+#include "styles.h"
 #include "textedit.h"
 
 #include <QDebug>
@@ -43,7 +44,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
     clipboardChange();
 
-    connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
     connect(m_saveSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(saveClicked       (QString)));
     connect(m_saveAsSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(saveAsClicked     (QString)));
     connect(m_setActiveMapper,      SIGNAL(mapped(QString)),this,SLOT(setActiveClicked  (QString)));
@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_stopSignalMapper,     SIGNAL(mapped(QString)),this,SLOT(stopClicked       (QString)));
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
     connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
+    connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
 
     connect(m_textChangedMapper,    SIGNAL(mapped(QWidget*)),this,SLOT(textChanged       (QWidget*)));
 
@@ -81,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
     connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+
+    this->setStyleSheet(currentWindowTheme);
 }
 
 MainWindow::~MainWindow()
@@ -174,7 +177,6 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
 {
     QDomDocument domProject;
     QDomElement root, filesElement, fileElement, nameElement, pathElement;
-    QDomNode filesNode;
     QString errorStr, projectFileContent;
     int errorLine, errorColumn;
 
@@ -194,6 +196,9 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
     if ( root.tagName() != "Project")
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -229,6 +234,53 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
     saveFile(projectPath,projectName,domProject.toString());
 }
 
+void MainWindow::detachFileFromProject(const QString &fileName, const QString &projectName, const QString &projectPath)
+{
+    QDomDocument domProject;
+    QDomElement filesElement, root;
+    QString projectFileContent, errorStr;
+    int errorLine, errorColumn;
+
+    projectFileContent = loadFile(projectPath,projectName);
+
+    if ( projectFileContent.isEmpty() ) return;
+
+    if (!domProject.setContent(projectFileContent, false, &errorStr, &errorLine, &errorColumn))
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
+        msgBox.exec();
+        return;
+    }
+
+    root = domProject.documentElement();
+
+    if ( root.tagName() != "Project")
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
+        msgBox.exec();
+        return;
+    }
+
+    filesElement = root.namedItem("Files").toElement();
+    for ( QDomElement file = filesElement.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
+    {
+        QDomElement name = file.namedItem("Name").toElement();
+
+        if ( name.text() == fileName )
+            filesElement.removeChild(file);
+    }
+
+    root.appendChild(filesElement);
+
+    saveFile(projectPath,projectName,domProject.toString());
+}
+
 void MainWindow::saveFile(const QString &filePath, const QString &fileName, const QString &fileContent)
 {
     QFile file(filePath+'/'+fileName);
@@ -245,6 +297,9 @@ void MainWindow::saveFile(const QString &filePath, const QString &fileName, cons
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot save file.\n\n")+
                                                                  tr("Path: ") +filePath+"\n"+
                                                                  tr("Name: ") +fileName);
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
     }
 }
@@ -264,10 +319,14 @@ QString MainWindow::loadFile(const QString &filePath, const QString &fileName)
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot load file.\n\n")+
                                                                  tr("Path: ") +filePath+"\n"+
                                                                  tr("Name: ") +fileName);
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return QString();
     }
 }
+
 
 void MainWindow::newProjectClicked()
 {
@@ -313,6 +372,9 @@ void MainWindow::openProjectProject()
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
                                                                  "Please change name or close another project."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -328,6 +390,9 @@ void MainWindow::openProjectProject()
         if (!projectDom.setContent(&file, false, &errorStr, &errorLine, &errorColumn))
         {
             QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+
+            msgBox.setStyleSheet(currentErrorBoxTheme);
+
             msgBox.exec();
             return;
         }
@@ -335,6 +400,9 @@ void MainWindow::openProjectProject()
     else
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot open file."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -343,6 +411,9 @@ void MainWindow::openProjectProject()
     if ( root.tagName() != "Project")
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }  
@@ -386,6 +457,9 @@ void MainWindow::openProjectProject()
         {
             QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
                                                                      "'Name' tag is missing in one file."));
+
+            msgBox.setStyleSheet(currentErrorBoxTheme);
+
             msgBox.exec();
             continue;
         }
@@ -396,6 +470,9 @@ void MainWindow::openProjectProject()
         {
             QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
                                                                      "'Path' tag is missing in one file."));
+
+            msgBox.setStyleSheet(currentErrorBoxTheme);
+
             msgBox.exec();
             continue;
         }
@@ -566,6 +643,9 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
                                                                  "Please change name or close another project."));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -579,23 +659,8 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot create project file because it already exist in given path.\n"
                                                                  "Please choose different localization to project or project name."));
 
-        msgBox.setStyleSheet("QPushButton {"
-                                "color: rgb(230, 230, 230);"
-                                "border: 2px solid #8f8f91;"
-                                "border-radius: 3px;"
-                                "height: 30px;"
-                                "width: 60;"
-                             "}"
-                             "QPushButton:hover {"
-                                "background-color: rgb(60, 187, 255);"
-                             "}"
-                             "QMessageBox {"
-                                "background-color: rgb(64, 64, 64);"
-                             "}"
-                             "QLabel {"
-                                "color: rgb(230, 230, 230);"
-                             "}"
-                             );
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -764,30 +829,30 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         }
         case ConfigType:
         {
-            QAction* remove = new QAction(tr("Remove file"), this);
-            QAction* rename = new QAction(tr("Rename"),      this);
-            QAction* save   = new QAction(tr("Save"),        this);
-            QAction* saveAs = new QAction(tr("Save As..."),  this);
+//            QAction* remove = new QAction(tr("Remove file"), this);
+//            QAction* rename = new QAction(tr("Rename"),      this);
+//            QAction* save   = new QAction(tr("Save"),        this);
+//            QAction* saveAs = new QAction(tr("Save As..."),  this);
 
-            save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
-            saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
+//            save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
+//            saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
 
-            menu.addAction(save);
-            menu.addAction(saveAs);
-            menu.addSeparator();
-            menu.addAction(rename);
-            menu.addSeparator();
-            menu.addAction(remove);
+//            menu.addAction(save);
+//            menu.addAction(saveAs);
+//            menu.addSeparator();
+//            menu.addAction(rename);
+//            menu.addSeparator();
+//            menu.addAction(remove);
 
-            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
-            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
-            m_saveSignalMapper      ->  setMapping(save,        item->text(0));
-            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
+//            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
+//            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
+//            m_saveSignalMapper      ->  setMapping(save,        item->text(0));
+//            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
 
-            connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
-            connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
-            connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
-            connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
+//            connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
+//            connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
+//            connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
+//            connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
 
             break;
         }
@@ -809,9 +874,9 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(remove);
 
             m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
-            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
             m_saveSignalMapper      ->  setMapping(save,        item->text(0));
             m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
+            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
 
             connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
             connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
@@ -830,9 +895,116 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
     menu.exec( ui->projectExplorer->mapToGlobal(pos));
 }
 
-void MainWindow::renameClicked(const QString &name)
-{
 
+void MainWindow::renameClicked(QString const& name)
+{
+    QTreeWidgetItem* item = ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0)[0];
+    QTreeWidgetItem* project;
+    QString filename;
+    QString projectName;
+    QString newName;
+    bool unsavedChanges = false;
+
+    if ( item == NULL )
+    {
+        qDebug() << "dasdasd";
+        return;
+    }
+
+    project = item->parent();
+
+    if ( project == NULL )
+    {
+        qDebug() << "dasdassadsadsadasdsad";
+        return;
+    }
+
+    if ( item->text(0) > item->text(2) )
+    {
+        unsavedChanges = true;
+        filename = item->text(2);
+    }
+    else
+        filename = item->text(0);
+
+
+
+    projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+
+    m_renameFileDialog = new RenameFileDialog(this);
+    m_renameFileDialog->setFilename(filename);
+
+    if ( m_renameFileDialog->exec() )
+    {
+        newName = m_renameFileDialog->getFilename();
+
+        if ( newName == filename ) return;
+
+        if ( !QFile::rename(item->text(1) + filename,item->text(1) + newName) )
+        {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot rename file"));
+
+            msgBox.setStyleSheet(currentErrorBoxTheme);
+
+            msgBox.exec();
+            return;
+        }
+
+        if ( unsavedChanges ) // if file was unsaved
+        {
+            // Changing file name in project explorer
+            item->setText(0,newName + '*');
+            item->setText(2,newName);
+
+            // Updating project file
+            detachFileFromProject(filename,projectName+".pro",project->text(1));
+            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+
+            // For further searching in project explorer
+            filename += '*';
+        }
+        else
+        {
+            // Changing file name in project explorer
+            item->setText(0,newName);
+            item->setText(2,newName+'*');
+
+            // Updating project file
+            detachFileFromProject(filename,projectName+".pro",project->text(1));
+            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+        }
+    }
+
+    // Searching for another instance of file in
+    foreach ( QTreeWidgetItem* file, ui->projectExplorer->findItems(filename,Qt::MatchExactly | Qt::MatchRecursive,0) )
+    {
+        if ( file->text(1) == item->text(0) )
+        {
+            project = item->parent();
+
+            if ( project == NULL)
+                continue;
+
+            projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+
+            detachFileFromProject(filename,projectName+".pro",project->text(1));
+            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+
+            file->setText(0,item->text(0));
+            file->setText(2,item->text(2));
+        }
+    }
+
+    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+    {
+        if ( ui->fileEditor->tabText(i) == filename )
+        {
+            if ( unsavedChanges )
+                ui->fileEditor->setTabText(i,newName+'*');
+            else
+                ui->fileEditor->setTabText(i,newName);
+        }
+    }
 }
 
 void MainWindow::saveClicked(const QString &_name)
@@ -1008,6 +1180,9 @@ void MainWindow::addNewClicked(const QString &name)
                 {
                     QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
                                                                              "Please change name."));
+
+                    msgBox.setStyleSheet(currentErrorBoxTheme);
+
                     msgBox.exec();
                     bOrNot2b = true;
                     break;
@@ -1074,6 +1249,9 @@ void MainWindow::addExistClicked(const QString &name)
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
                                                                          "Please change name."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
                 msgBox.exec();
                 return;
             }

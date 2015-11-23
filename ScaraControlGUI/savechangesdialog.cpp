@@ -1,6 +1,8 @@
 #include "savechangesdialog.h"
 #include "ui_savechangesdialog.h"
 
+#include "styles.h"
+
 SaveChangesDialog::SaveChangesDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SaveChangesDialog)
@@ -14,6 +16,10 @@ SaveChangesDialog::SaveChangesDialog(QWidget *parent) :
 
     connect(ui->saveButton,         SIGNAL(clicked(bool)),this,SLOT(saveButtonClicked()));
     connect(ui->doNotSaveButton,    SIGNAL(clicked(bool)),this,SLOT(doNotSave()));
+
+    ui->saveButton->setStyleSheet(currentButtonTheme);
+    ui->doNotSaveButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setStyleSheet(currentButtonTheme);
 }
 
 SaveChangesDialog::~SaveChangesDialog()

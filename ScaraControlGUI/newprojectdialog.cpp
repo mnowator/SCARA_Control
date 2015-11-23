@@ -1,6 +1,8 @@
 #include "newprojectdialog.h"
 #include "ui_newprojectdialog.h"
 
+#include "styles.h"
+
 #include <QFileDialog>
 
 NewProjectDialog::NewProjectDialog(QWidget *parent) :
@@ -13,6 +15,15 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     connect(ui->createButton,SIGNAL(clicked(bool)),this,SLOT(createButtonClicked()));
 
     ui->projectPathLineEdit->setText(QDir::homePath()+tr("/SCARA Control/"));
+
+    ui->browseButton->setStyleSheet(currentButtonTheme);
+    ui->createButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setStyleSheet(currentButtonTheme);
+
+    ui->projectNameLineEdit->setStyleSheet(currentLineEditTheme);
+    ui->projectPathLineEdit->setStyleSheet(currentLineEditTheme);
+
+    ui->communicationTypeComboBox->setStyleSheet(currentComboBoxTheme);
 }
 
 NewProjectDialog::~NewProjectDialog()

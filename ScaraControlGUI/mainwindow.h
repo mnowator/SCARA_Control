@@ -11,6 +11,7 @@
 #include "newprojectdialog.h"
 #include "newfiledialog.h"
 #include "savechangesdialog.h"
+#include "renamefiledialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -57,11 +58,14 @@ private:
     NewProjectDialog* m_newProjectDialog;
     NewFileDialog* m_newFileDialog;
     SaveChangesDialog* m_saveChangesDialog;
+    RenameFileDialog* m_renameFileDialog;
 
     void closeEvent(QCloseEvent *event);
 
     void setActiveProject(QString const& projectName);
-    void attachFileToProject(QString const& fileName,QString const& filePath, QString const& projectName, QString const& projectPath);
+
+    void attachFileToProject(QString const& fileName, QString const& filePath, QString const& projectName, QString const& projectPath);
+    void detachFileFromProject(QString const& fileName, QString const& projecName, QString const& projectPath);
 
     void saveFile(QString const& filePath, QString const& fileName, QString const& fileContent);
     QString loadFile(QString const& filePath, QString const& fileName);
@@ -82,6 +86,7 @@ private slots:
 
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
     void projectExplorerContextMenuRequested(QPoint const& pos);
+
     void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);
 
     void tabCloseClicked(int idx);
