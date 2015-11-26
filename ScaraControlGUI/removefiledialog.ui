@@ -1,37 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RenameFileDialog</class>
- <widget class="QDialog" name="RenameFileDialog">
+ <class>RemoveFileDialog</class>
+ <widget class="QDialog" name="RemoveFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
-    <height>73</height>
+    <width>507</width>
+    <height>83</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Rename</string>
+   <string>Remove File</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>New Filename</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="filename"/>
-       </item>
-      </layout>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>File to remove:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="fileLabel">
+       <property name="styleSheet">
+        <string notr="true">font: italic 8pt &quot;MS Shell Dlg 2&quot;;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="deletePermanentlyCheckBox">
+         <property name="text">
+          <string>Delete permanently</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -46,9 +56,9 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="renameButton">
+        <widget class="QPushButton" name="removeButton">
          <property name="text">
-          <string>Raname</string>
+          <string>Remove</string>
          </property>
         </widget>
        </item>
@@ -70,32 +80,32 @@
   <connection>
    <sender>cancelButton</sender>
    <signal>clicked()</signal>
-   <receiver>RenameFileDialog</receiver>
+   <receiver>RemoveFileDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>387</x>
-     <y>81</y>
+     <x>458</x>
+     <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>56</y>
+     <x>253</x>
+     <y>41</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>renameButton</sender>
+   <sender>removeButton</sender>
    <signal>clicked()</signal>
-   <receiver>RenameFileDialog</receiver>
+   <receiver>RemoveFileDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
-     <y>81</y>
+     <x>377</x>
+     <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>56</y>
+     <x>253</x>
+     <y>41</y>
     </hint>
    </hints>
   </connection>

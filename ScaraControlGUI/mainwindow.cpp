@@ -858,6 +858,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         }
         case FileType:
         {
+            QTreeWidgetItem* project;
             QAction* remove = new QAction(tr("Remove file"), this);
             QAction* rename = new QAction(tr("Rename"),      this);
             QAction* save   = new QAction(tr("Save"),        this);
@@ -871,17 +872,27 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addSeparator();
             menu.addAction(rename);
             menu.addSeparator();
-            menu.addAction(remove);
 
-            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
-            m_saveSignalMapper      ->  setMapping(save,        item->text(0)+unposibleDelimiter+item->text(1));
+            m_saveSignalMapper      ->  setMapping(save,        item->text(0)+imposibleDelimiter+item->text(1));
             m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
-            m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+unposibleDelimiter+item->text(1));
+            m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+imposibleDelimiter+item->text(1));
 
-            connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
             connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
             connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
             connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
+
+            project = item->parent();
+
+            if ( project )
+            {
+                QString projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+                QString projectPath = project->text(1);
+
+                menu.addAction(remove);
+                m_removeSignalMapper->setMapping(remove, item->text(0)+imposibleDelimiter+item->text(1)+
+                                                 imposibleDelimiter+projectName+imposibleDelimiter+projectPath);
+                connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
+            }
 
             break;
         }
@@ -907,7 +918,7 @@ void MainWindow::renameClicked(QString const& data)
     QString newName;
     bool unsavedChanges = false;
 
-    strList = data.split(unposibleDelimiter);
+    strList = data.split(imposibleDelimiter);
 
     if ( strList.length() != 2 )
         return;
@@ -996,122 +1007,6 @@ void MainWindow::renameClicked(QString const& data)
 
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    QTreeWidgetItem* item = ui->projectExplorer->findItems(data,Qt::MatchExactly | Qt::MatchRecursive,0)[0];
-//    QTreeWidgetItem* project;
-//    QString filename;
-//    QString projectName;
-//    QString newName;
-//    bool unsavedChanges = false;
-
-//    if ( item == NULL )
-//        return;
-
-//    project = item->parent();
-
-//    if ( project == NULL )
-//        return;
-
-//    if ( item->text(0) > item->text(2) )
-//    {
-//        unsavedChanges = true;
-//        filename = item->text(2);
-//    }
-//    else
-//        filename = item->text(0);
-
-
-
-//    projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
-
-//    m_renameFileDialog = new RenameFileDialog(this);
-//    m_renameFileDialog->setFilename(filename);
-
-//    if ( m_renameFileDialog->exec() )
-//    {
-//        newName = m_renameFileDialog->getFilename();
-
-//        if ( newName == filename ) return;
-
-//        if ( !QFile::rename(item->text(1) + filename,item->text(1) + newName) )
-//        {
-//            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot rename file"));
-
-//            msgBox.setStyleSheet(currentErrorBoxTheme);
-
-//            msgBox.exec();
-//            return;
-//        }
-
-//        if ( unsavedChanges ) // if file was unsaved
-//        {
-//            // Changing file name in project explorer
-//            item->setText(0,newName + '*');
-//            item->setText(2,newName);
-
-//            // Updating project file
-//            detachFileFromProject(filename,projectName+".pro",project->text(1));
-//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-
-//            // For further searching in project explorer
-//            filename += '*';
-//        }
-//        else
-//        {
-//            // Changing file name in project explorer
-//            item->setText(0,newName);
-//            item->setText(2,newName+'*');
-
-//            // Updating project file
-//            detachFileFromProject(filename,projectName+".pro",project->text(1));
-//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-//        }
-//    }
-
-//    // Searching for another instance of file in
-//    foreach ( QTreeWidgetItem* file, ui->projectExplorer->findItems(filename,Qt::MatchExactly | Qt::MatchRecursive,0) )
-//    {
-//        if ( file->text(1) == item->text(0) )
-//        {
-//            project = item->parent();
-
-//            if ( project == NULL)
-//                continue;
-
-//            projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
-
-//            detachFileFromProject(filename,projectName+".pro",project->text(1));
-//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-
-//            file->setText(0,item->text(0));
-//            file->setText(2,item->text(2));
-//        }
-//    }
-
-//    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-//    {
-//        if ( ui->fileEditor->tabText(i) == filename )
-//        {
-//            if ( unsavedChanges )
-//                ui->fileEditor->setTabText(i,newName+'*');
-//            else
-//                ui->fileEditor->setTabText(i,newName);
-//        }
-//    }
 }
 
 void MainWindow::saveClicked(const QString &_name)
@@ -1134,7 +1029,7 @@ void MainWindow::saveClicked(const QString &_name)
     }
     else
     {
-        strList = _name.split(unposibleDelimiter);
+        strList = _name.split(imposibleDelimiter);
 
         if ( strList.length() != 2 )
             return;
@@ -1402,16 +1297,75 @@ void MainWindow::addExistClicked(const QString &name)
     }
 }
 
-void MainWindow::removeClicked(const QString &name)
+void MainWindow::removeClicked(const QString &data)
 {
+    QStringList strList;
+    QString name;
+    QString path;
+    QString proName;
+    QString proPath;
+    QString fileName;
+    bool deletePernamently = false;
+
+    strList = data.split(imposibleDelimiter);
+
+    if ( strList.length() != 4 )
+        return;
+
+    name = strList[0];
+    path = strList[1];
+    proName = strList[2];
+    proPath = strList[3];
+
+    if ( name[name.length()-1] == '*' )
+        fileName = name.left(name.length()-1);
+    else
+        fileName = name;
+
+    m_removeFileDialog = new RemoveFileDialog(this);
+    m_removeFileDialog->setFile(path+fileName);
+
+    if ( m_removeFileDialog->exec() )
+        deletePernamently = m_removeFileDialog->deletePermanently();
+    else
+        return;
+
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-//        QTreeWidgetItem*
-//        QString fileName = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
+        if ( item->text(0) == name && item->text(1) == path )
+        {
+            QString fileName = item->text(0)<item->text(2)?item->text(0):item->text(2);
+            QString filePath = item->text(1);
+            QTreeWidgetItem* project = item->parent();
 
-//        detachFileFromProject(fileName,);
+            if ( project )
+            {
+                QString projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+                QString projectPath = project->text(1);
 
-//        delete item;
+                if ( projectName == projectName && projectPath == projectPath )
+                {
+                    if ( deletePernamently )
+                    {
+                        QFile file(filePath+fileName);
+
+                        if ( !file.remove() )
+                        {
+                            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot remove file"));
+
+                            msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                            msgBox.exec();
+                            return;
+                        }
+                    }
+
+                    detachFileFromProject(fileName,projectName+".pro",projectPath);
+
+                    delete item;
+                }
+            }
+        }
     }
 }
 

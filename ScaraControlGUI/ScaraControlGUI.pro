@@ -31,7 +31,8 @@ SOURCES += \
     textedit.cpp \
     renamefiledialog.cpp \
     styles.cpp \
-    savechangesdialog.cpp
+    savechangesdialog.cpp \
+    removefiledialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -40,7 +41,8 @@ HEADERS += \
     savechangesdialog.h \
     textedit.h \
     renamefiledialog.h \
-    styles.h
+    styles.h \
+    removefiledialog.h
 
 unix {
     target.path = /usr/lib
@@ -52,7 +54,8 @@ FORMS += \
     newprojectdialog.ui \
     newfiledialog.ui \
     savechangesdialog.ui \
-    renamefiledialog.ui
+    renamefiledialog.ui \
+    removefiledialog.ui
 
 RESOURCES += \
     resource.qrc

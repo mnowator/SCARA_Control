@@ -12,6 +12,7 @@
 #include "newfiledialog.h"
 #include "savechangesdialog.h"
 #include "renamefiledialog.h"
+#include "removefiledialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,7 +31,7 @@ private:
     static const int FileType       = QTreeWidgetItem::UserType + 2;
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
-    QString const unposibleDelimiter = "!@#$%^&*";
+    QString const imposibleDelimiter = "!@#$%^&*";
 
     QClipboard* m_clipboard;
 
@@ -61,6 +62,7 @@ private:
     NewFileDialog* m_newFileDialog;
     SaveChangesDialog* m_saveChangesDialog;
     RenameFileDialog* m_renameFileDialog;
+    RemoveFileDialog* m_removeFileDialog;
 
     void closeEvent(QCloseEvent *event);
 
@@ -103,7 +105,7 @@ private slots:
     void cloneClicked       (QString const& name);
     void addNewClicked      (QString const& name);
     void addExistClicked    (QString const& name);
-    void removeClicked      (QString const& name);
+    void removeClicked      (QString const& data);
     void runClicked         (QString const& name);
     void pauseClicked       (QString const& name);
     void stopClicked        (QString const& name);
