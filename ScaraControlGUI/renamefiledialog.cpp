@@ -20,12 +20,12 @@ RenameFileDialog::~RenameFileDialog()
     delete ui;
 }
 
-void RenameFileDialog::setFilename(const QString &filename)
+void RenameFileDialog::setFileName(const QString &fileName)
 {
-    ui->filename->setText(filename);
+    ui->filename->setText(fileName);
 }
 
-QString RenameFileDialog::getFilename() const
+QString RenameFileDialog::getFileName() const
 {
     return ui->filename->text();
 }

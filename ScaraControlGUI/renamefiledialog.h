@@ -15,9 +15,9 @@ public:
     explicit RenameFileDialog(QWidget *parent = 0);
     ~RenameFileDialog();
 
-    void setFilename(QString const& filename);
+    void setFileName(QString const& fileName);
 
-    QString getFilename() const;
+    QString getFileName() const;
 
 private:
     Ui::RenameFileDialog *ui;

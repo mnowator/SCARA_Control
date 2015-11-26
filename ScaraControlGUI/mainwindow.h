@@ -30,6 +30,8 @@ private:
     static const int FileType       = QTreeWidgetItem::UserType + 2;
     static const int ConfigType     = QTreeWidgetItem::UserType + 3;
 
+    QString const unposibleDelimiter = "!@#$%^&*";
+
     QClipboard* m_clipboard;
 
     QSignalMapper* m_saveSignalMapper;
@@ -92,7 +94,7 @@ private slots:
     void tabCloseClicked(int idx);
     void currentTabChanged(int idx);
 
-    void renameClicked      (QString const& name);
+    void renameClicked      (QString const& data);
     void saveClicked        (QString const& _name);
     void saveAsClicked      (QString const& name="current");
     void setActiveClicked   (QString const& name);

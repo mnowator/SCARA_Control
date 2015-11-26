@@ -874,9 +874,9 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(remove);
 
             m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
-            m_saveSignalMapper      ->  setMapping(save,        item->text(0));
+            m_saveSignalMapper      ->  setMapping(save,        item->text(0)+unposibleDelimiter+item->text(1));
             m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
-            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
+            m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+unposibleDelimiter+item->text(1));
 
             connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
             connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
@@ -896,165 +896,296 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
 }
 
 
-void MainWindow::renameClicked(QString const& name)
+void MainWindow::renameClicked(QString const& data)
 {
-    QTreeWidgetItem* item = ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0)[0];
-    QTreeWidgetItem* project;
-    QString filename;
+    QStringList strList;
+    QString name;
+    QString path;
     QString projectName;
+    QString projectPath;
+    QString fileName;
     QString newName;
     bool unsavedChanges = false;
 
-    if ( item == NULL )
-    {
-        qDebug() << "dasdasd";
+    strList = data.split(unposibleDelimiter);
+
+    if ( strList.length() != 2 )
         return;
-    }
 
-    project = item->parent();
+    name = strList[0];
+    path = strList[1];
 
-    if ( project == NULL )
+    if ( name.length() != 0 )
     {
-        qDebug() << "dasdassadsadsadasdsad";
-        return;
-    }
-
-    if ( item->text(0) > item->text(2) )
-    {
-        unsavedChanges = true;
-        filename = item->text(2);
-    }
-    else
-        filename = item->text(0);
-
-
-
-    projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
-
-    m_renameFileDialog = new RenameFileDialog(this);
-    m_renameFileDialog->setFilename(filename);
-
-    if ( m_renameFileDialog->exec() )
-    {
-        newName = m_renameFileDialog->getFilename();
-
-        if ( newName == filename ) return;
-
-        if ( !QFile::rename(item->text(1) + filename,item->text(1) + newName) )
+        if ( name[name.length()-1] == '*' )
         {
-            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot rename file"));
-
-            msgBox.setStyleSheet(currentErrorBoxTheme);
-
-            msgBox.exec();
-            return;
-        }
-
-        if ( unsavedChanges ) // if file was unsaved
-        {
-            // Changing file name in project explorer
-            item->setText(0,newName + '*');
-            item->setText(2,newName);
-
-            // Updating project file
-            detachFileFromProject(filename,projectName+".pro",project->text(1));
-            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-
-            // For further searching in project explorer
-            filename += '*';
+            unsavedChanges = true;
+            fileName = name.left(name.length()-1);
         }
         else
-        {
-            // Changing file name in project explorer
-            item->setText(0,newName);
-            item->setText(2,newName+'*');
+            fileName = name;
+    }
+    else
+        return;
 
-            // Updating project file
-            detachFileFromProject(filename,projectName+".pro",project->text(1));
-            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-        }
+    m_renameFileDialog = new RenameFileDialog(this);
+    m_renameFileDialog->setFileName(fileName);
+
+    if ( m_renameFileDialog->exec() )
+        newName = m_renameFileDialog->getFileName();
+    else
+        return;
+
+    if ( newName == fileName )
+        return;
+
+    if ( !QFile::rename(path+fileName,path+newName))
+    {
+        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot rename file"));
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
+        msgBox.exec();
+        return;
     }
 
-    // Searching for another instance of file in
-    foreach ( QTreeWidgetItem* file, ui->projectExplorer->findItems(filename,Qt::MatchExactly | Qt::MatchRecursive,0) )
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        if ( file->text(1) == item->text(0) )
+        if ( item->text(0) == name && item->text(1) == path )
         {
-            project = item->parent();
+            QTreeWidgetItem* parent = item->parent();
 
-            if ( project == NULL)
-                continue;
-
-            projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
-
-            detachFileFromProject(filename,projectName+".pro",project->text(1));
-            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
-
-            file->setText(0,item->text(0));
-            file->setText(2,item->text(2));
-        }
-    }
-
-    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-    {
-        if ( ui->fileEditor->tabText(i) == filename )
-        {
-            if ( unsavedChanges )
-                ui->fileEditor->setTabText(i,newName+'*');
+            if ( parent )
+            {
+                projectName = parent->text(0)<parent->text(2)?parent->text(0):parent->text(2);
+                projectPath = parent->text(1);
+            }
             else
-                ui->fileEditor->setTabText(i,newName);
+                return;
+
+            if ( unsavedChanges )
+            {
+                item->setText(0,newName + '*');
+                item->setText(2,newName);
+            }
+            else
+            {
+                item->setText(0,newName);
+                item->setText(2,newName+'*');
+            }
+
+            detachFileFromProject(fileName,projectName+".pro",projectPath);
+            attachFileToProject(newName,path,projectName+".pro",projectPath);
         }
     }
+
+    for ( unsigned i=0;i<ui->fileEditor->count(); ++i )
+    {
+        if ( ui->fileEditor->tabText(i) == name )
+        {
+            TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+
+            if ( textEdit )
+                if ( textEdit->path == path )
+                {
+                    if ( unsavedChanges )
+                        ui->fileEditor->setTabText(i,newName+'*');
+                    else
+                        ui->fileEditor->setTabText(i,newName);
+                }
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    QTreeWidgetItem* item = ui->projectExplorer->findItems(data,Qt::MatchExactly | Qt::MatchRecursive,0)[0];
+//    QTreeWidgetItem* project;
+//    QString filename;
+//    QString projectName;
+//    QString newName;
+//    bool unsavedChanges = false;
+
+//    if ( item == NULL )
+//        return;
+
+//    project = item->parent();
+
+//    if ( project == NULL )
+//        return;
+
+//    if ( item->text(0) > item->text(2) )
+//    {
+//        unsavedChanges = true;
+//        filename = item->text(2);
+//    }
+//    else
+//        filename = item->text(0);
+
+
+
+//    projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+
+//    m_renameFileDialog = new RenameFileDialog(this);
+//    m_renameFileDialog->setFilename(filename);
+
+//    if ( m_renameFileDialog->exec() )
+//    {
+//        newName = m_renameFileDialog->getFilename();
+
+//        if ( newName == filename ) return;
+
+//        if ( !QFile::rename(item->text(1) + filename,item->text(1) + newName) )
+//        {
+//            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot rename file"));
+
+//            msgBox.setStyleSheet(currentErrorBoxTheme);
+
+//            msgBox.exec();
+//            return;
+//        }
+
+//        if ( unsavedChanges ) // if file was unsaved
+//        {
+//            // Changing file name in project explorer
+//            item->setText(0,newName + '*');
+//            item->setText(2,newName);
+
+//            // Updating project file
+//            detachFileFromProject(filename,projectName+".pro",project->text(1));
+//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+
+//            // For further searching in project explorer
+//            filename += '*';
+//        }
+//        else
+//        {
+//            // Changing file name in project explorer
+//            item->setText(0,newName);
+//            item->setText(2,newName+'*');
+
+//            // Updating project file
+//            detachFileFromProject(filename,projectName+".pro",project->text(1));
+//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+//        }
+//    }
+
+//    // Searching for another instance of file in
+//    foreach ( QTreeWidgetItem* file, ui->projectExplorer->findItems(filename,Qt::MatchExactly | Qt::MatchRecursive,0) )
+//    {
+//        if ( file->text(1) == item->text(0) )
+//        {
+//            project = item->parent();
+
+//            if ( project == NULL)
+//                continue;
+
+//            projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+
+//            detachFileFromProject(filename,projectName+".pro",project->text(1));
+//            attachFileToProject(newName,item->text(1),projectName+".pro",project->text(1));
+
+//            file->setText(0,item->text(0));
+//            file->setText(2,item->text(2));
+//        }
+//    }
+
+//    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+//    {
+//        if ( ui->fileEditor->tabText(i) == filename )
+//        {
+//            if ( unsavedChanges )
+//                ui->fileEditor->setTabText(i,newName+'*');
+//            else
+//                ui->fileEditor->setTabText(i,newName);
+//        }
+//    }
 }
 
 void MainWindow::saveClicked(const QString &_name)
 {
+    QStringList strList;
+    TextEdit* textEdit;
+    QString name;
+    QString path;
     bool futherSavingPossible = false;
-    QString name = _name;
 
-    if ( name == "current" )
-        name = ui->fileEditor->tabText(ui->fileEditor->currentIndex());
+    if ( _name == "current" )
+    {
+        unsigned currentIdx = ui->fileEditor->currentIndex();
+
+        name = ui->fileEditor->tabText(currentIdx);
+        textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(currentIdx));
+
+        if ( textEdit )
+            path = textEdit->path;
+    }
+    else
+    {
+        strList = _name.split(unposibleDelimiter);
+
+        if ( strList.length() != 2 )
+            return;
+
+        name = strList[0];
+        path = strList[1];
+    }
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        QString tmpStr = item->text(0);
-
-        if ( item->text(0) < item->text(2)) continue;
-        else if ( item->type() == FileType )
+        if ( item->text(0) < item->text(2)) continue; // just in case if saved item could call this slot
+        else if ( item->text(1) == path )
         {
-            TextEdit* textEdit;
-            QTreeWidgetItem* parent = item->parent();
-            QString projectName = parent->text(0).length()<parent->text(2).length() ? parent->text(0) : parent->text(2);
-
-            for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
-            {
-                if ( ui->fileEditor->tabText(i) == name )
-                {
-                    textEdit = dynamic_cast<TextEdit*>( ui->fileEditor->widget(i) );
-                    ui->fileEditor->setTabText(i,item->text(2));
-                    break;
-                }
-                else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*')
-                    futherSavingPossible = true;
-            }
-
-            if ( futherSavingPossible )
-                ui->actionSaveAll->setEnabled(true);
-            else
-                ui->actionSaveAll->setEnabled(false);
-
-            attachFileToProject(item->text(2),item->text(1),projectName+".pro",parent->text(1));
-            saveFile(item->text(1),item->text(2),textEdit->toPlainText());
-
-            m_textChangedMapper->setMapping(textEdit,textEdit);
-            connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            QString tmpStr = item->text(0);
 
             item->setText(0,item->text(2));
             item->setText(2,tmpStr);
         }
     }
 
-    ui->actionSave->setEnabled(false);
+    // I hope its good synchronized with project explorer, god bless me
+    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+    {
+        if ( ui->fileEditor->tabText(i) == name )
+        {
+            textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+
+            if ( textEdit )
+                if ( textEdit->path == path)
+                {
+                    QString newName = name.left(name.length()-1);
+
+                    saveFile(path,newName,textEdit->toPlainText());
+                    ui->fileEditor->setTabText(i,newName);
+
+                    m_textChangedMapper->setMapping(textEdit,textEdit);
+                    connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+
+                    if ( ui->fileEditor->currentIndex() == i )
+                                ui->actionSave->setEnabled(false);
+                }
+        }
+        else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*' )
+            // Now i hope that i never let file have empty tab text
+            futherSavingPossible = true;
+    }
+
+    if ( futherSavingPossible )
+        ui->actionSaveAll->setEnabled(true);
+    else
+        ui->actionSaveAll->setEnabled(false);
 }
 
 void MainWindow::saveAsClicked(const QString &name)
@@ -1273,7 +1404,15 @@ void MainWindow::addExistClicked(const QString &name)
 
 void MainWindow::removeClicked(const QString &name)
 {
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
+    {
+//        QTreeWidgetItem*
+//        QString fileName = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
 
+//        detachFileFromProject(fileName,);
+
+//        delete item;
+    }
 }
 
 void MainWindow::runClicked(const QString &name)
