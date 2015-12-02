@@ -84,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 
     this->setStyleSheet(currentWindowTheme);
+    this->menuBar()->setStyleSheet(currentMenuBarTheme);
 }
 
 MainWindow::~MainWindow()
@@ -903,6 +904,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         }
     }
 
+    menu.setStyleSheet(currentMenuBarTheme);
     menu.exec( ui->projectExplorer->mapToGlobal(pos));
 }
 

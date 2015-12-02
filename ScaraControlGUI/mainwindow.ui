@@ -117,16 +117,7 @@ QTabBar::tab {
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true">QMenuBar::item {
-	background-color: rgb(64, 64, 64);
-}
-QMenuBar::item:selected { 
-	background-color: rgb(60, 187, 255);
-}
-QMenu::item:selected {
-    background-color: rgb(60, 187, 255);
-}
-border-bottom-color: rgb(255, 255, 255);</string>
+    <string notr="true"/>
    </property>
    <property name="defaultUp">
     <bool>false</bool>
