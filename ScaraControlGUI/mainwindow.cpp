@@ -128,8 +128,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         if ( m_saveChangesDialog->exec() )
         {
-            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
-                saveClicked(file);
+            for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
             event->accept();
         }
@@ -536,8 +536,8 @@ void MainWindow::closeAllClicked()
     {
         if ( m_saveChangesDialog->exec() )
         {
-            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
-                saveClicked(file);
+            for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
             m_scaraRobots.clear();
             
@@ -1134,8 +1134,8 @@ void MainWindow::closeClicked(const QString &name)
         {
             if ( m_saveChangesDialog->exec() )
             {
-                for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
-                    saveClicked(file);
+                for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
+                    saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
                 if ( item->text(0) < item->text(2) )
                     m_scaraRobots.remove(item->text(0));
@@ -1194,41 +1194,48 @@ void MainWindow::addNewClicked(const QString &name)
         if ( fileType == "Program ( Python File )")
             fileName += ".py";
 
-
+        // check if there is a file in a project with the same name
         foreach( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
         {
-            for ( unsigned i=0; project->childCount(); ++i)
+            for ( unsigned i=0; i<project->childCount(); ++i)
             {
                 QTreeWidgetItem* child = project->child(i);
 
-                if ( child->text(0) == fileName ||
-                     child->text(2) == fileName )
+                if ( child )
                 {
-                    QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
-                                                                             "Please change name."));
+                    if ( child->text(0) == fileName ||
+                         child->text(2) == fileName )
+                    {
+                        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is a file with the same name in a project.\n"
+                                                                                 "Please change name."));
 
-                    msgBox.setStyleSheet(currentErrorBoxTheme);
+                        msgBox.setStyleSheet(currentErrorBoxTheme);
 
-                    msgBox.exec();
-                    bOrNot2b = true;
-                    break;
+                        msgBox.exec();
+                        bOrNot2b = true;
+                        break;
+                    }
                 }
             }
         }
     }
 
-    foreach( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
+    foreach( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
     {
         QTreeWidgetItem* file = new QTreeWidgetItem(FileType);
+        QString projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
+        QString projectPath = project->text(1);
 
-        file->setText(0,fileName+'*');
-        file->setText(1,item->text(1));
-        file->setText(2,fileName);
+        file->setText(0,fileName);
+        file->setText(1,projectPath);
+        file->setText(2,fileName+'*');
         file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
 
-        item->addChild(file);
+        project->addChild(file);
 
         projectExplorerDoubleClicked(file,0);
+
+        attachFileToProject(fileName,projectPath,projectName+".pro",projectPath);
     }
 }
 
@@ -1418,14 +1425,13 @@ void MainWindow::textChanged(QWidget* widget)
 
             item->setText(0,item->text(2));
             item->setText(2,tmpStr);
-
-            ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
-
-            m_textChangedMapper->removeMappings(textEdit);
-            disconnect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
         }
     }
 
+    m_textChangedMapper->removeMappings(textEdit);
+    disconnect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+
+    ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
     ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
 }
@@ -1469,9 +1475,9 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 
         QFile file(item->text(1)+name);
 
-        if ( file.open(QFile::ReadOnly | QFile::Text))
+        if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
-            TextEdit* textEdit = new TextEdit(name,this);
+            TextEdit* textEdit = new TextEdit(this);
             QTextStream textStream(&file);
 
             textEdit->setText(textStream.readAll());
@@ -1481,7 +1487,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
             connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
-            ui->fileEditor->addTab(textEdit,name);
+            ui->fileEditor->addTab(textEdit,item->text(0));
             ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
             ui->fileEditor->currentWidget()->setFocus();
         }
@@ -1506,8 +1512,8 @@ void MainWindow::tabCloseClicked(int idx)
 
         if ( m_saveChangesDialog->exec() )
         {
-            for ( QString& file : m_saveChangesDialog->getSelectedFiles() )
-                saveClicked(file);
+            for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
+                saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
             foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(tabName,Qt::MatchExactly | Qt::MatchRecursive,0) )
             {

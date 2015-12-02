@@ -39,12 +39,15 @@ void SaveChangesDialog::addFile(const QIcon &icon, const QString &fileName, cons
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1,1,pathItem);
 }
 
-QStringList SaveChangesDialog::getSelectedFiles()
+QList<QPair<QString, QString> > SaveChangesDialog::getSelectedFiles()
 {
-    QStringList selectedFiles;
+    QList<QPair<QString, QString> > selectedFiles;
 
     for ( unsigned idx=0; idx<ui->tableWidget->selectionModel()->selectedRows().count(); ++idx)
-        selectedFiles << ui->tableWidget->takeItem(idx,0)->text();
+    {
+        selectedFiles.append(qMakePair(ui->tableWidget->takeItem(idx,0)->text(),
+                                       ui->tableWidget->takeItem(idx,1)->text()));
+    }
 
     return selectedFiles;
 }

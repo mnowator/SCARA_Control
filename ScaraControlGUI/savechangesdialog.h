@@ -16,7 +16,7 @@ public:
     ~SaveChangesDialog();
 
     void addFile(QIcon const& icon, QString const& fileName, QString const& filePath);
-    QStringList getSelectedFiles();
+    QList<QPair<QString, QString> >  getSelectedFiles();
 
 public slots:
     virtual int exec();
