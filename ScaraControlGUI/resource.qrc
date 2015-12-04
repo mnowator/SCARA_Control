@@ -21,6 +21,7 @@
         <file>lc_navigateforward.png</file>
         <file>lc_absoluterecord.png</file>
         <file>lc_grafmode.png</file>
-        <file>pro_file.jpg</file>
+        <file>profile.png</file>
+        <file>pythonfile.png</file>
     </qresource>
 </RCC>

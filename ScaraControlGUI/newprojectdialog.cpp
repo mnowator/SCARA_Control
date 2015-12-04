@@ -24,6 +24,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     ui->projectPathLineEdit->setStyleSheet(currentLineEditTheme);
 
     ui->communicationTypeComboBox->setStyleSheet(currentComboBoxTheme);
+    ui->projectTypeComboBox->setStyleSheet(currentComboBoxTheme);
 }
 
 NewProjectDialog::~NewProjectDialog()
@@ -46,5 +47,30 @@ void NewProjectDialog::browseButtonClicked()
 
 void NewProjectDialog::createButtonClicked()
 {
-    emit createProjectSignal(ui->projectNameLineEdit->text(),ui->communicationTypeComboBox->currentText(),ui->projectPathLineEdit->text());
+    emit createProjectSignal(ui->projectNameLineEdit->text(),
+                             ui->communicationTypeComboBox->currentText(),
+                             ui->projectPathLineEdit->text(),
+                             ui->projectTypeComboBox->currentText());
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

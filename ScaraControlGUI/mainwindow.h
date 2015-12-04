@@ -54,7 +54,7 @@ private:
 
     Ui::MainWindow *ui;
 
-    QHash<QString, ScaraRobot> m_scaraRobots;
+    QHash<QString, ScaraRobot> m_projects;
 
     QString m_activeProject;
 
@@ -88,7 +88,7 @@ private slots:
     void clipboardChange();
     void saveAllClicked();
 
-    void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath);
+    void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, QString const& projectType);
     void projectExplorerContextMenuRequested(QPoint const& pos);
 
     void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);

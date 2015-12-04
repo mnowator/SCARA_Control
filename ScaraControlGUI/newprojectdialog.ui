@@ -39,6 +39,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Project type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Communication:</string>
@@ -54,6 +61,25 @@
              <property name="text">
               <string>untitled</string>
              </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="projectTypeComboBox">
+             <item>
+              <property name="text">
+               <string>SCARA - SC</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Delta - D1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parallel SCARA</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>

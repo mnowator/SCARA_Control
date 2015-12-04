@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SCARA Control</string>
+   <string>NWTR Robotics</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

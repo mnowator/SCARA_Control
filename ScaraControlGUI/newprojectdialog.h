@@ -19,7 +19,7 @@ private:
     Ui::NewProjectDialog *ui;
 
 signals:
-    void createProjectSignal(QString projectName, QString communicationType, QString projectPath);
+    void createProjectSignal(QString projectName, QString communicationType, QString projectPath, QString projectType);
 
 private slots:
     void browseButtonClicked();

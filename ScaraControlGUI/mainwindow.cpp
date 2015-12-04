@@ -332,7 +332,7 @@ QString MainWindow::loadFile(const QString &filePath, const QString &fileName)
 void MainWindow::newProjectClicked()
 {
     m_newProjectDialog = new NewProjectDialog(this);
-    connect(m_newProjectDialog,SIGNAL(createProjectSignal(QString,QString,QString)),this,SLOT(createProject(QString,QString,QString)));
+    connect(m_newProjectDialog,SIGNAL(createProjectSignal(QString,QString,QString,QString)),this,SLOT(createProject(QString,QString,QString,QString)));
     m_newProjectDialog->show();
 }
 
@@ -369,7 +369,7 @@ void MainWindow::openProjectProject()
         }
     }
 
-    if ( m_scaraRobots.contains(projectName))
+    if ( m_projects.contains(projectName))
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
                                                                  "Please change name or close another project."));
@@ -433,12 +433,12 @@ void MainWindow::openProjectProject()
     projectProFile->setText(0,projectName + ".pro");
     projectProFile->setText(1,projectPath);
     projectProFile->setText(2,projectName + ".pro*");
-    projectProFile->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+    projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
 
-    m_scaraRobots[projectName] = ScaraRobot();
+    m_projects[projectName] = ScaraRobot();
 
     setActiveProject(projectName);
 
@@ -478,14 +478,14 @@ void MainWindow::openProjectProject()
             continue;
         }
 
-        fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+        fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
 
         project->addChild(fileTreeWidgetItem);
     }
 
     ui->projectExplorer->addTopLevelItem(project);
 
-    m_scaraRobots[projectName] = ScaraRobot();
+    m_projects[projectName] = ScaraRobot();
 
     ui->workspace->show();
     ui->actionCloseAll->setEnabled(true);
@@ -527,7 +527,7 @@ void MainWindow::closeAllClicked()
 
     if ( !prevent )
     {
-        m_scaraRobots.clear();
+        m_projects.clear();
         
         ui->projectExplorer->clear();
         ui->fileEditor->clear();
@@ -540,7 +540,7 @@ void MainWindow::closeAllClicked()
             for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
                 saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
-            m_scaraRobots.clear();
+            m_projects.clear();
             
             ui->projectExplorer->clear();
             ui->fileEditor->clear();
@@ -635,12 +635,12 @@ void MainWindow::saveAllClicked()
     ui->actionSaveAll->setEnabled(false);
 }
 
-void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath)
+void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, const QString &projectType)
 {
     QString fileFullPath = projectPath+'/'+projectName+'/'+projectName+".pro";
     QDir dir(projectPath+'/'+projectName);
 
-    if ( m_scaraRobots.contains(projectName))
+    if ( m_projects.contains(projectName))
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
                                                                  "Please change name or close another project."));
@@ -666,11 +666,14 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
         return;
     }
 
-    QDomDocument dom("SCARA_Control_Project_File");
+    QDomDocument dom("NWTR_Robotics");
     QDomElement elHigher, elLower, root;
 
     root = dom.createElement("Project");
     dom.appendChild(root);
+
+    if ( projectType == "SCARA - SC" )
+        root.setAttribute("project_type", projectType);
 
 //        elHigher = dom.createElement("ProjectName");
 //        elHigher.appendChild(dom.createTextNode(projectName));
@@ -711,9 +714,11 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 //        el.setAttribute("motor_3_max_steps", "");
 //        root.appendChild(elHigher);
 
+
     elHigher = dom.createElement("CommunicationConfig");
 
     if ( communicationType == "Serial Communication ( COM )")
+    {
         elHigher.setAttribute("communication_type", communicationType);
 //        el.setAttribute("com_name", "");
 //        el.setAttribute("baud_rate", "");
@@ -721,9 +726,10 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 //        el.setAttribute("stop_bits", "");
 //        el.setAttribute("parity", "");
 //        el.setAttribute("flow_control", "");
-    root.appendChild(elHigher);
+        root.appendChild(elHigher);
+    }
 
-    m_scaraRobots[projectName] = ScaraRobot();
+    m_projects[projectName] = ScaraRobot();
 
     saveFile(projectPath+'/'+projectName,projectName+".pro",dom.toString());
 
@@ -739,8 +745,9 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 
     QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
     projectProFile->setText(0,projectName + ".pro");
-    projectProFile->setText(1,projectPath  + '/' + projectName);
-    projectProFile->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+    projectProFile->setText(1,projectPath + projectName);
+    projectProFile->setText(2,projectName + ".pro*");
+    projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
@@ -1118,8 +1125,8 @@ void MainWindow::closeClicked(const QString &name)
         if ( !prevent )
         {
             if ( item->text(0) < item->text(2) )
-                m_scaraRobots.remove(item->text(0));
-            else m_scaraRobots.remove(item->text(2));
+                m_projects.remove(item->text(0));
+            else m_projects.remove(item->text(2));
 
             for ( unsigned i=0; i<item->childCount(); ++i )
             {
@@ -1140,8 +1147,8 @@ void MainWindow::closeClicked(const QString &name)
                     saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
 
                 if ( item->text(0) < item->text(2) )
-                    m_scaraRobots.remove(item->text(0));
-                else m_scaraRobots.remove(item->text(2));
+                    m_projects.remove(item->text(0));
+                else m_projects.remove(item->text(2));
 
                 for ( unsigned i=0; i<item->childCount(); ++i )
                 {
@@ -1231,7 +1238,7 @@ void MainWindow::addNewClicked(const QString &name)
         file->setText(0,fileName);
         file->setText(1,projectPath);
         file->setText(2,fileName+'*');
-        file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+        file->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
 
         project->addChild(file);
 
@@ -1297,7 +1304,7 @@ void MainWindow::addExistClicked(const QString &name)
         file->setText(0,fullFileName);
         file->setText(1,filePath);
         file->setText(2,fullFileName+'*');
-        file->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+        file->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
 
         attachFileToProject(fullFileName,filePath,projectName+".pro",project->text(1));
 
