@@ -65,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_saveSignalMapper->setMapping(ui->actionSave,"current");
     connect(ui->actionSave,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
 
+    m_saveAsSignalMapper->setMapping(ui->actionSave_as,"current");
+    connect(ui->actionSave_as,SIGNAL(triggered(bool)),m_saveAsSignalMapper,SLOT(map()));
+
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProject()));
@@ -882,7 +885,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addSeparator();
 
             m_saveSignalMapper      ->  setMapping(save,        item->text(0)+imposibleDelimiter+item->text(1));
-            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
+            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0)+imposibleDelimiter+item->text(1));
             m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+imposibleDelimiter+item->text(1));
 
             connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
@@ -1018,7 +1021,7 @@ void MainWindow::renameClicked(QString const& data)
     }
 }
 
-void MainWindow::saveClicked(const QString &_name)
+void MainWindow::saveClicked(const QString &data)
 {
     QStringList strList;
     TextEdit* textEdit;
@@ -1026,7 +1029,7 @@ void MainWindow::saveClicked(const QString &_name)
     QString path;
     bool futherSavingPossible = false;
 
-    if ( _name == "current" )
+    if ( data == "current" )
     {
         unsigned currentIdx = ui->fileEditor->currentIndex();
 
@@ -1038,7 +1041,7 @@ void MainWindow::saveClicked(const QString &_name)
     }
     else
     {
-        strList = _name.split(imposibleDelimiter);
+        strList = data.split(imposibleDelimiter);
 
         if ( strList.length() != 2 )
             return;
@@ -1092,9 +1095,116 @@ void MainWindow::saveClicked(const QString &_name)
         ui->actionSaveAll->setEnabled(false);
 }
 
-void MainWindow::saveAsClicked(const QString &name)
+void MainWindow::saveAsClicked(const QString &data)
 {
+    QStringList strList;
+    QFileDialog fileDialog;
+    TextEdit* textEdit;
+    QString name;
+    QString path;
+    QString nameWithoutStar;
 
+    if ( data == "current" )
+    {
+        unsigned currentIdx = ui->fileEditor->currentIndex();
+
+        name = ui->fileEditor->tabText(currentIdx);
+        textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(currentIdx));
+
+        if ( textEdit )
+            path = textEdit->path;
+    }
+    else
+    {
+        strList = data.split(imposibleDelimiter);
+
+        if ( strList.length() != 2 )
+            return;
+
+        name = strList[0];
+        path = strList[1];
+    }
+
+    if ( name[name.length()-1] == '*' )
+        nameWithoutStar = name.left(name.length()-1);
+    else
+        nameWithoutStar = name;
+
+    fileDialog.setDirectory(path);
+    fileDialog.selectFile(nameWithoutStar);
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    fileDialog.setNameFilter("(*.py, *pro)");
+
+    if ( fileDialog.exec() )
+    {
+        QString newFullPath = fileDialog.selectedFiles()[0];
+        QString newPath;
+        QString newName;
+
+        for ( unsigned i=newFullPath.length(); i!=0; --i)
+        {
+            if ( newFullPath[i-1] == '\\' || newFullPath[i-1] == '/' )
+            {
+                newPath = newFullPath.left(i);
+                newName = newFullPath.right(newFullPath.length()-i);
+                newName = newName.left(newName.length()-1);
+
+                break;
+            }
+        }
+
+        qDebug() << newPath;
+        qDebug() << newName;
+
+        for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
+        {
+            if ( ui->fileEditor->tabText(i) == name )
+            {
+                textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+
+                if ( textEdit )
+                {
+                    if ( textEdit->path == path )
+                    {
+                        TextEdit* newTextEdit = new TextEdit(this);
+
+                        newTextEdit->setText(textEdit->toPlainText());
+                        newTextEdit->path = newPath;
+
+                        saveFile(newPath,newName,newTextEdit->toPlainText());
+
+                        m_textChangedMapper->setMapping(newTextEdit,newTextEdit);
+                        connect(newTextEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                        connect(newTextEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+
+                        ui->fileEditor->addTab(newTextEdit,QIcon(":/new/icons/pythonfile.png"),newName);
+                        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(newTextEdit));
+                        ui->fileEditor->currentWidget()->setFocus();
+
+                        return;
+                    }
+                }
+            }
+        }
+
+        // If file is not opened, we have to load it
+        QString content = loadFile(path,name);
+
+        textEdit = new TextEdit(this);
+
+        textEdit->setText(content);
+        textEdit->path = newPath;
+
+        m_textChangedMapper->setMapping(textEdit,textEdit);
+        connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+        connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+
+        saveFile(newPath,newName,textEdit->toPlainText());
+
+        ui->fileEditor->addTab(textEdit,QIcon(":/new/icons/pythonfile.png"),newName);
+        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
+        ui->fileEditor->currentWidget()->setFocus();
+    }
 }
 
 void MainWindow::setActiveClicked(const QString &name)
@@ -1496,10 +1606,12 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
             connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
-            ui->fileEditor->addTab(textEdit,item->text(0));
+            ui->fileEditor->addTab(textEdit,QIcon(":/new/icons/pythonfile.png"),item->text(0));
             ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
             ui->fileEditor->currentWidget()->setFocus();
         }
+
+        ui->actionSave_as->setEnabled(true);
 
         break;
     }
@@ -1536,6 +1648,9 @@ void MainWindow::tabCloseClicked(int idx)
     }
     else
         ui->fileEditor->removeTab(idx);
+
+    if (ui->fileEditor->count() == 0 )
+        ui->actionSave_as->setEnabled(false);
 }
 
 void MainWindow::currentTabChanged(int idx)
