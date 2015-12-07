@@ -10,7 +10,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QKeyEvent>
-#include <QtAlgorithms>
+#include <QCoreApplication>
 
 #include "styles.h"
 #include "textedit.h"
@@ -86,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
     connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+
+    connect(qApp,SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
 
     this->setStyleSheet(currentWindowTheme);
     this->menuBar()->setStyleSheet(currentMenuBarTheme);
@@ -679,6 +681,7 @@ void MainWindow::copyClicked()
 void MainWindow::cutClicked()
 {
     QWidget* focused = QApplication::focusWidget();
+
     if( focused != 0 )
     {
         QApplication::postEvent( focused,
@@ -695,6 +698,7 @@ void MainWindow::cutClicked()
 void MainWindow::pasteClicked()
 {
     QWidget* focused = QApplication::focusWidget();
+
     if( focused != 0 )
     {
         QApplication::postEvent( focused,
@@ -732,6 +736,36 @@ void MainWindow::saveAllClicked()
     }
 
     ui->actionSaveAll->setEnabled(false);
+}
+
+void MainWindow::selectAllClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_A,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_A,
+                                                Qt::ControlModifier ));
+    }
+}
+
+void MainWindow::focusChanged(QWidget *old, QWidget *now)
+{
+    TextEdit* textEdit;
+
+    textEdit = dynamic_cast<TextEdit*>(now);
+
+    if ( textEdit )
+        if ( !textEdit->toPlainText().isEmpty() )
+            ui->actionSelect_All->setEnabled(true);
+
+    ui->actionSelect_All->setEnabled(false);
 }
 
 void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, const QString &projectType)

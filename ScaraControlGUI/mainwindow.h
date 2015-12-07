@@ -88,6 +88,9 @@ private slots:
     void pasteClicked();
     void clipboardChange();
     void saveAllClicked();
+    void selectAllClicked();
+
+    void focusChanged(QWidget* old, QWidget* now);
 
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, QString const& projectType);
     void projectExplorerContextMenuRequested(QPoint const& pos);
