@@ -64,10 +64,11 @@ private:
     RenameFileDialog* m_renameFileDialog;
     RemoveFileDialog* m_removeFileDialog;
 
+    static bool lessThenTreeWidgetItem(QTreeWidgetItem* first, QTreeWidgetItem* second);
+
+    void sortProjectFiles(QTreeWidgetItem* project);
     void closeEvent(QCloseEvent *event);
-
     void setActiveProject(QString const& projectName);
-
     void attachFileToProject(QString const& fileName, QString const& filePath, QString const& projectName, QString const& projectPath);
     void detachFileFromProject(QString const& fileName, QString const& projecName, QString const& projectPath);
 

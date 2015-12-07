@@ -10,6 +10,7 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QKeyEvent>
+#include <QtAlgorithms>
 
 #include "styles.h"
 #include "textedit.h"
@@ -102,6 +103,99 @@ MainWindow::~MainWindow()
     delete m_restartSignalMapper;
 
     delete ui;
+}
+
+bool MainWindow::lessThenTreeWidgetItem(QTreeWidgetItem *first, QTreeWidgetItem *second)
+{
+    QString selfCp = first->text(0);
+    QString otherCp = second->text(0);
+    QString selfExtension;
+    QString otherExtension;
+    QString selfName;
+    QString otherName;
+
+    bool returnValue;
+
+    unsigned selfRating = 0;
+    unsigned otherRating = 0;
+
+    while ( selfCp[selfCp.length()-1] == '*' )
+        selfCp = selfCp.left(selfCp.length() -1);
+
+    while ( otherCp[otherCp.length()-1] == '*' )
+        otherCp = otherCp.left(otherCp.length() -1);
+
+    for ( unsigned i=selfCp.length()-1;i != 0; --i )
+        if ( selfCp[i] == '.' )
+        {
+            selfExtension = selfCp.right(selfCp.length()-i);
+            selfName = selfCp.left(i);
+        }
+
+    for ( unsigned i=otherCp.length()-1;i != 0; --i )
+        if ( otherCp[i] == '.' )
+        {
+            otherExtension = otherCp.right(otherCp.length()-i);
+            otherName = otherCp.left(i);
+        }
+
+    if ( selfExtension == ".pro" )
+        selfRating = 3;
+    else if ( selfExtension == ".py" )
+        selfRating = 2;
+    else
+        selfRating = 1;
+
+    if ( otherExtension == ".pro" )
+        otherRating = 3;
+    else if ( otherExtension == ".py" )
+        otherRating = 2;
+    else
+        otherRating = 1;
+
+    if ( selfRating == otherRating )
+        returnValue = selfName > otherName;
+    else
+        returnValue = selfRating < otherRating;
+
+
+    if ( returnValue )
+    {
+        QTreeWidgetItem* clone = first->clone();
+
+        first->setText(0,second->text(0));
+        first->setText(1,second->text(1));
+        first->setText(2,second->text(2));
+
+        first->setIcon(0,second->icon(0));
+
+        second->setText(0,clone->text(0));
+        second->setText(1,clone->text(1));
+        second->setText(2,clone->text(2));
+
+        second->setIcon(0,clone->icon(0));
+    }
+
+    return returnValue;
+}
+
+void MainWindow::sortProjectFiles(QTreeWidgetItem *project)
+{
+    QList<QTreeWidgetItem*> files;
+
+    if ( project )
+        for ( unsigned i=0; i<project->childCount(); ++i )
+            files.append(project->child(i));
+    else
+        return;
+
+    for ( unsigned i=0; i<files.length(); ++i )
+    {
+        for ( unsigned j=0; j<files.length()-1; ++j )
+        {
+            lessThenTreeWidgetItem(files.at(j), files.at(j+1));
+        }
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -487,6 +581,8 @@ void MainWindow::openProjectProject()
     }
 
     ui->projectExplorer->addTopLevelItem(project);
+
+    sortProjectFiles(project);
 
     m_projects[projectName] = ScaraRobot();
 
@@ -999,6 +1095,8 @@ void MainWindow::renameClicked(QString const& data)
 
             detachFileFromProject(fileName,projectName+".pro",projectPath);
             attachFileToProject(newName,path,projectName+".pro",projectPath);
+
+            sortProjectFiles(parent);
         }
     }
 
@@ -1152,9 +1250,6 @@ void MainWindow::saveAsClicked(const QString &data)
                 break;
             }
         }
-
-        qDebug() << newPath;
-        qDebug() << newName;
 
         for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
         {
@@ -1355,6 +1450,8 @@ void MainWindow::addNewClicked(const QString &name)
         projectExplorerDoubleClicked(file,0);
 
         attachFileToProject(fileName,projectPath,projectName+".pro",projectPath);
+
+        sortProjectFiles(project);
     }
 }
 
@@ -1420,6 +1517,8 @@ void MainWindow::addExistClicked(const QString &name)
 
         project->addChild(file);
         projectExplorerDoubleClicked(file,0);
+
+        sortProjectFiles(project);
     }
 }
 
