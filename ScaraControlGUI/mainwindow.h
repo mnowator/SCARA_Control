@@ -13,6 +13,7 @@
 #include "savechangesdialog.h"
 #include "renamefiledialog.h"
 #include "removefiledialog.h"
+#include "textedit.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,8 +52,14 @@ private:
     QSignalMapper* m_restartSignalMapper;
     QSignalMapper* m_textChangedMapper;
     QSignalMapper* m_saveProjectMapper;
+    QSignalMapper* m_undoMapper;
+    QSignalMapper* m_redoMapper;
 
     Ui::MainWindow *ui;
+
+    TextEdit* m_undoRedoRegisteredItem;
+    QList<TextEdit*> m_redos;
+    QList<TextEdit*> m_undos;
 
     QHash<QString, ScaraRobot> m_projects;
 
@@ -89,6 +96,8 @@ private slots:
     void clipboardChange();
     void saveAllClicked();
     void selectAllClicked();
+    void undoClicked();
+    void redoClicked();
 
     void focusChanged(QWidget* old, QWidget* now);
 
@@ -116,7 +125,12 @@ private slots:
     void restartClicked     (QString const& name);
     void saveProjectClicked (QString const& name);
 
+    void registerRedoStatus (QWidget* widget);
+    void registerUndoStatus (QWidget* widget);
     void textChanged        (QWidget* widget);
+
+    void updateRedoStatus   (bool available);
+    void updateUndoStatus   (bool available);
 
     void copyAvailable      (bool yes);
 };

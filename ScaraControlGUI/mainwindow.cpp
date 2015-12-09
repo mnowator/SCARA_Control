@@ -11,9 +11,9 @@
 #include <QMimeData>
 #include <QKeyEvent>
 #include <QCoreApplication>
+#include <QLineEdit>
 
 #include "styles.h"
-#include "textedit.h"
 
 #include <QDebug>
 
@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_restartSignalMapper   =   new QSignalMapper(this);
     m_textChangedMapper     =   new QSignalMapper(this);
     m_saveProjectMapper     =   new QSignalMapper(this);
+    m_redoMapper            =   new QSignalMapper(this);
+    m_undoMapper            =   new QSignalMapper(this);
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -61,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
 
+    connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
+    connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
     connect(m_textChangedMapper,    SIGNAL(mapped(QWidget*)),this,SLOT(textChanged       (QWidget*)));
 
     m_saveSignalMapper->setMapping(ui->actionSave,"current");
@@ -80,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPaste,                SIGNAL(triggered(bool)),this,SLOT(pasteClicked()));
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
     connect(ui->actionSaveAll,              SIGNAL(triggered(bool)),this,SLOT(saveAllClicked()));
+    connect(ui->actionRedo,                 SIGNAL(triggered(bool)),this,SLOT(redoClicked()));
+    connect(ui->actionUndo,                 SIGNAL(triggered(bool)),this,SLOT(undoClicked()));
+    connect(ui->actionSelect_All,           SIGNAL(triggered(bool)),this,SLOT(selectAllClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
@@ -716,8 +723,6 @@ void MainWindow::clipboardChange()
 {
     if ( m_clipboard->text().isEmpty() )
         ui->actionPaste->setEnabled(false);
-    else
-        ui->actionPaste->setEnabled(true);
 }
 
 void MainWindow::saveAllClicked()
@@ -755,17 +760,103 @@ void MainWindow::selectAllClicked()
     }
 }
 
+void MainWindow::undoClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_Z,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_Z,
+                                                Qt::ControlModifier ));
+    }
+}
+
+void MainWindow::redoClicked()
+{
+    QWidget* focused = QApplication::focusWidget();
+
+    if( focused != 0 )
+    {
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyPress,
+                                                Qt::Key_Y,
+                                                Qt::ControlModifier ));
+        QApplication::postEvent( focused,
+                                 new QKeyEvent( QEvent::KeyRelease,
+                                                Qt::Key_Y,
+                                                Qt::ControlModifier ));
+    }
+}
+
 void MainWindow::focusChanged(QWidget *old, QWidget *now)
 {
+    qDebug() << "focus changed";
+
     TextEdit* textEdit;
+    QLineEdit* lineEdit;
 
     textEdit = dynamic_cast<TextEdit*>(now);
 
     if ( textEdit )
+    {
         if ( !textEdit->toPlainText().isEmpty() )
             ui->actionSelect_All->setEnabled(true);
+        else
+            ui->actionSelect_All->setEnabled(false);
 
-    ui->actionSelect_All->setEnabled(false);
+        if ( textEdit->canPaste() )
+        {
+            if ( !m_clipboard->text().isEmpty() )
+                ui->actionPaste->setEnabled(true);
+            else
+                ui->actionPaste->setEnabled(false);
+        }
+        else
+            ui->actionPaste->setEnabled(false);
+
+        if ( m_redos.contains(textEdit))
+            ui->actionRedo->setEnabled(true);
+        else
+            ui->actionRedo->setEnabled(false);
+
+        if ( m_undos.contains(textEdit))
+            ui->actionUndo->setEnabled(true);
+        else
+            ui->actionUndo->setEnabled(false);
+    }
+    else
+    {
+        lineEdit = dynamic_cast<QLineEdit*>(now);
+
+        if ( lineEdit )
+        {
+            if ( !lineEdit->text().isEmpty())
+                ui->actionSelect_All->setEnabled(true);
+            else
+                ui->actionSelect_All->setEnabled(false);
+
+            if ( !m_clipboard->text().isEmpty() )
+                ui->actionPaste->setEnabled(true);
+            else
+                ui->actionPaste->setEnabled(false);
+
+            if ( lineEdit->isUndoAvailable() )
+                ui->actionUndo->setEnabled(true);
+            else
+                ui->actionUndo->setEnabled(false);
+
+            if ( lineEdit->isRedoAvailable() )
+                ui->actionRedo->setEnabled(true);
+            else
+                ui->actionRedo->setEnabled(false);
+        }
+    }
 }
 
 void MainWindow::createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, const QString &projectType)
@@ -1664,6 +1755,16 @@ void MainWindow::saveProjectClicked(const QString &name)
     }
 }
 
+void MainWindow::registerRedoStatus(QWidget *widget)
+{
+    m_undoRedoRegisteredItem = dynamic_cast<TextEdit*>( widget );
+}
+
+void MainWindow::registerUndoStatus(QWidget *widget)
+{
+    m_undoRedoRegisteredItem = dynamic_cast<TextEdit*>( widget );
+}
+
 void MainWindow::textChanged(QWidget* widget)
 {
     TextEdit* textEdit = dynamic_cast<TextEdit*>(widget);
@@ -1686,6 +1787,50 @@ void MainWindow::textChanged(QWidget* widget)
     ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
     ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
+}
+
+void MainWindow::updateRedoStatus(bool available)
+{
+    ui->actionRedo->setEnabled(available);
+
+    if ( available )
+    {
+        if ( m_redos.contains(m_undoRedoRegisteredItem) )
+            return;
+
+        m_redos.append( m_undoRedoRegisteredItem );
+    }
+    else
+    {
+        if ( !m_redos.contains(m_undoRedoRegisteredItem))
+            return;
+
+        for ( unsigned i=0; i<m_redos.count(); ++i )
+            if ( m_redos[i] == m_undoRedoRegisteredItem )
+                m_redos.removeAt(i);
+    }
+}
+
+void MainWindow::updateUndoStatus(bool available)
+{
+    ui->actionUndo->setEnabled(available);
+
+    if ( available )
+    {
+        if ( m_undos.contains(m_undoRedoRegisteredItem) )
+            return;
+
+        m_undos.append( m_undoRedoRegisteredItem );
+    }
+    else
+    {
+        if ( !m_undos.contains(m_undoRedoRegisteredItem))
+            return;
+
+        for ( unsigned i=0; i<m_undos.count(); ++i )
+            if ( m_undos[i] == m_undoRedoRegisteredItem )
+                m_undos.removeAt(i);
+    }
 }
 
 void MainWindow::copyAvailable(bool yes)
@@ -1739,6 +1884,15 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
             connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
+            m_redoMapper->setMapping(textEdit,textEdit);
+            connect(textEdit,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
+
+            m_undoMapper->setMapping(textEdit,textEdit);
+            connect(textEdit,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
+
+            connect(textEdit,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
+            connect(textEdit,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
+
             ui->fileEditor->addTab(textEdit,QIcon(":/new/icons/pythonfile.png"),item->text(0));
             ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
             ui->fileEditor->currentWidget()->setFocus();
@@ -1783,7 +1937,11 @@ void MainWindow::tabCloseClicked(int idx)
         ui->fileEditor->removeTab(idx);
 
     if (ui->fileEditor->count() == 0 )
+    {
+        ui->actionUndo->setEnabled(false);
+        ui->actionRedo->setEnabled(false);
         ui->actionSave_as->setEnabled(false);
+    }
 }
 
 void MainWindow::currentTabChanged(int idx)
