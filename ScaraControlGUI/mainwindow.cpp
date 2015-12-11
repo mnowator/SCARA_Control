@@ -796,21 +796,19 @@ void MainWindow::redoClicked()
 
 void MainWindow::focusChanged(QWidget *old, QWidget *now)
 {
-    qDebug() << "focus changed";
-
-    TextEdit* textEdit;
+    CodeEditor* codeEditor;
     QLineEdit* lineEdit;
 
-    textEdit = dynamic_cast<TextEdit*>(now);
+    codeEditor = dynamic_cast<CodeEditor*>(now);
 
-    if ( textEdit )
+    if ( codeEditor )
     {
-        if ( !textEdit->toPlainText().isEmpty() )
+        if ( !codeEditor->toPlainText().isEmpty() )
             ui->actionSelect_All->setEnabled(true);
         else
             ui->actionSelect_All->setEnabled(false);
 
-        if ( textEdit->canPaste() )
+        if ( codeEditor->canPaste() )
         {
             if ( !m_clipboard->text().isEmpty() )
                 ui->actionPaste->setEnabled(true);
@@ -820,12 +818,12 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
         else
             ui->actionPaste->setEnabled(false);
 
-        if ( m_redos.contains(textEdit))
+        if ( m_redos.contains(codeEditor))
             ui->actionRedo->setEnabled(true);
         else
             ui->actionRedo->setEnabled(false);
 
-        if ( m_undos.contains(textEdit))
+        if ( m_undos.contains(codeEditor))
             ui->actionUndo->setEnabled(true);
         else
             ui->actionUndo->setEnabled(false);
@@ -1229,10 +1227,10 @@ void MainWindow::renameClicked(QString const& data)
     {
         if ( ui->fileEditor->tabText(i) == name )
         {
-            TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+            CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
 
-            if ( textEdit )
-                if ( textEdit->path == path )
+            if ( codeEditor )
+                if ( codeEditor->path == path )
                 {
                     if ( unsavedChanges )
                         ui->fileEditor->setTabText(i,newName+'*');
@@ -1247,7 +1245,7 @@ void MainWindow::renameClicked(QString const& data)
 void MainWindow::saveClicked(const QString &data)
 {
     QStringList strList;
-    TextEdit* textEdit;
+    CodeEditor* codeEditor;
     QString name;
     QString path;
     bool futherSavingPossible = false;
@@ -1257,10 +1255,10 @@ void MainWindow::saveClicked(const QString &data)
         unsigned currentIdx = ui->fileEditor->currentIndex();
 
         name = ui->fileEditor->tabText(currentIdx);
-        textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(currentIdx));
+        codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
 
-        if ( textEdit )
-            path = textEdit->path;
+        if ( codeEditor )
+            path = codeEditor->path;
     }
     else
     {
@@ -1290,18 +1288,18 @@ void MainWindow::saveClicked(const QString &data)
     {
         if ( ui->fileEditor->tabText(i) == name )
         {
-            textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+            codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
 
-            if ( textEdit )
-                if ( textEdit->path == path)
+            if ( codeEditor )
+                if ( codeEditor->path == path)
                 {
                     QString newName = name.left(name.length()-1);
 
-                    saveFile(path,newName,textEdit->toPlainText());
+                    saveFile(path,newName,codeEditor->toPlainText());
                     ui->fileEditor->setTabText(i,newName);
 
-                    m_textChangedMapper->setMapping(textEdit,textEdit);
-                    connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                    m_textChangedMapper->setMapping(codeEditor,codeEditor);
+                    connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
                     if ( ui->fileEditor->currentIndex() == i )
                                 ui->actionSave->setEnabled(false);
@@ -1322,7 +1320,7 @@ void MainWindow::saveAsClicked(const QString &data)
 {
     QStringList strList;
     QFileDialog fileDialog;
-    TextEdit* textEdit;
+    CodeEditor* codeEditor;
     QString name;
     QString path;
     QString nameWithoutStar;
@@ -1332,10 +1330,10 @@ void MainWindow::saveAsClicked(const QString &data)
         unsigned currentIdx = ui->fileEditor->currentIndex();
 
         name = ui->fileEditor->tabText(currentIdx);
-        textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(currentIdx));
+        codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
 
-        if ( textEdit )
-            path = textEdit->path;
+        if ( codeEditor )
+            path = codeEditor->path;
     }
     else
     {
@@ -1380,25 +1378,25 @@ void MainWindow::saveAsClicked(const QString &data)
         {
             if ( ui->fileEditor->tabText(i) == name )
             {
-                textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(i));
+                codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
 
-                if ( textEdit )
+                if ( codeEditor )
                 {
-                    if ( textEdit->path == path )
+                    if ( codeEditor->path == path )
                     {
-                        TextEdit* newTextEdit = new TextEdit(this);
+                        CodeEditor* newCodeEditor= new CodeEditor(this);
 
-                        newTextEdit->setText(textEdit->toPlainText());
-                        newTextEdit->path = newPath;
+                        newCodeEditor->document()->setPlainText(codeEditor->toPlainText());
+                        newCodeEditor->path = newPath;
 
-                        saveFile(newPath,newName,newTextEdit->toPlainText());
+                        saveFile(newPath,newName,newCodeEditor->toPlainText());
 
-                        m_textChangedMapper->setMapping(newTextEdit,newTextEdit);
-                        connect(newTextEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-                        connect(newTextEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+                        m_textChangedMapper->setMapping(newCodeEditor,newCodeEditor);
+                        connect(newCodeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                        connect(newCodeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
-                        ui->fileEditor->addTab(newTextEdit,QIcon(":/new/icons/pythonfile.png"),newName);
-                        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(newTextEdit));
+                        ui->fileEditor->addTab(newCodeEditor,QIcon(":/new/icons/pythonfile.png"),newName);
+                        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(newCodeEditor));
                         ui->fileEditor->currentWidget()->setFocus();
 
                         return;
@@ -1410,19 +1408,19 @@ void MainWindow::saveAsClicked(const QString &data)
         // If file is not opened, we have to load it
         QString content = loadFile(path,name);
 
-        textEdit = new TextEdit(this);
+        codeEditor = new CodeEditor(this);
 
-        textEdit->setText(content);
-        textEdit->path = newPath;
+        codeEditor->document()->setPlainText(content);
+        codeEditor->path = newPath;
 
-        m_textChangedMapper->setMapping(textEdit,textEdit);
-        connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-        connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+        m_textChangedMapper->setMapping(codeEditor,codeEditor);
+        connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+        connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
-        saveFile(newPath,newName,textEdit->toPlainText());
+        saveFile(newPath,newName,codeEditor->toPlainText());
 
-        ui->fileEditor->addTab(textEdit,QIcon(":/new/icons/pythonfile.png"),newName);
-        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
+        ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),newName);
+        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
         ui->fileEditor->currentWidget()->setFocus();
     }
 }
@@ -1757,22 +1755,22 @@ void MainWindow::saveProjectClicked(const QString &name)
 
 void MainWindow::registerRedoStatus(QWidget *widget)
 {
-    m_undoRedoRegisteredItem = dynamic_cast<TextEdit*>( widget );
+    m_undoRedoRegisteredItem = dynamic_cast<CodeEditor*>( widget );
 }
 
 void MainWindow::registerUndoStatus(QWidget *widget)
 {
-    m_undoRedoRegisteredItem = dynamic_cast<TextEdit*>( widget );
+    m_undoRedoRegisteredItem = dynamic_cast<CodeEditor*>( widget );
 }
 
 void MainWindow::textChanged(QWidget* widget)
 {
-    TextEdit* textEdit = dynamic_cast<TextEdit*>(widget);
+    CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(widget);
     QString name = ui->fileEditor->tabText(ui->fileEditor->indexOf(widget));
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        if ( textEdit->path == item->text(1))
+        if ( codeEditor->path == item->text(1))
         {
             QString tmpStr = item->text(0);
 
@@ -1781,8 +1779,8 @@ void MainWindow::textChanged(QWidget* widget)
         }
     }
 
-    m_textChangedMapper->removeMappings(textEdit);
-    disconnect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+    m_textChangedMapper->removeMappings(codeEditor);
+    disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
     ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
     ui->actionSaveAll->setEnabled(true);
@@ -1860,9 +1858,9 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             if (ui->fileEditor->tabText(idx)==item->text(0) ||
                     ui->fileEditor->tabText(idx)==item->text(2) )
             {
-                TextEdit* textEdit = dynamic_cast<TextEdit*>(ui->fileEditor->widget(idx));
+                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
 
-                if ( textEdit->path == item->text(1) )
+                if ( codeEditor->path == item->text(1) )
                 {
                     ui->fileEditor->setCurrentIndex(idx);
                     return;
@@ -1874,27 +1872,27 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
-            TextEdit* textEdit = new TextEdit(this);
+            CodeEditor* codeEditor = new CodeEditor(this);
             QTextStream textStream(&file);
 
-            textEdit->setText(textStream.readAll());
-            textEdit->path = item->text(1);
+            codeEditor->document()->setPlainText(textStream.readAll());
+            codeEditor->path = item->text(1);
 
-            m_textChangedMapper->setMapping(textEdit,textEdit);
-            connect(textEdit,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-            connect(textEdit,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+            m_textChangedMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
-            m_redoMapper->setMapping(textEdit,textEdit);
-            connect(textEdit,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
+            m_redoMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
 
-            m_undoMapper->setMapping(textEdit,textEdit);
-            connect(textEdit,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
+            m_undoMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
 
-            connect(textEdit,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
-            connect(textEdit,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
+            connect(codeEditor,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
+            connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
 
-            ui->fileEditor->addTab(textEdit,QIcon(":/new/icons/pythonfile.png"),item->text(0));
-            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(textEdit));
+            ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),item->text(0));
+            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
             ui->fileEditor->currentWidget()->setFocus();
         }
 

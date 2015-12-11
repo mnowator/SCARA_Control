@@ -28,21 +28,21 @@ SOURCES += \
     mainwindow.cpp \
     newprojectdialog.cpp \
     newfiledialog.cpp \
-    textedit.cpp \
     renamefiledialog.cpp \
     styles.cpp \
     savechangesdialog.cpp \
-    removefiledialog.cpp
+    removefiledialog.cpp \
+    codeeditor.cpp
 
 HEADERS += \
     mainwindow.h \
     newprojectdialog.h \
     newfiledialog.h \
     savechangesdialog.h \
-    textedit.h \
     renamefiledialog.h \
     styles.h \
-    removefiledialog.h
+    removefiledialog.h \
+    codeeditor.h
 
 unix {
     target.path = /usr/lib

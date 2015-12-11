@@ -13,7 +13,7 @@
 #include "savechangesdialog.h"
 #include "renamefiledialog.h"
 #include "removefiledialog.h"
-#include "textedit.h"
+#include "codeeditor.h"
 
 namespace Ui {
 class MainWindow;
@@ -57,9 +57,9 @@ private:
 
     Ui::MainWindow *ui;
 
-    TextEdit* m_undoRedoRegisteredItem;
-    QList<TextEdit*> m_redos;
-    QList<TextEdit*> m_undos;
+    CodeEditor* m_undoRedoRegisteredItem;
+    QList<CodeEditor*> m_redos;
+    QList<CodeEditor*> m_undos;
 
     QHash<QString, ScaraRobot> m_projects;
 

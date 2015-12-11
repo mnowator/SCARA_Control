@@ -9,6 +9,7 @@ extern QString currentButtonTheme;
 extern QString currentLineEditTheme;
 extern QString currentComboBoxTheme;
 extern QString currentErrorBoxTheme;
+extern QString darkCodeEditorTheme;
 
 extern QString darkWindowTheme;
 extern QString darkMenuBarTheme;

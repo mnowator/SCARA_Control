@@ -3,6 +3,9 @@
 QString darkWindowTheme = "background-color: rgb(60, 63, 65);"
                           "color: rgb(230, 230, 230);";
 
+QString darkCodeEditorTheme = "border: 1px solid rgb(41, 43, 45);"
+                              "border-top: 0px solid rgb(41, 43, 45);";
+
 QString darkMenuBarTheme = "QMenuBar::item {"
        " background-color: rgb(64, 64, 64);"
     "}"

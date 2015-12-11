@@ -27,20 +27,20 @@
     <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QSplitter" name="splitter">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+        <property name="handleWidth">
+         <number>0</number>
+        </property>
         <widget class="QTreeWidget" name="projectExplorer">
          <property name="contextMenuPolicy">
           <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border: 1px solid rgb(41, 43, 45);
+border-right: : 0px solid rgb(41, 43, 45);</string>
          </property>
          <property name="sortingEnabled">
           <bool>false</bool>
@@ -65,7 +65,7 @@
           <bool>false</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">QWidget {
+          <string notr="true">/*QWidget {
 background-color: rgb(43, 43, 43);
 }
 
@@ -77,6 +77,32 @@ QTabBar::tab {
 	color: rgb(0, 0, 0);
 };
 
+QTabWidget::pane {
+border-top: 2px solid rgb(255, 170, 0);
+}*/
+
+QWidget {
+background-color: rgb(43, 43, 43);
+}
+
+QTabWidget::pane { /* The tab widget frame */
+    border-top: 4px solid rgb(61, 56, 54);
+	background-color: rgb(255, 244, 89);
+}
+
+QTabBar::tab { 
+	border: 1px solid rgb(41, 43, 45);
+	background-color: rgb(60, 63, 65);
+	border-left: 0px solid rgb(41, 43, 45);
+	height: 30px;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
+QTabBar::tab:selected { 
+	background-color: rgb(61, 56, 54);
+	border-bottom-color: rgb(61, 56, 54);
+}
 </string>
          </property>
          <property name="tabShape">
