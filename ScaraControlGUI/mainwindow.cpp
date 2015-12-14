@@ -1873,7 +1873,10 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
             CodeEditor* codeEditor = new CodeEditor(this);
+            PythonHighlighter* highlighter = new PythonHighlighter(codeEditor->document());
             QTextStream textStream(&file);
+
+            m_highlighters[codeEditor] = highlighter;
 
             codeEditor->document()->setPlainText(textStream.readAll());
             codeEditor->path = item->text(1);

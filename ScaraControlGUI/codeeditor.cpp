@@ -17,6 +17,12 @@ CodeEditor::CodeEditor(QWidget *parent)
     highlightCurrentLine();
 
     setStyleSheet(darkCodeEditorTheme);
+
+    QFont font("Monospace");
+    font.setStyleHint(QFont::TypeWriter);
+    font.setPixelSize(12);
+
+    setFont(font);
 }
 
 CodeEditor::CodeEditor(const QString &name, QWidget *parent)

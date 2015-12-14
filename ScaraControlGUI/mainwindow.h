@@ -14,6 +14,7 @@
 #include "renamefiledialog.h"
 #include "removefiledialog.h"
 #include "codeeditor.h"
+#include "pythonhighlighter.h"
 
 namespace Ui {
 class MainWindow;
@@ -70,6 +71,8 @@ private:
     SaveChangesDialog* m_saveChangesDialog;
     RenameFileDialog* m_renameFileDialog;
     RemoveFileDialog* m_removeFileDialog;
+
+    QHash<CodeEditor*,PythonHighlighter*> m_highlighters;
 
     static bool lessThenTreeWidgetItem(QTreeWidgetItem* first, QTreeWidgetItem* second);
 

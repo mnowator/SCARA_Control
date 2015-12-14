@@ -32,7 +32,8 @@ SOURCES += \
     styles.cpp \
     savechangesdialog.cpp \
     removefiledialog.cpp \
-    codeeditor.cpp
+    codeeditor.cpp \
+    pythonhighlighter.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -42,7 +43,8 @@ HEADERS += \
     renamefiledialog.h \
     styles.h \
     removefiledialog.h \
-    codeeditor.h
+    codeeditor.h \
+    pythonhighlighter.h
 
 unix {
     target.path = /usr/lib
