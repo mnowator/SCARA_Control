@@ -22,7 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->workspace->hide();
+
+    ui->projectExplorer->hide();
+    ui->fileEditor->hide();
+    ui->graphicsView->show();
 
     m_renameSignalMapper    =   new QSignalMapper(this);
     m_saveSignalMapper      =   new QSignalMapper(this);
@@ -98,6 +101,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setStyleSheet(currentWindowTheme);
     this->menuBar()->setStyleSheet(currentMenuBarTheme);
+    this->ui->fileEditor->setStyleSheet(currentTabWidgetTheme);
+    this->ui->projectExplorer->setStyleSheet(currentTreeWigetTheme);
+    this->ui->projectExplorer->header()->setStyleSheet("QHeaderView::section {background-color: rgb(61, 56, 54);"
+                                                       "height: 35px;"
+                                                       "margin: 0;"
+                                                       "padding-left: 10px;"
+                                                       "border: 1px solid rgb(41, 43, 45);"
+                                                       "border-right: 0px solid rgb(41, 43, 45);}");
 }
 
 MainWindow::~MainWindow()
@@ -595,7 +606,8 @@ void MainWindow::openProjectProject()
 
     m_projects[projectName] = ScaraRobot();
 
-    ui->workspace->show();
+    ui->projectExplorer->show();
+
     ui->actionCloseAll->setEnabled(true);
 
 //    element = root.namedItem("Files").toElement();
@@ -1901,6 +1913,9 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 
         ui->actionSave_as->setEnabled(true);
 
+        ui->graphicsView->hide();
+        ui->fileEditor->show();
+
         break;
     }
     default:
@@ -1942,6 +1957,9 @@ void MainWindow::tabCloseClicked(int idx)
         ui->actionUndo->setEnabled(false);
         ui->actionRedo->setEnabled(false);
         ui->actionSave_as->setEnabled(false);
+
+        ui->fileEditor->hide();
+        ui->graphicsView->show();
     }
 }
 

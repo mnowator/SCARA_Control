@@ -16,7 +16,7 @@ CodeEditor::CodeEditor(QWidget *parent)
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
 
-    setStyleSheet(darkCodeEditorTheme);
+    setStyleSheet(currentCodeEditorTheme);
 
     QFont font("Monospace");
     font.setStyleHint(QFont::TypeWriter);

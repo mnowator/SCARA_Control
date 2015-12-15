@@ -4,6 +4,7 @@ QString darkWindowTheme = "background-color: rgb(60, 63, 65);"
                           "color: rgb(230, 230, 230);";
 
 QString darkCodeEditorTheme = "border: 1px solid rgb(41, 43, 45);"
+                              "background-color: rgb(43, 43, 43);"
                               "border-top: 0px solid rgb(41, 43, 45);";
 
 QString darkMenuBarTheme = "QMenuBar::item {"
@@ -68,6 +69,34 @@ QString darkErrorBoxTheme = "QPushButton {"
                         "color: rgb(230, 230, 230);"
                      "}";
 
+QString darkTabWidgetTheme = "QTabWidget::pane {"
+            "border-top: 4px solid rgb(61, 56, 54);"
+            "border-left: 1px solid rgb(41, 43, 45);"
+           "background-color: rgb(255, 244, 89);"
+        "}"
+
+        "QTabBar::tab { "
+            "border: 1px solid rgb(41, 43, 45);"
+            "background-color: rgb(60, 63, 65);"
+            "height: 30px;"
+            "padding-right: 5px;"
+           " padding-left: 5px;"
+        "}"
+
+        "QTabBar::tab:selected {"
+            "background-color: rgb(61, 56, 54);"
+           " border-bottom-color: rgb(61, 56, 54);"
+        "}"
+        "QTabBar::tab:movable {"
+        "background-color: rgb(61, 56, 54);"
+        "color: white;"
+        "}";
+
+QString darkTreeWidgetTheme = "border: 0;";
+
+QString currentTreeWigetTheme = darkTreeWidgetTheme;
+QString currentCodeEditorTheme = darkCodeEditorTheme;
+QString currentTabWidgetTheme = darkTabWidgetTheme;
 QString currentWindowTheme = darkWindowTheme;
 QString currentMenuBarTheme = darkMenuBarTheme;
 QString currentButtonTheme = darkButtonsTheme;

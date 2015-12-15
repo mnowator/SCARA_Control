@@ -14,7 +14,7 @@ PythonHighlighter::PythonHighlighter(QTextDocument* parent)
                        "for"    << "from"   << "global" << "if"     << "import"   << "in"       <<
                        "is"     << "lambda" << "not"    << "or"     << "pass"     << "print"    <<
                        "raise"  << "return" << "try"    << "while"  << "yield"    << "None"     <<
-                       "import"   << "from";
+                       "import"   << "from" << "as";
 
     foreach (const QString &pattern, keywordPatterns)
     {
