@@ -16,16 +16,26 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
+    bool isUndoAvailable() const;
+    bool isRedoAvailable() const;
+
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
+    void undoAvailable(bool available);
+    void redoAvailable(bool available);
+    void customContextMenuRequested(const QPoint &pos);
+    void deleteSelection();
     void updateLineNumberAreaWidth(int newBlockCount);
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
 
 private:
     QWidget *lineNumberArea;
+
+    bool undoIsAvailable;
+    bool redoIsAvailable;
 };
 
 class LineNumberArea : public QWidget

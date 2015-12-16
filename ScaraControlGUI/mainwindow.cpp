@@ -103,12 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->menuBar()->setStyleSheet(currentMenuBarTheme);
     this->ui->fileEditor->setStyleSheet(currentTabWidgetTheme);
     this->ui->projectExplorer->setStyleSheet(currentTreeWigetTheme);
-    this->ui->projectExplorer->header()->setStyleSheet("QHeaderView::section {background-color: rgb(61, 56, 54);"
-                                                       "height: 35px;"
-                                                       "margin: 0;"
-                                                       "padding-left: 10px;"
-                                                       "border: 1px solid rgb(41, 43, 45);"
-                                                       "border-right: 0px solid rgb(41, 43, 45);}");
+    this->ui->projectExplorer->header()->setStyleSheet(currentHeaderTheme);
 }
 
 MainWindow::~MainWindow()

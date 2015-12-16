@@ -9,6 +9,8 @@ CodeEditor::CodeEditor(QWidget *parent)
 {
     lineNumberArea = new LineNumberArea(this);
 
+    connect(this, SIGNAL(undoAvailable(bool)),this, SLOT(undoAvailable(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)),this, SLOT(redoAvailable(bool)));
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
     connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
@@ -23,6 +25,10 @@ CodeEditor::CodeEditor(QWidget *parent)
     font.setPixelSize(12);
 
     setFont(font);
+
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
 }
 
 CodeEditor::CodeEditor(const QString &name, QWidget *parent)
@@ -50,6 +56,16 @@ int CodeEditor::lineNumberAreaWidth()
     int space = 10 + fontMetrics().width(QLatin1Char('9')) * digits;
 
     return space;
+}
+
+bool CodeEditor::isUndoAvailable() const
+{
+    return undoIsAvailable;
+}
+
+bool CodeEditor::isRedoAvailable() const
+{
+    return redoIsAvailable;
 }
 
 
@@ -82,6 +98,98 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
+void CodeEditor::undoAvailable(bool available)
+{
+    undoIsAvailable = available;
+}
+
+void CodeEditor::redoAvailable(bool available)
+{
+    redoIsAvailable = available;
+}
+
+void CodeEditor::customContextMenuRequested(const QPoint &pos )
+{
+    QMenu menu(this);
+
+    QAction* undo = new QAction(QIcon(":/new/icons/lc_undo.png"),tr("Undo"),this);
+    undo->setShortcut(QKeySequence::Undo);
+    connect(undo,SIGNAL(triggered(bool)),this,SLOT(undo()));
+
+    if ( !undoIsAvailable )
+        undo->setEnabled(false);
+
+    menu.addAction(undo);
+
+
+    QAction* redo = new QAction(QIcon(":/new/icons/lc_redo.png"),tr("Redo"),this);
+    redo->setShortcut(QKeySequence::Redo);
+    connect(redo,SIGNAL(triggered(bool)),this,SLOT(redo()));
+
+    if ( !redoIsAvailable )
+        redo->setEnabled(false);
+
+    menu.addAction(redo);
+
+
+    menu.addSeparator();
+
+
+    QAction* cut = new QAction(QIcon(":/new/icons/lc_cut.png"),tr("Cut"),this);
+    cut->setShortcut(QKeySequence::Cut);
+    connect(cut,SIGNAL(triggered(bool)),this,SLOT(cut()));
+
+    if ( document()->isEmpty() )
+        cut->setEnabled(false);
+
+    menu.addAction(cut);
+
+
+    QAction* copy = new QAction(QIcon(":/new/icons/lc_copy.png"),tr("Copy"),this);
+    copy->setShortcut(QKeySequence::Copy);
+    connect(copy,SIGNAL(triggered(bool)),this,SLOT(copy()));
+
+    if ( document()->isEmpty() )
+        copy->setEnabled(false);
+
+    menu.addAction(copy);
+
+
+    QAction* paste = new QAction(QIcon(":/new/icons/lc_paste.png"),tr("Paste"),this);
+    paste->setShortcut(QKeySequence::Undo);
+    connect(paste,SIGNAL(triggered(bool)),this,SLOT(paste()));
+
+    if ( !canPaste() )
+        paste->setEnabled(false);
+
+    menu.addAction(paste);
+
+
+    QAction* _delete = new QAction(tr("Delete"),this);
+    _delete->setShortcut(QKeySequence::Delete);
+    connect(_delete,SIGNAL(triggered(bool)),this,SLOT(deleteSelection()));
+    menu.addAction(_delete);
+
+
+
+    menu.addSeparator();
+
+    QAction* selectAll = new QAction(tr("Select All"),this);
+    selectAll->setShortcut(QKeySequence::SelectAll);
+    connect(selectAll,SIGNAL(triggered(bool)),this,SLOT(selectAll()));
+    menu.addAction(selectAll);
+
+    menu.setStyleSheet(currentMenuBarTheme);
+
+    menu.exec(this->mapToGlobal(pos));
+}
+
+void CodeEditor::deleteSelection()
+{
+    foreach( QTextEdit::ExtraSelection selection, this->extraSelections() )
+        selection.cursor.removeSelectedText();
+}
+
 
 
 void CodeEditor::highlightCurrentLine()
@@ -91,7 +199,7 @@ void CodeEditor::highlightCurrentLine()
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(50,50,50);
+        QColor lineColor = QColor(darkHighlightLineTheme);
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
@@ -108,7 +216,7 @@ void CodeEditor::highlightCurrentLine()
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(), QColor(49, 51, 53));
+    painter.fillRect(event->rect(), QColor(darkLineNumberingRectTheme));
     //painter.fillRect(QRect(event->rect().right()-1,0,1,event->rect().height()),QColor(230,230,230));
 
 
@@ -120,7 +228,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     while (block.isValid() && top <= event->rect().bottom()) {
         if (block.isVisible() && bottom >= event->rect().top()) {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen(QPen(Qt::darkGray));
+            painter.setPen(QPen(darkLineNumberingPenTheme));
             painter.drawText(0, top, lineNumberArea->width()-4, fontMetrics().height(),
                              Qt::AlignRight, number);
         }

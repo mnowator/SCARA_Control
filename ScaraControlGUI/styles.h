@@ -12,7 +12,15 @@ extern QString currentErrorBoxTheme;
 extern QString currentCodeEditorTheme;
 extern QString currentTabWidgetTheme;
 extern QString currentTreeWigetTheme;
+extern QString currentHighlightLineTheme;
+extern QString currentLineNumberingRectTheme;
+extern QString currentLineNumberingPenTheme;
+extern QString currentHeaderTheme;
 
+extern QString darkHeaderTheme;
+extern QString darkHighlightLineTheme;
+extern QString darkLineNumberingRectTheme;
+extern QString darkLineNumberingPenTheme;
 extern QString darkTreeWidgetTheme;
 extern QString darkTabWidgetTheme;
 extern QString darkCodeEditorTheme;
