@@ -61,7 +61,7 @@
          </attribute>
          <column>
           <property name="text">
-           <string notr="true">1</string>
+           <string notr="true">Projects</string>
           </property>
          </column>
         </widget>
@@ -154,7 +154,9 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionSaveAll"/>
-    <addaction name="actionCloseAll"/>
+    <addaction name="actionCloseAllFiles"/>
+    <addaction name="separator"/>
+    <addaction name="actionCloseAllProjects"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -314,12 +316,12 @@
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="actionCloseAll">
+  <action name="actionCloseAllFiles">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Close All</string>
+    <string>Close All Files</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+W</string>
@@ -588,6 +590,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionCloseAllProjects">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Class All Projects</string>
    </property>
   </action>
  </widget>

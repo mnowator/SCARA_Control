@@ -79,13 +79,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProjectOrFile()));
-    connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
+    connect(ui->actionCloseAllProjects,     SIGNAL(triggered(bool)),this,SLOT(closeAllProjectsClicked()));
     connect(ui->actionBack,                 SIGNAL(triggered(bool)),this,SLOT(backClicked()));
     connect(ui->actionForward,              SIGNAL(triggered(bool)),this,SLOT(forwardClicked()));
     connect(ui->actionCopy,                 SIGNAL(triggered(bool)),this,SLOT(copyClicked()));
     connect(ui->actionCut,                  SIGNAL(triggered(bool)),this,SLOT(cutClicked()));
     connect(ui->actionPaste,                SIGNAL(triggered(bool)),this,SLOT(pasteClicked()));
-    connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
+    connect(ui->actionCloseAllFiles,        SIGNAL(triggered(bool)),this,SLOT(closeAllFilesClicked()));
     connect(ui->actionSaveAll,              SIGNAL(triggered(bool)),this,SLOT(saveAllClicked()));
     connect(ui->actionRedo,                 SIGNAL(triggered(bool)),this,SLOT(redoClicked()));
     connect(ui->actionUndo,                 SIGNAL(triggered(bool)),this,SLOT(undoClicked()));
@@ -550,12 +550,6 @@ void MainWindow::openProjectProjectOrFile()
         projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
         project->addChild(projectProFile);
 
-        ui->projectExplorer->addTopLevelItem(project);
-
-        m_projects[fileName] = ScaraRobot();
-
-        setActiveProject(fileName);
-
         QDomElement files = root.namedItem("Files").toElement();
         for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
         {
@@ -598,13 +592,13 @@ void MainWindow::openProjectProjectOrFile()
         }
 
         ui->projectExplorer->addTopLevelItem(project);
-
-        sortProjectFiles(project);
-
         m_projects[fileName] = ScaraRobot();
 
+        setActiveProject(pureFileName);
+        sortProjectFiles(project);
+
         ui->projectExplorer->show();
-        ui->actionCloseAll->setEnabled(true);
+        ui->actionCloseAllProjects->setEnabled(true);
 
         file.close();
     }
@@ -674,52 +668,55 @@ void MainWindow::exitAppClicked()
     close();
 }
 
-void MainWindow::closeAllClicked()
+void MainWindow::closeAllFilesClicked()
 {
     bool prevent = false;
 
     m_saveChangesDialog = new SaveChangesDialog(this);
 
-    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
     {
-        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
-
-        for ( unsigned j=0; j<project->childCount(); ++j )
+        if ( ui->fileEditor->tabText(i).endsWith('*') )
         {
-            QTreeWidgetItem* child = project->child(j);
-
-            if ( child->text(0) > child->text(2) )
+            if ( ui->fileEditor->tabText(i).endsWith(".py*"))
             {
-                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
-                prevent = false;
+                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+
+                if ( codeEditor )
+                {
+                    m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
+                                                 ui->fileEditor->tabText(i),
+                                                 codeEditor->path);
+                    prevent = true;
+                }
             }
         }
     }
 
-    if ( !prevent )
-    {
-        m_projects.clear();
-        
-        ui->projectExplorer->clear();
-        ui->fileEditor->clear();
-        ui->workspace->hide();
-    }
-    else
+    if ( prevent )
     {
         if ( m_saveChangesDialog->exec() )
         {
             for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
                 saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
-
-            m_projects.clear();
-            
-            ui->projectExplorer->clear();
-            ui->fileEditor->clear();
-            ui->workspace->hide();
-
-            ui->actionSaveAll->setEnabled(false);
         }
+        else
+            return;
     }
+
+    if ( ui->fileEditor->count() == 0 )
+    {
+        ui->fileEditor->clear();
+        ui->graphicsView->show();
+        ui->actionSaveAll->setEnabled(false);
+    }
+}
+
+void MainWindow::closeAllProjectsClicked()
+{
+    ui->projectExplorer->clear();
+    ui->projectExplorer->hide();
+    ui->actionCloseAllProjects->setEnabled(false);
 }
 
 void MainWindow::backClicked()
@@ -1014,9 +1011,7 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
         root.appendChild(elHigher);
     }
 
-    m_projects[projectName] = ScaraRobot();
-
-    saveFile(projectPath+'/'+projectName,projectName+".pro",dom.toString());
+    saveFile(projectPath+projectName,projectName+".pro",dom.toString());
 
     QTreeWidgetItem* header = new QTreeWidgetItem();
     header->setText(0, tr("Projects"));
@@ -1024,23 +1019,24 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 
     QTreeWidgetItem* project = new QTreeWidgetItem(ProjectType);
     project->setText(0,projectName);
-    project->setText(1,projectPath + '/' + projectName);
+    project->setText(1,projectPath + projectName + '/');
     project->setText(2,projectName + tr(" ( Active )"));
     project->setIcon(0,*(new QIcon(":/new/icons/lc_dbformopen.png")));
 
     QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
     projectProFile->setText(0,projectName + ".pro");
-    projectProFile->setText(1,projectPath + projectName);
+    projectProFile->setText(1,projectPath + projectName + '/');
     projectProFile->setText(2,projectName + ".pro*");
     projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
     project->addChild(projectProFile);
 
     ui->projectExplorer->addTopLevelItem(project);
-    ui->actionCloseAll->setEnabled(true);
+    ui->actionCloseAllProjects->setEnabled(true);
 
+    m_projects[projectName] = ScaraRobot();
     setActiveProject(projectName);
 
-    ui->workspace->show();
+    ui->projectExplorer->show();
 
     m_newProjectDialog->close();
 }
@@ -1497,68 +1493,13 @@ void MainWindow::setActiveClicked(const QString &name)
 void MainWindow::closeClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+        delete item;
+
+    if ( ui->projectExplorer->topLevelItemCount() == 0 )
     {
-        bool prevent = false;
-
-        m_saveChangesDialog = new SaveChangesDialog(this);
-
-        for ( unsigned i=0; i<item->childCount(); ++i )
-        {
-            QTreeWidgetItem* child = item->child(i);
-
-            if ( child->text(0) > child->text(2) )
-            {
-                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
-                prevent = true;
-            }
-        }
-
-        if ( !prevent )
-        {
-            if ( item->text(0) < item->text(2) )
-                m_projects.remove(item->text(0));
-            else m_projects.remove(item->text(2));
-
-            for ( unsigned i=0; i<item->childCount(); ++i )
-            {
-                QTreeWidgetItem* child = item->child(i);
-
-                for ( unsigned j=0; j<ui->fileEditor->count(); ++j )
-                    if (child->text(0) == ui->fileEditor->tabText(j))
-                        ui->fileEditor->removeTab(j);
-            }
-
-            delete item;
-        }
-        else
-        {
-            if ( m_saveChangesDialog->exec() )
-            {
-                for ( QPair<QString, QString> fileNpath : m_saveChangesDialog->getSelectedFiles() )
-                    saveClicked(fileNpath.first+imposibleDelimiter+fileNpath.second);
-
-                if ( item->text(0) < item->text(2) )
-                    m_projects.remove(item->text(0));
-                else m_projects.remove(item->text(2));
-
-                for ( unsigned i=0; i<item->childCount(); ++i )
-                {
-                    QTreeWidgetItem* child = item->child(i);
-
-                    for ( unsigned j=0; j<ui->fileEditor->count(); ++j )
-                        if (child->text(0) == ui->fileEditor->tabText(j))
-                            ui->fileEditor->removeTab(j);
-                }
-
-                delete item;
-            }
-        }
-
-        delete m_saveChangesDialog;
+        ui->projectExplorer->hide();
+        ui->actionCloseAllProjects->setEnabled(false);
     }
-
-    if ( ui->projectExplorer->topLevelItemCount() == 0)
-        ui->workspace->hide();
 }
 
 
@@ -1963,6 +1904,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         }
 
         ui->actionSave_as->setEnabled(true);
+        ui->actionCloseAllFiles->setEnabled(true);
 
         ui->graphicsView->hide();
         ui->fileEditor->show();
@@ -2008,6 +1950,7 @@ void MainWindow::tabCloseClicked(int idx)
         ui->actionUndo->setEnabled(false);
         ui->actionRedo->setEnabled(false);
         ui->actionSave_as->setEnabled(false);
+        ui->actionCloseAllFiles->setEnabled(false);
 
         ui->fileEditor->hide();
         ui->graphicsView->show();
