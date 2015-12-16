@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
-    connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProject()));
+    connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProjectOrFile()));
     connect(ui->actionCloseAll,             SIGNAL(triggered(bool)),this,SLOT(closeAllClicked()));
     connect(ui->actionBack,                 SIGNAL(triggered(bool)),this,SLOT(backClicked()));
     connect(ui->actionForward,              SIGNAL(triggered(bool)),this,SLOT(forwardClicked()));
@@ -453,11 +453,11 @@ void MainWindow::newProjectClicked()
     m_newProjectDialog->show();
 }
 
-void MainWindow::openProjectProject()
+void MainWindow::openProjectProjectOrFile()
 {
-    QString fullPath, projectFileName, projectName, projectPath;
+    QString fullPath, fileName, pureFileName, filePath;
     QFileDialog folderDialog;
-    QDomDocument projectDom;
+    QDomDocument dom;
     QDomElement root;
 
     QStringList filters;
@@ -479,143 +479,199 @@ void MainWindow::openProjectProject()
     {
         if ( fullPath[i-1] == '\\' || fullPath[i-1] == '/' )
         {
-            projectPath = fullPath.left(i);
-            projectFileName = fullPath.right(fullPath.length()-i);
-            projectName = projectFileName.split('.')[0];
+            filePath = fullPath.left(i);
+            fileName = fullPath.right(fullPath.length()-i);
+            pureFileName = fileName.split('.')[0];
             break;
         }
     }
 
-    if ( m_projects.contains(projectName))
+    if ( fileName.endsWith(".pro") )
     {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
-                                                                 "Please change name or close another project."));
-
-        msgBox.setStyleSheet(currentErrorBoxTheme);
-
-        msgBox.exec();
-        return;
-    }
-
-    QFile file(fullPath);
-
-    if ( file.open(QIODevice::ReadWrite))
-    {
-        QString errorStr;
-        int errorLine;
-        int errorColumn;
-
-        if (!projectDom.setContent(&file, false, &errorStr, &errorLine, &errorColumn))
+        if ( m_projects.contains(pureFileName))
         {
-            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project with given name is already loaded.\n"
+                                                                     "Please change name or close another project."));
 
             msgBox.setStyleSheet(currentErrorBoxTheme);
 
             msgBox.exec();
             return;
         }
-    }
-    else
-    {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot open file."));
 
-        msgBox.setStyleSheet(currentErrorBoxTheme);
+        QFile file(fullPath);
 
-        msgBox.exec();
-        return;
-    }
-
-    root = projectDom.documentElement();
-    if ( root.tagName() != "Project")
-    {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
-
-        msgBox.setStyleSheet(currentErrorBoxTheme);
-
-        msgBox.exec();
-        return;
-    }  
-
-    QTreeWidgetItem* header = new QTreeWidgetItem();
-    header->setText(0, tr("Projects"));
-    ui->projectExplorer->setHeaderItem(header);
-
-    QTreeWidgetItem* project = new QTreeWidgetItem(ProjectType);
-    project->setText(0,projectName);
-    project->setText(1,projectPath);
-    project->setText(2,projectName + tr(" ( Active )"));
-    project->setIcon(0,*(new QIcon(":/new/icons/lc_dbformopen.png")));
-
-    QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
-    projectProFile->setText(0,projectName + ".pro");
-    projectProFile->setText(1,projectPath);
-    projectProFile->setText(2,projectName + ".pro*");
-    projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
-    project->addChild(projectProFile);
-
-    ui->projectExplorer->addTopLevelItem(project);
-
-    m_projects[projectName] = ScaraRobot();
-
-    setActiveProject(projectName);
-
-    QDomElement files = root.namedItem("Files").toElement();
-    for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
-    {
-        QTreeWidgetItem* fileTreeWidgetItem = new QTreeWidgetItem(FileType);
-        QDomElement name = file.namedItem("Name").toElement();
-        QDomElement path = file.namedItem("Path").toElement();
-
-        if ( !name.isNull() )
+        if ( file.open(QIODevice::ReadWrite))
         {
-            fileTreeWidgetItem->setText(0,name.text());
-            fileTreeWidgetItem->setText(2,name.text()+'*');
+            QString errorStr;
+            int errorLine;
+            int errorColumn;
+
+            if (!dom.setContent(&file, false, &errorStr, &errorLine, &errorColumn))
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                return;
+            }
         }
         else
         {
-            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
-                                                                     "'Name' tag is missing in one file."));
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot open file."));
 
             msgBox.setStyleSheet(currentErrorBoxTheme);
 
             msgBox.exec();
-            continue;
+            return;
         }
 
-        if ( !path.isNull() )
-            fileTreeWidgetItem->setText(1,path.text());
-        else
+        root = dom.documentElement();
+        if ( root.tagName() != "Project")
         {
-            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
-                                                                     "'Path' tag is missing in one file."));
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("There is no 'Project' tag in .pro file."));
 
             msgBox.setStyleSheet(currentErrorBoxTheme);
 
             msgBox.exec();
-            continue;
+            return;
         }
 
-        fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+        QTreeWidgetItem* header = new QTreeWidgetItem();
+        header->setText(0, tr("Projects"));
+        ui->projectExplorer->setHeaderItem(header);
 
-        project->addChild(fileTreeWidgetItem);
+        QTreeWidgetItem* project = new QTreeWidgetItem(ProjectType);
+        project->setText(0,pureFileName);
+        project->setText(1,filePath);
+        project->setText(2,pureFileName + tr(" ( Active )"));
+        project->setIcon(0,*(new QIcon(":/new/icons/lc_dbformopen.png")));
+
+        QTreeWidgetItem* projectProFile = new QTreeWidgetItem(ConfigType);
+        projectProFile->setText(0,fileName);
+        projectProFile->setText(1,filePath);
+        projectProFile->setText(2,fileName + "*");
+        projectProFile->setIcon(0,*(new QIcon(":/new/icons/profile.png")));
+        project->addChild(projectProFile);
+
+        ui->projectExplorer->addTopLevelItem(project);
+
+        m_projects[fileName] = ScaraRobot();
+
+        setActiveProject(fileName);
+
+        QDomElement files = root.namedItem("Files").toElement();
+        for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
+        {
+            QTreeWidgetItem* fileTreeWidgetItem = new QTreeWidgetItem(FileType);
+            QDomElement name = file.namedItem("Name").toElement();
+            QDomElement path = file.namedItem("Path").toElement();
+
+            if ( !name.isNull() )
+            {
+                fileTreeWidgetItem->setText(0,name.text());
+                fileTreeWidgetItem->setText(2,name.text()+'*');
+            }
+            else
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
+                                                                         "'Name' tag is missing in one file."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                continue;
+            }
+
+            if ( !path.isNull() )
+                fileTreeWidgetItem->setText(1,path.text());
+            else
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project file is corrupted\n"
+                                                                         "'Path' tag is missing in one file."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                continue;
+            }
+
+            fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+
+            project->addChild(fileTreeWidgetItem);
+        }
+
+        ui->projectExplorer->addTopLevelItem(project);
+
+        sortProjectFiles(project);
+
+        m_projects[fileName] = ScaraRobot();
+
+        ui->projectExplorer->show();
+        ui->actionCloseAll->setEnabled(true);
+
+        file.close();
     }
+    else if ( fileName.endsWith(".py"))
+    {
+        // If file already is loaded
+        for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+        {
+            if ( ui->fileEditor->tabText(i) == fileName ||
+                 ui->fileEditor->tabText(i) == fileName+'*' )
+            {
+                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(i));
 
-    ui->projectExplorer->addTopLevelItem(project);
+                if ( codeEditor->path == filePath )
+                    ui->fileEditor->setCurrentWidget(codeEditor);
+            }
+        }
 
-    sortProjectFiles(project);
+        // If not, lets do it
+        QFile file(fullPath);
 
-    m_projects[projectName] = ScaraRobot();
+        // If it is not opened correctly
+        if ( !file.open(QIODevice::ReadWrite  | QFile::Text ))
+        {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), "Cannot open this file.");
 
-    ui->projectExplorer->show();
+            msgBox.setStyleSheet(currentErrorBoxTheme);
 
-    ui->actionCloseAll->setEnabled(true);
+            msgBox.exec();
+            return;
+        }
+        else
+        {
+            CodeEditor* codeEditor = new CodeEditor(this);
+            PythonHighlighter* highlighter = new PythonHighlighter(codeEditor->document());
+            QTextStream textStream(&file);
 
-//    element = root.namedItem("Files").toElement();
-//    if ( !element.isNull() )
-//    {
-//    }
+            m_highlighters[codeEditor] = highlighter;
 
-    file.close();
+            codeEditor->document()->setPlainText(textStream.readAll());
+            codeEditor->path = filePath;
+
+            m_textChangedMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+
+            m_redoMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
+
+            m_undoMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
+
+            connect(codeEditor,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
+            connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
+
+            ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),fileName);
+            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
+            ui->fileEditor->currentWidget()->setFocus();
+            ui->fileEditor->show();
+            ui->graphicsView->hide();
+        }
+    }
 }
 
 void MainWindow::exitAppClicked()

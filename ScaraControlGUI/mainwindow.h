@@ -88,7 +88,7 @@ private:
 private slots:
 
     void newProjectClicked();
-    void openProjectProject();
+    void openProjectProjectOrFile();
     void exitAppClicked();
     void closeAllClicked();
     void backClicked();
