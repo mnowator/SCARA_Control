@@ -55,6 +55,8 @@ private:
     QSignalMapper* m_saveProjectMapper;
     QSignalMapper* m_undoMapper;
     QSignalMapper* m_redoMapper;
+    QSignalMapper* m_tabCloseMapper;
+    QSignalMapper* m_openUrlMapper;
 
     Ui::MainWindow *ui;
 
@@ -106,7 +108,9 @@ private slots:
     void focusChanged(QWidget* old, QWidget* now);
 
     void createProject(QString const& projectName, QString const& communicationType, QString const& projectPath, QString const& projectType);
+
     void projectExplorerContextMenuRequested(QPoint const& pos);
+    void fileEditorContextMenuRequested(QPoint const& pos);
 
     void projectExplorerDoubleClicked(QTreeWidgetItem* item, int column);
 
@@ -128,6 +132,7 @@ private slots:
     void stopClicked        (QString const& name);
     void restartClicked     (QString const& name);
     void saveProjectClicked (QString const& name);
+    void openUrlClicked     (QString const& url);
 
     void registerRedoStatus (QWidget* widget);
     void registerUndoStatus (QWidget* widget);

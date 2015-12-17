@@ -12,6 +12,7 @@
 #include <QKeyEvent>
 #include <QCoreApplication>
 #include <QLineEdit>
+#include <QDesktopServices>
 
 #include "styles.h"
 
@@ -45,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_saveProjectMapper     =   new QSignalMapper(this);
     m_redoMapper            =   new QSignalMapper(this);
     m_undoMapper            =   new QSignalMapper(this);
+    m_tabCloseMapper        =   new QSignalMapper(this);
+    m_openUrlMapper         =   new QSignalMapper(this);
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -65,10 +68,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_restartSignalMapper,  SIGNAL(mapped(QString)),this,SLOT(restartClicked    (QString)));
     connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
+    connect(m_openUrlMapper,        SIGNAL(mapped(QString)),this,SLOT(openUrlClicked    (QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
     connect(m_textChangedMapper,    SIGNAL(mapped(QWidget*)),this,SLOT(textChanged       (QWidget*)));
+
+    connect(m_tabCloseMapper,       SIGNAL(mapped(int)),this,SLOT(tabCloseClicked(int)));
 
     m_saveSignalMapper->setMapping(ui->actionSave,"current");
     connect(ui->actionSave,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
@@ -96,8 +102,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->fileEditor,SIGNAL(tabCloseRequested(int)),this,SLOT(tabCloseClicked(int)));
     connect(ui->fileEditor,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+    connect(ui->fileEditor,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(fileEditorContextMenuRequested(QPoint)));
 
     connect(qApp,SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
+
+    qApp->setStyleSheet(currentToolTipTheme);
 
     this->setStyleSheet(currentWindowTheme);
     this->menuBar()->setStyleSheet(currentMenuBarTheme);
@@ -660,6 +669,8 @@ void MainWindow::openProjectProjectOrFile()
             ui->fileEditor->show();
             ui->graphicsView->hide();
         }
+
+        ui->actionCloseAllFiles->setEnabled(true);
     }
 }
 
@@ -704,12 +715,12 @@ void MainWindow::closeAllFilesClicked()
             return;
     }
 
-    if ( ui->fileEditor->count() == 0 )
-    {
-        ui->fileEditor->clear();
-        ui->graphicsView->show();
-        ui->actionSaveAll->setEnabled(false);
-    }
+    ui->fileEditor->clear();
+    ui->fileEditor->hide();
+    ui->graphicsView->show();
+
+    ui->actionSaveAll->setEnabled(false);
+    ui->actionCloseAllFiles->setEnabled(false);
 }
 
 void MainWindow::closeAllProjectsClicked()
@@ -1194,6 +1205,82 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
 
     menu.setStyleSheet(currentMenuBarTheme);
     menu.exec( ui->projectExplorer->mapToGlobal(pos));
+}
+
+void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
+{
+    QMenu menu(this);
+    QString path;
+    QString tabName;
+
+    bool canSave = false;
+
+    int clickedTabIndex = -1;
+
+    for ( unsigned i=0; i< ui->fileEditor->count(); ++i )
+    {
+        if ( ui->fileEditor->tabBar()->tabRect(i).contains(pos) )
+        {
+            clickedTabIndex = i;
+            break;
+        }
+    }
+
+    CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(clickedTabIndex));
+    tabName = ui->fileEditor->tabText(clickedTabIndex);
+
+    if (codeEditor)
+    {
+        path = codeEditor->path;
+
+        if (!codeEditor->document()->isEmpty())
+            canSave = true;
+    }
+    else
+        return;
+
+    QAction* save = new QAction(QIcon(":/new/icons/lc_save.png"),"Save",this);
+    m_saveSignalMapper->setMapping(save,tabName+imposibleDelimiter+path);
+    connect(save,SIGNAL(triggered(bool)),m_saveSignalMapper,SLOT(map()));
+
+    QAction* saveAs = new QAction(QIcon(":/new/icons/lc_saveas.png"),"Save as",this);
+    m_saveAsSignalMapper->setMapping(saveAs,tabName+imposibleDelimiter+path);
+    connect(saveAs,SIGNAL(triggered(bool)),m_saveAsSignalMapper,SLOT(map()));
+
+    QAction* rename = new QAction("Rename",this);
+    m_renameSignalMapper->setMapping(rename,tabName+imposibleDelimiter+path);
+    connect(rename,SIGNAL(triggered(bool)),m_renameSignalMapper,SLOT(map()));
+
+    QAction* closeTab = new QAction("Close Tab",this);
+    m_tabCloseMapper->setMapping(closeTab,clickedTabIndex);
+    connect(closeTab,SIGNAL(triggered(bool)),m_tabCloseMapper,SLOT(map()));
+
+    QAction* closeAllTabs = new QAction("Close all Tabs",this);
+    connect(closeAllTabs,SIGNAL(triggered(bool)),this,SLOT(closeAllFilesClicked()));
+
+    QAction* openInExplorer = new QAction("Open in explorer",this);
+    m_openUrlMapper->setMapping(openInExplorer,path);
+    connect(openInExplorer,SIGNAL(triggered(bool)),m_openUrlMapper,SLOT(map()));
+
+    if ( !canSave )
+    {
+        save->setEnabled(false);
+        saveAs->setEnabled(false);
+    }
+
+    menu.addAction(save);
+    menu.addAction(saveAs);
+    menu.addSeparator();
+    menu.addAction(rename);
+    menu.addSeparator();
+    menu.addAction(openInExplorer);
+    menu.addSeparator();
+    menu.addAction(closeAllTabs);
+    menu.addAction(closeTab);
+
+    menu.setStyleSheet(currentMenuBarTheme);
+
+    menu.exec(ui->fileEditor->tabBar()->mapToGlobal(pos));
 }
 
 
@@ -1755,6 +1842,11 @@ void MainWindow::saveProjectClicked(const QString &name)
             }
         }
     }
+}
+
+void MainWindow::openUrlClicked(const QString &url)
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(url));
 }
 
 void MainWindow::registerRedoStatus(QWidget *widget)

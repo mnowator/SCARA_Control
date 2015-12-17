@@ -110,6 +110,13 @@ QString darkTabWidgetTheme = "QTabWidget::pane {"
 
 QString darkTreeWidgetTheme = "border: 0;";
 
+QString darkToolTipTheme = "QToolTip {"
+                           "background-color: rgb(60, 63, 65);"
+                           "color: rgb(230, 230, 230);"
+                           "border: 1px solid rgb(41, 43, 45);"
+                           "}";
+
+QString currentToolTipTheme = darkToolTipTheme;
 QString currentHeaderTheme = darkHeaderTheme;
 QString currentTreeWigetTheme = darkTreeWidgetTheme;
 QString currentCodeEditorTheme = darkCodeEditorTheme;
