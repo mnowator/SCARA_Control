@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->projectExplorer->hide();
     ui->fileEditor->hide();
-    ui->graphicsView->show();
+    ui->logo->show();
 
     m_renameSignalMapper    =   new QSignalMapper(this);
     m_saveSignalMapper      =   new QSignalMapper(this);
@@ -113,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->fileEditor->setStyleSheet(currentTabWidgetTheme);
     this->ui->projectExplorer->setStyleSheet(currentTreeWigetTheme);
     this->ui->projectExplorer->header()->setStyleSheet(currentHeaderTheme);
+    this->ui->logo->setStyleSheet(currentLogoTheme);
 }
 
 MainWindow::~MainWindow()
@@ -667,7 +668,7 @@ void MainWindow::openProjectProjectOrFile()
             ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
             ui->fileEditor->currentWidget()->setFocus();
             ui->fileEditor->show();
-            ui->graphicsView->hide();
+            ui->logo->hide();
         }
 
         ui->actionCloseAllFiles->setEnabled(true);
@@ -717,7 +718,7 @@ void MainWindow::closeAllFilesClicked()
 
     ui->fileEditor->clear();
     ui->fileEditor->hide();
-    ui->graphicsView->show();
+    ui->logo->show();
 
     ui->actionSaveAll->setEnabled(false);
     ui->actionCloseAllFiles->setEnabled(false);
@@ -1998,7 +1999,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         ui->actionSave_as->setEnabled(true);
         ui->actionCloseAllFiles->setEnabled(true);
 
-        ui->graphicsView->hide();
+        ui->logo->hide();
         ui->fileEditor->show();
 
         break;
@@ -2045,7 +2046,7 @@ void MainWindow::tabCloseClicked(int idx)
         ui->actionCloseAllFiles->setEnabled(false);
 
         ui->fileEditor->hide();
-        ui->graphicsView->show();
+        ui->logo->show();
     }
 }
 

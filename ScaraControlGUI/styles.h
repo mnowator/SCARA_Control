@@ -17,7 +17,9 @@ extern QString currentLineNumberingRectTheme;
 extern QString currentLineNumberingPenTheme;
 extern QString currentHeaderTheme;
 extern QString currentToolTipTheme;
+extern QString currentLogoTheme;
 
+extern QString darkLogoTheme;
 extern QString darkToolTipTheme;
 extern QString darkHeaderTheme;
 extern QString darkHighlightLineTheme;

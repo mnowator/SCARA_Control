@@ -116,6 +116,11 @@ QString darkToolTipTheme = "QToolTip {"
                            "border: 1px solid rgb(41, 43, 45);"
                            "}";
 
+QString darkLogoTheme = "border: 1px solid rgb(41, 43, 45);"
+                        "background-color: rgb(43, 43, 43);"
+                        "border-top: 0px solid rgb(41, 43, 45);";
+
+QString currentLogoTheme = darkLogoTheme;
 QString currentToolTipTheme = darkToolTipTheme;
 QString currentHeaderTheme = darkHeaderTheme;
 QString currentTreeWigetTheme = darkTreeWidgetTheme;
