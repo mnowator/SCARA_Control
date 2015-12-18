@@ -57,11 +57,11 @@
           <bool>false</bool>
          </property>
          <attribute name="headerVisible">
-          <bool>false</bool>
+          <bool>true</bool>
          </attribute>
          <column>
           <property name="text">
-           <string notr="true">Projects</string>
+           <string notr="true">sadasdsaddas</string>
           </property>
          </column>
         </widget>

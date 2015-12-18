@@ -68,6 +68,17 @@ bool CodeEditor::isRedoAvailable() const
     return redoIsAvailable;
 }
 
+void CodeEditor::turnOnPythonHighlighting()
+{
+    highlighter = new PythonHighlighter(this->document());
+}
+
+void CodeEditor::turnOffPythonHighlighting()
+{
+    if ( highlighter )
+        delete highlighter;
+}
+
 
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -96,6 +107,37 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
     QRect cr = contentsRect();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void CodeEditor::wheelEvent(QWheelEvent *event)
+{
+    if (event->modifiers() & Qt::ControlModifier)
+    {
+        if ( event->delta() > 0 )
+        {
+            QFont f = font();
+            const int newSize = f.pixelSize() + 1;
+            if (newSize <= 0)
+                return;
+
+            f.setPixelSize(newSize);
+            setFont(f);
+        }
+        else if ( event->delta() < 0)
+        {
+            QFont f = font();
+            const int newSize = f.pixelSize() - 1;
+            if (newSize <= 0)
+                return;
+
+            f.setPixelSize(newSize);
+            setFont(f);
+        }
+
+        return;
+    }
+
+    QPlainTextEdit::wheelEvent(event);
 }
 
 void CodeEditor::undoAvailable(bool available)

@@ -450,7 +450,6 @@ QString MainWindow::loadFile(const QString &filePath, const QString &fileName)
     }
 }
 
-
 void MainWindow::newProjectClicked()
 {
     m_newProjectDialog = new NewProjectDialog(this);
@@ -643,10 +642,9 @@ void MainWindow::openProjectProjectOrFile()
         else
         {
             CodeEditor* codeEditor = new CodeEditor(this);
-            PythonHighlighter* highlighter = new PythonHighlighter(codeEditor->document());
             QTextStream textStream(&file);
 
-            m_highlighters[codeEditor] = highlighter;
+            codeEditor->turnOnPythonHighlighting();
 
             codeEditor->document()->setPlainText(textStream.readAll());
             codeEditor->path = filePath;
@@ -672,6 +670,8 @@ void MainWindow::openProjectProjectOrFile()
         }
 
         ui->actionCloseAllFiles->setEnabled(true);
+        ui->actionSave->setEnabled(true);
+        ui->actionSave_as->setEnabled(true);
     }
 }
 
@@ -1970,10 +1970,9 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
             CodeEditor* codeEditor = new CodeEditor(this);
-            PythonHighlighter* highlighter = new PythonHighlighter(codeEditor->document());
             QTextStream textStream(&file);
 
-            m_highlighters[codeEditor] = highlighter;
+            codeEditor->turnOnPythonHighlighting();
 
             codeEditor->document()->setPlainText(textStream.readAll());
             codeEditor->path = item->text(1);

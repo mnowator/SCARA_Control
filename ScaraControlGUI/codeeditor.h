@@ -2,6 +2,7 @@
 #define CODEEDITOR_H
 
 #include <QPlainTextEdit>
+#include "pythonhighlighter.h"
 
 class CodeEditor : public QPlainTextEdit
 {
@@ -19,8 +20,12 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
+    void turnOnPythonHighlighting();
+    void turnOffPythonHighlighting();
+
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
+    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
     void undoAvailable(bool available);
@@ -33,6 +38,7 @@ private slots:
 
 private:
     QWidget *lineNumberArea;
+    PythonHighlighter* highlighter;
 
     bool undoIsAvailable;
     bool redoIsAvailable;
