@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_setActiveMapper       =   new QSignalMapper(this);
     m_closeSignalMapper     =   new QSignalMapper(this);
     m_reloadSignalMapper    =   new QSignalMapper(this);
-    m_cloneSignalMapper     =   new QSignalMapper(this);
     m_addNewSignalMapper    =   new QSignalMapper(this);
     m_addExistSignalMapper  =   new QSignalMapper(this);
     m_removeSignalMapper    =   new QSignalMapper(this);
@@ -48,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_undoMapper            =   new QSignalMapper(this);
     m_tabCloseMapper        =   new QSignalMapper(this);
     m_openUrlMapper         =   new QSignalMapper(this);
+    m_reloadSignalMapper    =   new QSignalMapper(this);
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -58,7 +58,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_setActiveMapper,      SIGNAL(mapped(QString)),this,SLOT(setActiveClicked  (QString)));
     connect(m_closeSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(closeClicked      (QString)));
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
-    connect(m_cloneSignalMapper,    SIGNAL(mapped(QString)),this,SLOT(cloneClicked      (QString)));
     connect(m_addNewSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(addNewClicked     (QString)));
     connect(m_addExistSignalMapper, SIGNAL(mapped(QString)),this,SLOT(addExistClicked   (QString)));
     connect(m_removeSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(removeClicked     (QString)));
@@ -69,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_saveProjectMapper,    SIGNAL(mapped(QString)),this,SLOT(saveProjectClicked(QString)));
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
     connect(m_openUrlMapper,        SIGNAL(mapped(QString)),this,SLOT(openUrlClicked    (QString)));
+    connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
@@ -81,6 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_saveAsSignalMapper->setMapping(ui->actionSave_as,"current");
     connect(ui->actionSave_as,SIGNAL(triggered(bool)),m_saveAsSignalMapper,SLOT(map()));
+
+    m_reloadSignalMapper->setMapping(ui->actionReload,"current");
+    connect(ui->actionReload,SIGNAL(triggered(bool)),m_reloadSignalMapper,SLOT(map()));
 
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
@@ -96,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRedo,                 SIGNAL(triggered(bool)),this,SLOT(redoClicked()));
     connect(ui->actionUndo,                 SIGNAL(triggered(bool)),this,SLOT(undoClicked()));
     connect(ui->actionSelect_All,           SIGNAL(triggered(bool)),this,SLOT(selectAllClicked()));
+    connect(ui->actionClose_File,           SIGNAL(triggered(bool)),this,SLOT(closeFileClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
@@ -120,7 +124,6 @@ MainWindow::~MainWindow()
 {
     delete m_closeSignalMapper;
     delete m_reloadSignalMapper;
-    delete m_cloneSignalMapper;
     delete m_removeSignalMapper;
     delete m_runSignalMapper;
     delete m_pauseSignalMapper;
@@ -665,13 +668,9 @@ void MainWindow::openProjectProjectOrFile()
             ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),fileName);
             ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
             ui->fileEditor->currentWidget()->setFocus();
-            ui->fileEditor->show();
-            ui->logo->hide();
-        }
 
-        ui->actionCloseAllFiles->setEnabled(true);
-        ui->actionSave->setEnabled(true);
-        ui->actionSave_as->setEnabled(true);
+            ui->actionReload->setEnabled(true);
+        }
     }
 }
 
@@ -717,8 +716,6 @@ void MainWindow::closeAllFilesClicked()
     }
 
     ui->fileEditor->clear();
-    ui->fileEditor->hide();
-    ui->logo->show();
 
     ui->actionSaveAll->setEnabled(false);
     ui->actionCloseAllFiles->setEnabled(false);
@@ -799,20 +796,18 @@ void MainWindow::clipboardChange()
 
 void MainWindow::saveAllClicked()
 {
-    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    for ( unsigned i=0; i< ui->fileEditor->count(); ++i)
     {
-        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
+        CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
 
-        for ( unsigned j=0; j<project->childCount(); ++j )
+        if ( codeEditor )
         {
-            QTreeWidgetItem* child = project->child(j);
-
-            if ( child->text(0) > child->text(2) )
-                saveClicked(child->text(0));
+            saveClicked(ui->fileEditor->tabText(i)+imposibleDelimiter+codeEditor->path);
         }
     }
 
     ui->actionSaveAll->setEnabled(false);
+    ui->actionSave_as->setEnabled(false);
 }
 
 void MainWindow::selectAllClicked()
@@ -1072,7 +1067,6 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* pause      = new QAction(tr("Pause"),              this);
             QAction* stop       = new QAction(tr("Stop"),               this);
             QAction* restart    = new QAction(tr("Restart"),            this);
-            QAction* clone      = new QAction(tr("Clone"),              this);
             QAction* reload     = new QAction(tr("Reload"),             this);
             QAction* remove     = new QAction(tr("Remove"),             this);
             QAction* close      = new QAction(tr("Close"),              this);
@@ -1095,14 +1089,12 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(stop);
             menu.addAction(restart);
             menu.addSeparator();
-            menu.addAction(clone);
             menu.addAction(reload);
             menu.addAction(remove);
             menu.addAction(close);
 
             m_setActiveMapper       ->  setMapping(setActive,   item->text(0));
             m_reloadSignalMapper    ->  setMapping(reload,      item->text(0));
-            m_cloneSignalMapper     ->  setMapping(clone,       item->text(0));
             m_addNewSignalMapper    ->  setMapping(addNew,      item->text(0));
             m_addExistSignalMapper  ->  setMapping(addExist,    item->text(0));
             m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
@@ -1115,7 +1107,6 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
 
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
-            connect(clone,      SIGNAL(triggered(bool)),m_cloneSignalMapper,    SLOT(map()));
             connect(addNew,     SIGNAL(triggered(bool)),m_addNewSignalMapper,   SLOT(map()));
             connect(addExist,   SIGNAL(triggered(bool)),m_addExistSignalMapper, SLOT(map()));
             connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
@@ -1230,12 +1221,12 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(clickedTabIndex));
     tabName = ui->fileEditor->tabText(clickedTabIndex);
 
+    if (tabName.endsWith('*'))
+        canSave = true;
+
     if (codeEditor)
     {
         path = codeEditor->path;
-
-        if (!codeEditor->document()->isEmpty())
-            canSave = true;
     }
     else
         return;
@@ -1263,14 +1254,22 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     m_openUrlMapper->setMapping(openInExplorer,path);
     connect(openInExplorer,SIGNAL(triggered(bool)),m_openUrlMapper,SLOT(map()));
 
+    QAction* reload = new QAction(QIcon(":/new/icons/lc040.png"),"Reload",this);
+    m_reloadSignalMapper->setMapping(reload,tabName+imposibleDelimiter+path);
+    connect(reload,SIGNAL(triggered(bool)),m_reloadSignalMapper,SLOT(map()));
+
     if ( !canSave )
     {
         save->setEnabled(false);
         saveAs->setEnabled(false);
+        reload->setEnabled(true);
     }
+    else
+        reload->setEnabled(false);
 
     menu.addAction(save);
     menu.addAction(saveAs);
+    menu.addAction(reload);
     menu.addSeparator();
     menu.addAction(rename);
     menu.addSeparator();
@@ -1406,6 +1405,10 @@ void MainWindow::saveClicked(const QString &data)
 
         if ( codeEditor )
             path = codeEditor->path;
+
+        ui->actionReload->setEnabled(true);
+        ui->actionSave_as->setEnabled(false);
+        ui->actionSave->setEnabled(false);
     }
     else
     {
@@ -1449,7 +1452,11 @@ void MainWindow::saveClicked(const QString &data)
                     connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
 
                     if ( ui->fileEditor->currentIndex() == i )
-                                ui->actionSave->setEnabled(false);
+                    {
+                        ui->actionSave->setEnabled(false);
+                        ui->actionReload->setEnabled(true);
+                        ui->actionSave_as->setEnabled(false);
+                    }
                 }
         }
         else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*' )
@@ -1533,6 +1540,8 @@ void MainWindow::saveAsClicked(const QString &data)
                     {
                         CodeEditor* newCodeEditor= new CodeEditor(this);
 
+                        newCodeEditor->turnOnPythonHighlighting();
+
                         newCodeEditor->document()->setPlainText(codeEditor->toPlainText());
                         newCodeEditor->path = newPath;
 
@@ -1572,6 +1581,11 @@ void MainWindow::saveAsClicked(const QString &data)
     }
 }
 
+void MainWindow::closeFileClicked()
+{
+    tabCloseClicked(ui->fileEditor->currentIndex());
+}
+
 void MainWindow::setActiveClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
@@ -1591,15 +1605,35 @@ void MainWindow::closeClicked(const QString &name)
 }
 
 
-void MainWindow::reloadClicked(const QString &name)
+void MainWindow::reloadClicked(const QString &data)
 {
+    QStringList strList;
+    CodeEditor* codeEditor;
+    QString name;
+    QString path;
 
+    if ( data == "current" )
+    {
+        unsigned currentIdx = ui->fileEditor->currentIndex();
+
+        name = ui->fileEditor->tabText(currentIdx);
+        codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
+
+        if ( codeEditor )
+            path = codeEditor->path;
+    }
+    else
+    {
+        strList = data.split(imposibleDelimiter);
+
+        if ( strList.length() != 2 )
+            return;
+
+        name = strList[0];
+        path = strList[1];
+    }
 }
 
-void MainWindow::cloneClicked(const QString &name)
-{
-
-}
 
 void MainWindow::addNewClicked(const QString &name)
 {
@@ -1882,6 +1916,8 @@ void MainWindow::textChanged(QWidget* widget)
     ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
     ui->actionSaveAll->setEnabled(true);
     ui->actionSave->setEnabled(true);
+    ui->actionSave_as->setEnabled(true);
+    ui->actionReload->setEnabled(false);
 }
 
 void MainWindow::updateRedoStatus(bool available)
@@ -1995,12 +2031,6 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             ui->fileEditor->currentWidget()->setFocus();
         }
 
-        ui->actionSave_as->setEnabled(true);
-        ui->actionCloseAllFiles->setEnabled(true);
-
-        ui->logo->hide();
-        ui->fileEditor->show();
-
         break;
     }
     default:
@@ -2012,12 +2042,17 @@ void MainWindow::tabCloseClicked(int idx)
 {
     QString tabName = ui->fileEditor->tabText(idx);
 
-    if ( tabName[tabName.length()-1] == '*' )
+    if ( tabName.endsWith('*') )
     {
         m_saveChangesDialog = new SaveChangesDialog(this);
+        CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
 
-        foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(tabName,Qt::MatchExactly | Qt::MatchRecursive,0) )
-            m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),item->text(0),item->text(1));
+        if ( codeEditor )
+        {
+            m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
+                                         tabName,
+                                         codeEditor->path);
+        }
 
         if ( m_saveChangesDialog->exec() )
         {
@@ -2036,17 +2071,6 @@ void MainWindow::tabCloseClicked(int idx)
     }
     else
         ui->fileEditor->removeTab(idx);
-
-    if (ui->fileEditor->count() == 0 )
-    {
-        ui->actionUndo->setEnabled(false);
-        ui->actionRedo->setEnabled(false);
-        ui->actionSave_as->setEnabled(false);
-        ui->actionCloseAllFiles->setEnabled(false);
-
-        ui->fileEditor->hide();
-        ui->logo->show();
-    }
 }
 
 void MainWindow::currentTabChanged(int idx)
@@ -2060,6 +2084,30 @@ void MainWindow::currentTabChanged(int idx)
         ui->actionForward->setEnabled(true);
     else
         ui->actionForward->setEnabled(false);
+
+    if ( idx < 0 )
+    {
+        ui->actionClose_File->setEnabled(false);
+        ui->actionCloseAllFiles->setEnabled(false);
+        ui->actionSave->setEnabled(false);
+        ui->actionSave_as->setEnabled(false);
+        ui->actionUndo->setEnabled(false);
+        ui->actionRedo->setEnabled(false);
+        ui->actionPrint->setEnabled(false);
+        ui->actionReload->setEnabled(false);
+
+        ui->fileEditor->hide();
+        ui->logo->show();
+    }
+    else if ( idx >= 0 )
+    {
+        ui->actionCloseAllFiles->setEnabled(true);
+        ui->actionClose_File->setEnabled(true);
+        ui->actionPrint->setEnabled(true);
+
+        ui->logo->hide();
+        ui->fileEditor->show();
+    }
 }
 
 

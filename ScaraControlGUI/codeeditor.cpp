@@ -26,6 +26,8 @@ CodeEditor::CodeEditor(QWidget *parent)
 
     setFont(font);
 
+    this->setLineWrapMode(QPlainTextEdit::NoWrap);
+
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));

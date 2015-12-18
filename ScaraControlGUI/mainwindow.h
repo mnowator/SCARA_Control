@@ -42,7 +42,6 @@ private:
     QSignalMapper* m_setActiveMapper;
     QSignalMapper* m_closeSignalMapper;
     QSignalMapper* m_reloadSignalMapper;
-    QSignalMapper* m_cloneSignalMapper;
     QSignalMapper* m_addNewSignalMapper;
     QSignalMapper* m_addExistSignalMapper;
     QSignalMapper* m_removeSignalMapper;
@@ -101,6 +100,7 @@ private slots:
     void selectAllClicked();
     void undoClicked();
     void redoClicked();
+    void closeFileClicked();
 
     void focusChanged(QWidget* old, QWidget* now);
 
@@ -119,8 +119,7 @@ private slots:
     void saveAsClicked      (QString const& data);
     void setActiveClicked   (QString const& name);
     void closeClicked       (QString const& name);
-    void reloadClicked      (QString const& name);
-    void cloneClicked       (QString const& name);
+    void reloadClicked      (QString const& data);
     void addNewClicked      (QString const& name);
     void addExistClicked    (QString const& name);
     void removeClicked      (QString const& data);

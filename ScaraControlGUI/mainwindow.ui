@@ -24,6 +24,9 @@
     <property name="leftMargin">
      <number>0</number>
     </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
     <property name="bottomMargin">
      <number>0</number>
     </property>
@@ -151,18 +154,26 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuRecent_Files">
+     <property name="title">
+      <string>Recent Files</string>
+     </property>
+    </widget>
     <addaction name="actionNew_Project"/>
     <addaction name="actionOpen_Project_or_File"/>
-    <addaction name="actionReload"/>
-    <addaction name="actionRecent_Files"/>
+    <addaction name="menuRecent_Files"/>
     <addaction name="actionRecent_Projects"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionSaveAll"/>
+    <addaction name="actionClose_File"/>
     <addaction name="actionCloseAllFiles"/>
+    <addaction name="actionReload"/>
     <addaction name="separator"/>
     <addaction name="actionCloseAllProjects"/>
+    <addaction name="separator"/>
+    <addaction name="actionPrint"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -247,6 +258,7 @@
    <addaction name="actionNew_Project"/>
    <addaction name="actionOpen_Project_or_File"/>
    <addaction name="actionSave"/>
+   <addaction name="actionSave_as"/>
    <addaction name="actionReload"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
@@ -461,6 +473,9 @@
    <property name="text">
     <string>Reload</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionCut">
    <property name="enabled">
@@ -552,11 +567,6 @@
     <string>Alt+Right</string>
    </property>
   </action>
-  <action name="actionRecent_Files">
-   <property name="text">
-    <string>Recent Files</string>
-   </property>
-  </action>
   <action name="actionConnect_to_SCARA">
    <property name="enabled">
     <bool>false</bool>
@@ -603,7 +613,27 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Class All Projects</string>
+    <string>Close All Projects</string>
+   </property>
+  </action>
+  <action name="actionClose_File">
+   <property name="text">
+    <string>Close File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/new/icons/lc_print.png</normaloff>:/new/icons/lc_print.png</iconset>
+   </property>
+   <property name="text">
+    <string>Print</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>
