@@ -24,5 +24,8 @@
         <file>profile.png</file>
         <file>pythonfile.png</file>
         <file>lc_print.png</file>
+        <file>scaraXYSurface.png</file>
+        <file>scaraZSurface.png</file>
+        <file>pointsfile.png</file>
     </qresource>
 </RCC>

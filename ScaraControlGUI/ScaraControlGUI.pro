@@ -33,7 +33,11 @@ SOURCES += \
     savechangesdialog.cpp \
     removefiledialog.cpp \
     codeeditor.cpp \
-    pythonhighlighter.cpp
+    pythonhighlighter.cpp \
+    serialcommunicationconfigwidget.cpp \
+    projectfileeditor.cpp \
+    scarasc1configwidget.cpp \
+    pointseditor.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -44,7 +48,11 @@ HEADERS += \
     styles.h \
     removefiledialog.h \
     codeeditor.h \
-    pythonhighlighter.h
+    pythonhighlighter.h \
+    serialcommunicationconfigwidget.h \
+    projectfileeditor.h \
+    scarasc1configwidget.h \
+    pointseditor.h
 
 unix {
     target.path = /usr/lib
@@ -57,7 +65,10 @@ FORMS += \
     newfiledialog.ui \
     savechangesdialog.ui \
     renamefiledialog.ui \
-    removefiledialog.ui
+    removefiledialog.ui \
+    serialcommunicationconfigwidget.ui \
+    projectfileeditor.ui \
+    scarasc1configwidget.ui
 
 RESOURCES += \
     resource.qrc

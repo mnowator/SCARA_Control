@@ -34,7 +34,7 @@ QString darkMenuBarTheme = "QMenuBar::item {"
                            "}"
                            "border-bottom-color: rgb(255, 255, 255);";
 
-QString darkButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; width: 65; }"
+QString darkButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; width: 65; background-color: rgb(60, 63, 65); }"
                            "QPushButton:hover { background-color: rgb(60, 187, 255); }";
 
 QString darkLineEditTheme = "QLineEdit {"
@@ -120,6 +120,17 @@ QString darkLogoTheme = "border: 1px solid rgb(41, 43, 45);"
                         "background-color: rgb(43, 43, 43);"
                         "border-top: 0px solid rgb(41, 43, 45);";
 
+QString darkGroupBoxtTheme = "QGroupBox {"
+                             "border: 2px solid #8f8f91;"
+                             " border-radius: 5px;"
+                             "}"
+                             "QGroupBox::title {"
+                             "subcontrol-origin: margin;"
+                             "subcontrol-position: top center;"
+                             " padding: 0 3px;"
+                             "}";
+
+QString currentGroupBoxTheme = darkGroupBoxtTheme;
 QString currentLogoTheme = darkLogoTheme;
 QString currentToolTipTheme = darkToolTipTheme;
 QString currentHeaderTheme = darkHeaderTheme;

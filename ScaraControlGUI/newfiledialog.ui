@@ -51,6 +51,11 @@
              <string>Program ( Python File )</string>
             </property>
            </item>
+           <item>
+            <property name="text">
+             <string>Points ( .pt )</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

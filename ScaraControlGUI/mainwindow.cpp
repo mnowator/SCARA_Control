@@ -14,6 +14,8 @@
 #include <QLineEdit>
 #include <QDesktopServices>
 
+#include "projectfileeditor.h"
+#include "pointseditor.h"
 #include "styles.h"
 
 #include <QDebug>
@@ -168,15 +170,19 @@ bool MainWindow::lessThenTreeWidgetItem(QTreeWidgetItem *first, QTreeWidgetItem 
         }
 
     if ( selfExtension == ".pro" )
-        selfRating = 3;
+        selfRating = 4;
     else if ( selfExtension == ".py" )
+        selfRating = 3;
+    else if ( selfExtension == ".pt" )
         selfRating = 2;
     else
         selfRating = 1;
 
     if ( otherExtension == ".pro" )
-        otherRating = 3;
+        otherRating = 4;
     else if ( otherExtension == ".py" )
+        otherRating = 3;
+    else if ( otherExtension == ".pt" )
         otherRating = 2;
     else
         otherRating = 1;
@@ -598,7 +604,13 @@ void MainWindow::openProjectProjectOrFile()
                 continue;
             }
 
-            fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+            if ( name.text().endsWith(".py") )
+                fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+            else if ( name.text().endsWith(".pt") )
+                fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pointsfile.png")));
+            else
+                fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/lc_adddirect.png")));
+
 
             project->addChild(fileTreeWidgetItem);
         }
@@ -1620,18 +1632,23 @@ void MainWindow::reloadClicked(const QString &data)
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
 
         if ( codeEditor )
+        {
             path = codeEditor->path;
-    }
-    else
-    {
-        strList = data.split(imposibleDelimiter);
 
-        if ( strList.length() != 2 )
-            return;
+            QFile file(path+name);
 
-        name = strList[0];
-        path = strList[1];
+            if ( file.open(QIODevice::ReadWrite | QFile::Text))
+            {
+                QTextStream textStrem(&file);
+
+                disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                codeEditor->document()->clear();
+                codeEditor->document()->setPlainText(textStrem.readAll());
+                connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            }
+        }
     }
+    // at this moment i do not let situation where file that isnt current can call this function
 }
 
 
@@ -1656,6 +1673,8 @@ void MainWindow::addNewClicked(const QString &name)
 
         if ( fileType == "Program ( Python File )")
             fileName += ".py";
+        else if ( fileType == "Points ( .pt )")
+            fileName += ".pt";
 
         // check if there is a file in a project with the same name
         foreach( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0))
@@ -1692,7 +1711,11 @@ void MainWindow::addNewClicked(const QString &name)
         file->setText(0,fileName);
         file->setText(1,projectPath);
         file->setText(2,fileName+'*');
-        file->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+
+        if ( fileName.endsWith(".py") )
+            file->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
+        else if ( fileName.endsWith(".pt") )
+            file->setIcon(0,*(new QIcon(":/new/icons/pointsfile.png")));
 
         project->addChild(file);
 
@@ -1986,14 +2009,119 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
     {
         QString name = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
 
+        //Check if it is already opened and if it is, set tab as current and retrun
         for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
         {
             if (ui->fileEditor->tabText(idx)==item->text(0) ||
                     ui->fileEditor->tabText(idx)==item->text(2) )
             {
-                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
+                if ( name.endsWith(".py"))
+                {
+                    CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
 
-                if ( codeEditor->path == item->text(1) )
+                    if ( codeEditor->path == item->text(1) )
+                    {
+                        ui->fileEditor->setCurrentIndex(idx);
+                        return;
+                    }
+                }
+                else if ( name.endsWith(".pt"))
+                {
+                    PointsEditor* pointsEditor = dynamic_cast<PointsEditor*>(ui->fileEditor->widget(idx));
+
+                    if ( pointsEditor->path == item->text(1) )
+                    {
+                        ui->fileEditor->setCurrentIndex(idx);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // If not, we have to create apropierate widget
+
+        QFile file(item->text(1)+name);
+
+        if ( file.open(QIODevice::ReadWrite | QFile::Text))
+        {
+            if ( name.endsWith(".py") )
+            {
+                CodeEditor* codeEditor = new CodeEditor(this);
+                QTextStream textStream(&file);
+
+                codeEditor->turnOnPythonHighlighting();
+
+                codeEditor->document()->setPlainText(textStream.readAll());
+                codeEditor->path = item->text(1);
+
+                m_textChangedMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+
+                m_redoMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
+
+                m_undoMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
+
+                connect(codeEditor,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
+                connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
+
+                ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),item->text(0));
+                ui->fileEditor->setCurrentWidget(codeEditor);
+            }
+            else if ( name.endsWith(".pt") )
+            {
+                PointsEditor* pointsEditor = new PointsEditor(this);
+
+                ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),item->text(0));
+                ui->fileEditor->setCurrentWidget(pointsEditor);
+            }
+            else
+            {
+                CodeEditor* codeEditor = new CodeEditor(this);
+                QTextStream textStream(&file);
+
+                codeEditor->document()->setPlainText(textStream.readAll());
+                codeEditor->path = item->text(1);
+
+                m_textChangedMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+
+                m_redoMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
+
+                m_undoMapper->setMapping(codeEditor,codeEditor);
+                connect(codeEditor,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
+
+                connect(codeEditor,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
+                connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
+
+                ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),item->text(0));
+                ui->fileEditor->setCurrentWidget(codeEditor);
+            }
+
+            ui->fileEditor->currentWidget()->setFocus();
+
+            ui->actionReload->setEnabled(true);
+        }
+
+        break;
+    }
+    case ConfigType:
+    {
+        QString name = item->text(0) < item->text(2) ? item->text(0) : item->text(2);
+
+        //Check if it is already opened and if it is, set tab as current and retrun
+        for ( unsigned idx=0; idx < ui->fileEditor->count(); ++idx )
+        {
+            if (ui->fileEditor->tabText(idx)==item->text(0) ||
+                    ui->fileEditor->tabText(idx)==item->text(2) )
+            {
+                ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(idx));
+
+                if ( projectFileEditor->path == item->text(1) )
                 {
                     ui->fileEditor->setCurrentIndex(idx);
                     return;
@@ -2001,33 +2129,15 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             }
         }
 
+        // If not, we have to create apropierate widget
         QFile file(item->text(1)+name);
 
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
-            CodeEditor* codeEditor = new CodeEditor(this);
-            QTextStream textStream(&file);
+            ProjectFileEditor* projectFileEditor = new ProjectFileEditor(this);
 
-            codeEditor->turnOnPythonHighlighting();
-
-            codeEditor->document()->setPlainText(textStream.readAll());
-            codeEditor->path = item->text(1);
-
-            m_textChangedMapper->setMapping(codeEditor,codeEditor);
-            connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-            connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
-
-            m_redoMapper->setMapping(codeEditor,codeEditor);
-            connect(codeEditor,SIGNAL(redoAvailable(bool)),m_redoMapper,SLOT(map()));
-
-            m_undoMapper->setMapping(codeEditor,codeEditor);
-            connect(codeEditor,SIGNAL(undoAvailable(bool)),m_undoMapper,SLOT(map()));
-
-            connect(codeEditor,SIGNAL(redoAvailable(bool)),this,SLOT(updateRedoStatus(bool)));
-            connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
-
-            ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),item->text(0));
-            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
+            ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),item->text(0));
+            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(projectFileEditor));
             ui->fileEditor->currentWidget()->setFocus();
         }
 
