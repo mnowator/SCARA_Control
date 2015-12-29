@@ -67,7 +67,7 @@
             <widget class="QComboBox" name="projectTypeComboBox">
              <item>
               <property name="text">
-               <string>SCARA - SC</string>
+               <string>SCARA - SC1</string>
               </property>
              </item>
              <item>

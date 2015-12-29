@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>920</width>
-    <height>1467</height>
+    <height>1528</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,9 @@
         <property name="spacing">
          <number>20</number>
         </property>
+        <property name="topMargin">
+         <number>10</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="program_settings">
           <property name="styleSheet">
@@ -42,6 +45,9 @@
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="topMargin">
+              <number>10</number>
+             </property>
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_16">
                <item>
@@ -197,6 +203,9 @@
                </item>
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
                  <item>
                   <widget class="QLabel" name="label_4">
                    <property name="text">
@@ -345,40 +354,59 @@
                 </layout>
                </item>
                <item>
+                <layout class="QVBoxLayout" name="verticalLayout_20">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="firstSegmentBeginOnCCWRadioButton">
+                   <property name="text">
+                    <string>First segment begin on CCW</string>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="firstSegmentBeginOnCWRadioButton">
+                   <property name="text">
+                    <string>First segment begin on CW</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QVBoxLayout" name="verticalLayout_18">
                  <property name="spacing">
                   <number>5</number>
                  </property>
                  <item>
-                  <widget class="QCheckBox" name="secondSegmentBeginOnCCWCheckBox">
+                  <widget class="QRadioButton" name="secondSegmentBeginOnCCWRadioButton">
                    <property name="text">
                     <string>Second segment begin on CCW</string>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="firstSegmentBeginOnCCWCheckBox">
-                   <property name="text">
-                    <string>First segment begin on CCW</string>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="secondSegmentBeginOnCWCheckBox">
+                  <widget class="QRadioButton" name="secondSegmentBeginOnCWRadioButton">
                    <property name="text">
                     <string>Second segment begin on CW</string>
                    </property>
                    <property name="checked">
                     <bool>false</bool>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="firstSegmentBeginOnCWCheckBox">
-                   <property name="text">
-                    <string>First segment begin on CW</string>
-                   </property>
-                   <property name="checked">
+                   <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
                   </widget>
@@ -512,40 +540,59 @@
                 </layout>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_19">
+                <layout class="QVBoxLayout" name="verticalLayout_22">
                  <property name="spacing">
                   <number>5</number>
                  </property>
                  <item>
-                  <widget class="QCheckBox" name="increasingZonCWCheckBox">
+                  <widget class="QRadioButton" name="increasingZonCWRadioButton">
                    <property name="text">
                     <string>Increasing Z on CW</string>
                    </property>
                    <property name="checked">
                     <bool>false</bool>
                    </property>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="increasingZonCCWCheckBox">
+                  <widget class="QRadioButton" name="increasingZonCCWRadioButton">
                    <property name="text">
                     <string>Increasing Z on CCW</string>
                    </property>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_19">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
                  <item>
-                  <widget class="QCheckBox" name="beginOnCWCheckBox">
+                  <widget class="QRadioButton" name="thirdSegmentBeginOnCWRadioButton">
                    <property name="text">
                     <string>Begin on CW</string>
+                   </property>
+                   <property name="autoExclusive">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="beginOnCCWCheckBox">
+                  <widget class="QRadioButton" name="thirdSegmentBeginOnCCWRadioButton">
                    <property name="text">
                     <string>Begin on CCW</string>
                    </property>
                    <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
                   </widget>

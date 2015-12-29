@@ -973,47 +973,84 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     root = dom.createElement("Project");
     dom.appendChild(root);
 
-    if ( projectType == "SCARA - SC" )
+    if ( projectType == "SCARA - SC1" )
+    {
         root.setAttribute("project_type", projectType);
 
-//        elHigher = dom.createElement("ProjectName");
-//        elHigher.appendChild(dom.createTextNode(projectName));
-//        root.appendChild(elHigher);
+        elHigher = dom.createElement("MainProgramFile");
+        root.appendChild(elHigher);
 
-//        elHigher = dom.createElement("Files");
-//        root.appendChild(elHigher);
+        elHigher = dom.createElement("MainPointsFile");
+        root.appendChild(elHigher);
 
-//        elHigher = dom.createElement("ScaraConfig");
-//            elLower = dom.createElement("FirstSegmentLength");
-//            elLower.appendChild(dom.createTextNode(""));
-//            elHigher.appendChild(elLower);  
-            
-//            elLower = dom.createElement("SecondSegmentLength");
-//            elLower.appendChild(dom.createTextNode(""));
-//            elHigher.appendChild(elLower); 
-            
-//            elLower = dom.createElement("ThirdSegmentLength");
-//            elLower.appendChild(dom.createTextNode(""));
-//            elHigher.appendChild(elLower);
-            
-//            elLower = dom.createElement("FirstSegmentBeginLimitAngle");
-//            elLower.appendChild(dom.createTextNode(""));
-//            elHigher.appendChild(elLower);
-        
-//        el.setAttribute("first_segment_begin_limit_angle", "0");
-//        el.setAttribute("first_segment_end_limit_angle", "0");
-//        el.setAttribute("second_segment_begin_limit_angle", "0");
-//        el.setAttribute("second_segment_end_limit_angle", "0");
-//        el.setAttribute("third_segment_begin_limit_angle", "0");
-//        el.setAttribute("third_segment_end_limit_angle", "0");
-//        el.setAttribute("sync_freq", "");
-//        el.setAttribute("motor_1_max_freq", "");
-//        el.setAttribute("motor_2_max_freq", "");
-//        el.setAttribute("motor_3_max_freq", "");
-//        el.setAttribute("motor_1_max_steps", "");
-//        el.setAttribute("motor_2_max_steps", "");
-//        el.setAttribute("motor_3_max_steps", "");
-//        root.appendChild(elHigher);
+        elHigher = dom.createElement("SyncFreq");
+        elHigher.appendChild(dom.createTextNode("30"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("LengthOfFirstSegment");
+        elHigher.appendChild(dom.createTextNode("30"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("LengthOfSecondSegment");
+        elHigher.appendChild(dom.createTextNode("30"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("CorrectionValue");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("FirstSegmentAngleOnCw");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("FirstSegmentAngleOnCCW");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("NumberOfStepsForFirstSegment");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("SecondSegmentAngleOnCw");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("SecondSegmentAngleOnCCW");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("NumberOfStepsForSecondSegment");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("FirstSegmentBeginOn");
+        elHigher.appendChild(dom.createTextNode("CW"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("SecondSegmentBeginOn");
+        elHigher.appendChild(dom.createTextNode("CW"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("DistanceBetweenTwoLimtsOnZ");
+        elHigher.appendChild(dom.createTextNode("30"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("LengthOfThirdSegment");
+        elHigher.appendChild(dom.createTextNode("31"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("NumberOfStepsBetweenLimitsOnZ");
+        elHigher.appendChild(dom.createTextNode("0"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("IncreasingZOn");
+        elHigher.appendChild(dom.createTextNode("CW"));
+        root.appendChild(elHigher);
+
+        elHigher = dom.createElement("ThirdSegmentBeginOn");
+        elHigher.appendChild(dom.createTextNode("CW"));
+        root.appendChild(elHigher);
+    }
 
 
     elHigher = dom.createElement("CommunicationConfig");
@@ -1021,12 +1058,37 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     if ( communicationType == "Serial Communication ( COM )")
     {
         elHigher.setAttribute("communication_type", communicationType);
-//        el.setAttribute("com_name", "");
-//        el.setAttribute("baud_rate", "");
-//        el.setAttribute("data_bits", "");
-//        el.setAttribute("stop_bits", "");
-//        el.setAttribute("parity", "");
-//        el.setAttribute("flow_control", "");
+
+        elLower = dom.createElement("SerialLine");
+        elLower.appendChild(dom.createTextNode("COM3"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("BaudRate");
+        elLower.appendChild(dom.createTextNode("9600"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("DataBits");
+        elLower.appendChild(dom.createTextNode("8"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("StopBits");
+        elLower.appendChild(dom.createTextNode("1"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("Parity");
+        elLower.appendChild(dom.createTextNode("None"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("FlowControl");
+        elLower.appendChild(dom.createTextNode("None"));
+
+        elHigher.appendChild(elLower);
+
         root.appendChild(elHigher);
     }
 
@@ -2135,10 +2197,14 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
             ProjectFileEditor* projectFileEditor = new ProjectFileEditor(this);
+            QTextStream textStream(&file);
 
-            ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),item->text(0));
-            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(projectFileEditor));
-            ui->fileEditor->currentWidget()->setFocus();
+            if ( projectFileEditor->populateFromString(textStream.readAll()) );
+            {
+                ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),item->text(0));
+                ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(projectFileEditor));
+                ui->fileEditor->currentWidget()->setFocus();
+            }
         }
 
         break;

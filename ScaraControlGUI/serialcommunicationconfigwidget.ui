@@ -19,26 +19,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">border: 1px solid rgb(41, 43, 45);
-background-color: rgb(43, 43, 43);
-border-top: 0px solid rgb(41, 43, 45);</string>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
-     <property name="styleSheet">
-      <string notr="true">QGroupBox {
-    border: 2px solid #8f8f91;
-    border-radius: 5px;
-}
-
-QGroupBox::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top center;
-    padding: 0 3px;
-}</string>
-     </property>
      <property name="title">
       <string>Serial Communication</string>
      </property>
@@ -111,7 +94,7 @@ QGroupBox::title {
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="dataBitsLineedit">
+           <widget class="QLineEdit" name="dataBitsLineEdit">
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>

@@ -19,6 +19,8 @@ public:
 
     QString path;
 
+    bool populateFromString(QString const& data);
+
 private:
     Ui::ProjectFileEditor *ui;
 

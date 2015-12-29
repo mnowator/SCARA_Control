@@ -2,6 +2,7 @@
 #define SERIALCOMMUNICATIONCONFIGWIDGET_H
 
 #include <QWidget>
+#include <QDomElement>
 
 namespace Ui {
 class SerialCommunicationConfigWidget;
@@ -14,6 +15,8 @@ class SerialCommunicationConfigWidget : public QWidget
 public:
     explicit SerialCommunicationConfigWidget(QWidget *parent = 0);
     ~SerialCommunicationConfigWidget();
+
+    bool populateFromDomElement(QDomElement const& root);
 
 private:
     Ui::SerialCommunicationConfigWidget *ui;

@@ -2,6 +2,7 @@
 #define SCARASC1CONFIGWIDGET_H
 
 #include <QWidget>
+#include <QDomElement>
 
 namespace Ui {
 class ScaraSC1ConfigWidget;
@@ -15,8 +16,20 @@ public:
     explicit ScaraSC1ConfigWidget(QWidget *parent = 0);
     ~ScaraSC1ConfigWidget();
 
+    bool populateFromDomElement(QDomElement const& root);
+
 private:
     Ui::ScaraSC1ConfigWidget *ui;
+
+private slots:
+    void firstSegmentBeginOnCCWClicked();
+    void firstSegmentBeginOnCWClicked();
+    void secondSegmentBeginOnCCWClicked();
+    void secondSegmentBeginOnCWClicked();
+    void increasingZonCWClicked();
+    void increasingZonCCWClicked();
+    void thirdSegmentBeginOnCWClicked();
+    void thirdSegmentBeginOnCCWClicked();
 };
 
 #endif // SCARASC1CONFIGWIDGET_H
