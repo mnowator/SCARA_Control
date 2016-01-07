@@ -19,7 +19,9 @@ extern QString currentHeaderTheme;
 extern QString currentToolTipTheme;
 extern QString currentLogoTheme;
 extern QString currentGroupBoxTheme;
+extern QString currentProjectEditorTheme;
 
+extern QString darkProjectEditorTheme;
 extern QString darkGroupBoxtTheme;
 extern QString darkLogoTheme;
 extern QString darkToolTipTheme;

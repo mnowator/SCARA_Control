@@ -55,6 +55,8 @@ private:
     QSignalMapper* m_redoMapper;
     QSignalMapper* m_tabCloseMapper;
     QSignalMapper* m_openUrlMapper;
+    QSignalMapper* m_determineUndoRedoMapper;
+    QSignalMapper* m_determineCopyCutMapper;
 
     Ui::MainWindow *ui;
 
@@ -136,6 +138,9 @@ private slots:
 
     void updateRedoStatus   (bool available);
     void updateUndoStatus   (bool available);
+
+    void determineIfUndoRedoIsAvailable(QWidget* widget);
+    void determineIfCopyCutIsAvailable(QWidget* widget);
 
     void copyAvailable      (bool yes);
 };

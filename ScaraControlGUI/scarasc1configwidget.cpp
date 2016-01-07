@@ -3,6 +3,9 @@
 
 #include "styles.h"
 
+#include "intvalidator.h"
+#include "doublevalidator.h"
+
 ScaraSC1ConfigWidget::ScaraSC1ConfigWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ScaraSC1ConfigWidget)
@@ -27,18 +30,18 @@ ScaraSC1ConfigWidget::ScaraSC1ConfigWidget(QWidget *parent) :
     ui->mainPointsFileComboBox->setStyleSheet(currentComboBoxTheme);
     ui->scara_sc1_config->setStyleSheet(currentGroupBoxTheme);
 
-    ui->lengthOfFirstSegmentLineEdit->setValidator(new QDoubleValidator(30,999999,10,this));
-    ui->lengthOfSecondSegmentLineEdit->setValidator(new QDoubleValidator(30,999999,10,this));
-    ui->lengthOfThirdSegmentLineEdit->setValidator(new QDoubleValidator(31,999999,10,this));
-    ui->correctionValueLineEdit->setValidator(new QDoubleValidator(0,999999,10,this));
-    ui->firstSegmentLimitAngleOnCWLineEdit->setValidator(new QDoubleValidator(-999999,999999,10,this));
-    ui->firstSegmentLimitAngleOnCCWLineEdit->setValidator(new QDoubleValidator(-999999,999999,10,this));
-    ui->secondSegmentLimitAngleOnCWLineEdit->setValidator(new QDoubleValidator(-999999,999999,10,this));
-    ui->secondSegmentLimitAngleOnCCWLineEdit->setValidator(new QDoubleValidator(-999999,999999,10,this));
-    ui->numberOfStepsForFirstSegmentLineEdit->setValidator(new QIntValidator(0,999999,this));
-    ui->numberOfStepsForSecondSegmentLineEdit->setValidator(new QIntValidator(0,999999,this));
-    ui->numberOfStepsBetweenLimitsOnZLineEdit->setValidator(new QIntValidator(30,999999,this));
-    ui->syncFreqLineEdit->setValidator(new QIntValidator(1,999999,this));
+    ui->lengthOfFirstSegmentLineEdit->setValidator(new DoubleValidator(30,999999,10,ui->lengthOfFirstSegmentLineEdit));
+    ui->lengthOfSecondSegmentLineEdit->setValidator(new DoubleValidator(30,999999,10,this));
+    ui->lengthOfThirdSegmentLineEdit->setValidator(new DoubleValidator(31,999999,10,this));
+    ui->correctionValueLineEdit->setValidator(new DoubleValidator(0,999999,10,this));
+    ui->firstSegmentLimitAngleOnCWLineEdit->setValidator(new DoubleValidator(-999999,999999,10,this));
+    ui->firstSegmentLimitAngleOnCCWLineEdit->setValidator(new DoubleValidator(-999999,999999,10,this));
+    ui->secondSegmentLimitAngleOnCWLineEdit->setValidator(new DoubleValidator(-999999,999999,10,this));
+    ui->secondSegmentLimitAngleOnCCWLineEdit->setValidator(new DoubleValidator(-999999,999999,10,this));
+    ui->numberOfStepsForFirstSegmentLineEdit->setValidator(new IntValidator(0,999999,this));
+    ui->numberOfStepsForSecondSegmentLineEdit->setValidator(new IntValidator(0,999999,this));
+    ui->numberOfStepsBetweenLimitsOnZLineEdit->setValidator(new IntValidator(30,999999,this));
+    ui->syncFreqLineEdit->setValidator(new IntValidator(1,999999,this));
 
     QGraphicsScene* sceneXY = new QGraphicsScene(this);
     QGraphicsScene* sceneZ = new QGraphicsScene(this);
@@ -57,6 +60,22 @@ ScaraSC1ConfigWidget::ScaraSC1ConfigWidget(QWidget *parent) :
     connect(ui->thirdSegmentBeginOnCWRadioButton,SIGNAL(clicked(bool)),this,SLOT(thirdSegmentBeginOnCWClicked()));
     connect(ui->increasingZonCCWRadioButton,SIGNAL(clicked(bool)),this,SLOT(increasingZonCCWClicked()));
     connect(ui->increasingZonCWRadioButton,SIGNAL(clicked(bool)),this,SLOT(increasingZonCWClicked()));
+
+    connect(ui->lengthOfFirstSegmentLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->lengthOfSecondSegmentLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->lengthOfThirdSegmentLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->correctionValueLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->firstSegmentLimitAngleOnCCWLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->firstSegmentLimitAngleOnCWLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->secondSegmentLimitAngleOnCCWLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->secondSegmentLimitAngleOnCWLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->numberOfStepsBetweenLimitsOnZLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->numberOfStepsForFirstSegmentLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->numberOfStepsForSecondSegmentLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->syncFreqLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+
+    connect(ui->mainProgramComboBox,SIGNAL(currentIndexChanged(int)),this,SIGNAL(contentChanged()));
+    connect(ui->mainPointsFileComboBox,SIGNAL(currentIndexChanged(int)),this,SIGNAL(contentChanged()));
 }
 
 ScaraSC1ConfigWidget::~ScaraSC1ConfigWidget()
@@ -67,6 +86,9 @@ ScaraSC1ConfigWidget::~ScaraSC1ConfigWidget()
 bool ScaraSC1ConfigWidget::populateFromDomElement(QDomElement const& root)
 {
     QDomElement element;
+
+    ui->mainPointsFileComboBox->clear();
+    ui->mainProgramComboBox->clear();
 
     element = root.namedItem("Files").toElement();
     if ( !element.isNull() )
@@ -210,45 +232,215 @@ bool ScaraSC1ConfigWidget::populateFromDomElement(QDomElement const& root)
     return true;
 }
 
+void ScaraSC1ConfigWidget::saveChanges(QDomDocument &dom)
+{
+    QDomElement newElement, root;
+
+    root = dom.documentElement();
+
+    newElement = dom.createElement("MainProgramFile");
+    newElement.appendChild(dom.createTextNode(ui->mainProgramComboBox->currentText()));
+    root.appendChild(newElement);
+    root.replaceChild(newElement,root.namedItem("MainProgramFile"));
+
+    newElement = dom.createElement("MainPointsFile");
+    newElement.appendChild(dom.createTextNode(ui->mainPointsFileComboBox->currentText()));
+    root.appendChild(newElement);
+    root.replaceChild(newElement,root.namedItem("MainPointsFile"));
+
+    newElement = dom.createElement("SyncFreq");
+    newElement.appendChild(dom.createTextNode(ui->syncFreqLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("SyncFreq"));
+
+    newElement = dom.createElement("LengthOfFirstSegment");
+    newElement.appendChild(dom.createTextNode(ui->lengthOfFirstSegmentLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("LengthOfFirstSegment"));
+
+    newElement = dom.createElement("LengthOfSecondSegment");
+    newElement.appendChild(dom.createTextNode(ui->lengthOfSecondSegmentLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("LengthOfSecondSegment"));
+
+    newElement = dom.createElement("CorrectionValue");
+    newElement.appendChild(dom.createTextNode(ui->correctionValueLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("CorrectionValue"));
+
+    newElement = dom.createElement("FirstSegmentAngleOnCw");
+    newElement.appendChild(dom.createTextNode(ui->firstSegmentLimitAngleOnCWLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("FirstSegmentAngleOnCw"));
+
+    newElement = dom.createElement("FirstSegmentAngleOnCCW");
+    newElement.appendChild(dom.createTextNode(ui->firstSegmentLimitAngleOnCCWLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("FirstSegmentAngleOnCCW"));
+
+    newElement = dom.createElement("NumberOfStepsForFirstSegment");
+    newElement.appendChild(dom.createTextNode(ui->numberOfStepsForFirstSegmentLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("NumberOfStepsForFirstSegment"));
+
+    newElement = dom.createElement("SecondSegmentAngleOnCw");
+    newElement.appendChild(dom.createTextNode(ui->secondSegmentLimitAngleOnCWLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("SecondSegmentAngleOnCw"));
+
+    newElement = dom.createElement("SecondSegmentAngleOnCCW");
+    newElement.appendChild(dom.createTextNode(ui->secondSegmentLimitAngleOnCCWLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("SecondSegmentAngleOnCCW"));
+
+    newElement = dom.createElement("NumberOfStepsForSecondSegment");
+    newElement.appendChild(dom.createTextNode(ui->numberOfStepsForSecondSegmentLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("NumberOfStepsForSecondSegment"));
+
+    newElement = dom.createElement("FirstSegmentBeginOn");
+    if ( ui->firstSegmentBeginOnCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CW"));
+    else if ( ui->firstSegmentBeginOnCCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CCW"));
+    root.replaceChild(newElement,root.namedItem("FirstSegmentBeginOn"));
+
+    newElement = dom.createElement("SecondSegmentBeginOn");
+    if ( ui->secondSegmentBeginOnCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CW"));
+    else if ( ui->secondSegmentBeginOnCCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CCW"));
+    root.replaceChild(newElement,root.namedItem("SecondSegmentBeginOn"));
+
+    newElement = dom.createElement("DistanceBetweenTwoLimtsOnZ");
+    newElement.appendChild(dom.createTextNode(ui->distanceBetweenLimintsOnZLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("DistanceBetweenTwoLimtsOnZ"));
+
+    newElement = dom.createElement("LengthOfThirdSegment");
+    newElement.appendChild(dom.createTextNode(ui->distanceBetweenLimintsOnZLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("LengthOfThirdSegment"));
+
+    newElement = dom.createElement("NumberOfStepsBetweenLimitsOnZ");
+    newElement.appendChild(dom.createTextNode(ui->numberOfStepsBetweenLimitsOnZLineEdit->text()));
+    root.replaceChild(newElement,root.namedItem("NumberOfStepsBetweenLimitsOnZ"));
+
+    newElement = dom.createElement("IncreasingZOn");
+    if ( ui->increasingZonCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CW"));
+    else if ( ui->increasingZonCCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CCW"));
+    root.replaceChild(newElement,root.namedItem("IncreasingZOn"));
+
+    newElement = dom.createElement("ThirdSegmentBeginOn");
+    if ( ui->thirdSegmentBeginOnCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CW"));
+    else if ( ui->thirdSegmentBeginOnCCWRadioButton->isChecked() )
+        newElement.appendChild(dom.createTextNode("CCW"));
+    root.replaceChild(newElement,root.namedItem("ThirdSegmentBeginOn"));
+}
+
 void ScaraSC1ConfigWidget::firstSegmentBeginOnCCWClicked()
 {
-    ui->firstSegmentBeginOnCWRadioButton->setChecked(false);
+    if ( !ui->firstSegmentBeginOnCCWRadioButton->isChecked() )
+        ui->firstSegmentBeginOnCCWRadioButton->setChecked(true);
+    else
+    {
+        ui->firstSegmentBeginOnCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::firstSegmentBeginOnCWClicked()
 {
-    ui->firstSegmentBeginOnCCWRadioButton->setChecked(false);
+    if ( !ui->firstSegmentBeginOnCWRadioButton->isChecked() )
+        ui->firstSegmentBeginOnCWRadioButton->setChecked(true);
+    else
+    {
+        ui->firstSegmentBeginOnCCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::secondSegmentBeginOnCCWClicked()
 {
-    ui->secondSegmentBeginOnCWRadioButton->setChecked(false);
+    if ( !ui->secondSegmentBeginOnCCWRadioButton->isChecked() )
+        ui->secondSegmentBeginOnCCWRadioButton->setChecked(true);
+    else
+    {
+        ui->secondSegmentBeginOnCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::secondSegmentBeginOnCWClicked()
 {
-    ui->secondSegmentBeginOnCCWRadioButton->setChecked(false);
+    if ( !ui->secondSegmentBeginOnCWRadioButton->isChecked() )
+        ui->secondSegmentBeginOnCWRadioButton->setChecked(true);
+    else
+    {
+        ui->secondSegmentBeginOnCCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::increasingZonCWClicked()
 {
-    ui->increasingZonCCWRadioButton->setChecked(false);
+    if ( !ui->increasingZonCWRadioButton->isChecked() )
+        ui->increasingZonCWRadioButton->setChecked(true);
+    else
+    {
+        ui->increasingZonCCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::increasingZonCCWClicked()
 {
-    ui->increasingZonCWRadioButton->setChecked(false);
+    if ( !ui->increasingZonCCWRadioButton->isChecked() )
+        ui->increasingZonCCWRadioButton->setChecked(true);
+    else
+    {
+        ui->increasingZonCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::thirdSegmentBeginOnCWClicked()
 {
-    ui->thirdSegmentBeginOnCCWRadioButton->setChecked(false);
+    if ( !ui->thirdSegmentBeginOnCWRadioButton->isChecked() )
+        ui->thirdSegmentBeginOnCWRadioButton->setChecked(true);
+    else
+    {
+        ui->thirdSegmentBeginOnCCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
 
 void ScaraSC1ConfigWidget::thirdSegmentBeginOnCCWClicked()
 {
-    ui->thirdSegmentBeginOnCWRadioButton->setChecked(false);
+    if ( !ui->thirdSegmentBeginOnCCWRadioButton->isChecked() )
+        ui->thirdSegmentBeginOnCCWRadioButton->setChecked(true);
+    else
+    {
+        ui->thirdSegmentBeginOnCWRadioButton->setChecked(false);
+
+        emit contentChanged();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

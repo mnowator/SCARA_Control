@@ -183,7 +183,7 @@ void CodeEditor::customContextMenuRequested(const QPoint &pos )
     cut->setShortcut(QKeySequence::Cut);
     connect(cut,SIGNAL(triggered(bool)),this,SLOT(cut()));
 
-    if ( document()->isEmpty() )
+    if ( !textCursor().hasSelection() )
         cut->setEnabled(false);
 
     menu.addAction(cut);
@@ -193,7 +193,7 @@ void CodeEditor::customContextMenuRequested(const QPoint &pos )
     copy->setShortcut(QKeySequence::Copy);
     connect(copy,SIGNAL(triggered(bool)),this,SLOT(copy()));
 
-    if ( document()->isEmpty() )
+    if ( !textCursor().hasSelection() )
         copy->setEnabled(false);
 
     menu.addAction(copy);

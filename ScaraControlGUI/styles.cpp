@@ -120,6 +120,7 @@ QString darkLogoTheme = "border: 1px solid rgb(41, 43, 45);"
                         "background-color: rgb(43, 43, 43);"
                         "border-top: 0px solid rgb(41, 43, 45);";
 
+
 QString darkGroupBoxtTheme = "QGroupBox {"
                              "border: 2px solid #8f8f91;"
                              " border-radius: 5px;"
@@ -130,6 +131,11 @@ QString darkGroupBoxtTheme = "QGroupBox {"
                              " padding: 0 3px;"
                              "}";
 
+QString darkProjectEditorTheme = "border: 1px solid rgb(41, 43, 45);"
+        "background-color: rgb(43, 43, 43);"
+        "border-top: 0px solid rgb(41, 43, 45);";
+
+QString currentProjectEditorTheme = darkProjectEditorTheme;
 QString currentGroupBoxTheme = darkGroupBoxtTheme;
 QString currentLogoTheme = darkLogoTheme;
 QString currentToolTipTheme = darkToolTipTheme;

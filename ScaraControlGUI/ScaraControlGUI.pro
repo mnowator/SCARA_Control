@@ -37,7 +37,9 @@ SOURCES += \
     serialcommunicationconfigwidget.cpp \
     projectfileeditor.cpp \
     scarasc1configwidget.cpp \
-    pointseditor.cpp
+    pointseditor.cpp \
+    intvalidator.cpp \
+    doublevalidator.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -52,7 +54,9 @@ HEADERS += \
     serialcommunicationconfigwidget.h \
     projectfileeditor.h \
     scarasc1configwidget.h \
-    pointseditor.h
+    pointseditor.h \
+    intvalidator.h \
+    doublevalidator.h
 
 unix {
     target.path = /usr/lib

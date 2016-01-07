@@ -50,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_tabCloseMapper        =   new QSignalMapper(this);
     m_openUrlMapper         =   new QSignalMapper(this);
     m_reloadSignalMapper    =   new QSignalMapper(this);
+    m_determineUndoRedoMapper   =   new QSignalMapper(this);
+    m_determineCopyCutMapper    =   new QSignalMapper(this);
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -75,6 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
     connect(m_textChangedMapper,    SIGNAL(mapped(QWidget*)),this,SLOT(textChanged       (QWidget*)));
+    connect(m_determineUndoRedoMapper,  SIGNAL(mapped(QWidget*)),this,SLOT(determineIfUndoRedoIsAvailable(QWidget*)));
+    connect(m_determineCopyCutMapper,   SIGNAL(mapped(QWidget*)),this,SLOT(determineIfCopyCutIsAvailable(QWidget*)));
 
     connect(m_tabCloseMapper,       SIGNAL(mapped(int)),this,SLOT(tabCloseClicked(int)));
 
@@ -474,9 +478,10 @@ void MainWindow::openProjectProjectOrFile()
     QDomElement root;
 
     QStringList filters;
-    filters << "Openable (*.pro *.py)"
+    filters << "Openable (*.pro *.py *.pt)"
             << "Project files (*.pro)"
             << "Python files (*.py)"
+            << "Points files (*.pt)"
             << "Any files (*)";
 
     folderDialog.setNameFilters(filters);
@@ -637,7 +642,10 @@ void MainWindow::openProjectProjectOrFile()
                 CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(i));
 
                 if ( codeEditor->path == filePath )
+                {
                     ui->fileEditor->setCurrentWidget(codeEditor);
+                    return;
+                }
             }
         }
 
@@ -678,8 +686,48 @@ void MainWindow::openProjectProjectOrFile()
             connect(codeEditor,SIGNAL(undoAvailable(bool)),this,SLOT(updateUndoStatus(bool)));
 
             ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),fileName);
-            ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
-            ui->fileEditor->currentWidget()->setFocus();
+            ui->fileEditor->setCurrentWidget(codeEditor);
+
+            ui->actionReload->setEnabled(true);
+        }
+    }
+    else if ( fileName.endsWith(".pt"))
+    {
+        // If file already is loaded
+        for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
+        {
+            if ( ui->fileEditor->tabText(i) == fileName ||
+                 ui->fileEditor->tabText(i) == fileName+'*' )
+            {
+                PointsEditor* pointsEditor = dynamic_cast<PointsEditor*>( ui->fileEditor->widget(i));
+
+                if ( pointsEditor->path == filePath )
+                {
+                    ui->fileEditor->setCurrentWidget(pointsEditor);
+                    return;
+                }
+            }
+        }
+
+        // If not, lets do it
+        QFile file(fullPath);
+
+        // If it is not opened correctly
+        if ( !file.open(QIODevice::ReadWrite  | QFile::Text ))
+        {
+            QMessageBox msgBox(QMessageBox::Warning, tr("Error"), "Cannot open this file.");
+
+            msgBox.setStyleSheet(currentErrorBoxTheme);
+
+            msgBox.exec();
+            return;
+        }
+        else
+        {
+            PointsEditor* pointsEditor = new PointsEditor(this);
+
+            ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),fileName);
+            ui->fileEditor->setCurrentWidget(pointsEditor);
 
             ui->actionReload->setEnabled(true);
         }
@@ -876,9 +924,12 @@ void MainWindow::redoClicked()
 void MainWindow::focusChanged(QWidget *old, QWidget *now)
 {
     CodeEditor* codeEditor;
-    QLineEdit* lineEdit;
+    QLineEdit* nowLineEdit;
+    QLineEdit* oldLineEdit;
 
     codeEditor = dynamic_cast<CodeEditor*>(now);
+    nowLineEdit = dynamic_cast<QLineEdit*>(now);
+    oldLineEdit = dynamic_cast<QLineEdit*>(old);
 
     if ( codeEditor )
     {
@@ -907,32 +958,41 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
         else
             ui->actionUndo->setEnabled(false);
     }
-    else
+    else if ( nowLineEdit )
     {
-        lineEdit = dynamic_cast<QLineEdit*>(now);
+        m_determineUndoRedoMapper->setMapping(nowLineEdit,nowLineEdit);
+        m_determineCopyCutMapper->setMapping(nowLineEdit,nowLineEdit);
+        connect(nowLineEdit,SIGNAL(selectionChanged()),m_determineCopyCutMapper,SLOT(map()));
+        connect(nowLineEdit,SIGNAL(textChanged(QString)),m_determineUndoRedoMapper,SLOT(map()));
 
-        if ( lineEdit )
-        {
-            if ( !lineEdit->text().isEmpty())
-                ui->actionSelect_All->setEnabled(true);
-            else
-                ui->actionSelect_All->setEnabled(false);
 
-            if ( !m_clipboard->text().isEmpty() )
-                ui->actionPaste->setEnabled(true);
-            else
-                ui->actionPaste->setEnabled(false);
+        if ( !nowLineEdit->text().isEmpty() )
+            ui->actionSelect_All->setEnabled(true);
+        else
+            ui->actionSelect_All->setEnabled(true);
 
-            if ( lineEdit->isUndoAvailable() )
-                ui->actionUndo->setEnabled(true);
-            else
-                ui->actionUndo->setEnabled(false);
+        if ( !m_clipboard->text().isEmpty() )
+            ui->actionPaste->setEnabled(true);
+        else
+            ui->actionPaste->setEnabled(false);
 
-            if ( lineEdit->isRedoAvailable() )
-                ui->actionRedo->setEnabled(true);
-            else
-                ui->actionRedo->setEnabled(false);
-        }
+        if ( nowLineEdit->isUndoAvailable() )
+            ui->actionUndo->setEnabled(true);
+        else
+            ui->actionUndo->setEnabled(false);
+
+        if ( nowLineEdit->isRedoAvailable() )
+            ui->actionRedo->setEnabled(true);
+        else
+            ui->actionRedo->setEnabled(false);
+    }
+
+    if ( oldLineEdit )
+    {
+        m_determineUndoRedoMapper->removeMappings(oldLineEdit);
+        m_determineCopyCutMapper->removeMappings(oldLineEdit);
+        disconnect(oldLineEdit,SIGNAL(textChanged(QString)),m_determineUndoRedoMapper,SLOT(map()));
+        disconnect(oldLineEdit,SIGNAL(selectionChanged()),m_determineCopyCutMapper,SLOT(map()));
     }
 }
 
@@ -1239,6 +1299,9 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(rename);
             menu.addSeparator();
 
+            if ( !item->text(0).endsWith('*') )
+                save->setEnabled(false);
+
             m_saveSignalMapper      ->  setMapping(save,        item->text(0)+imposibleDelimiter+item->text(1));
             m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0)+imposibleDelimiter+item->text(1));
             m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+imposibleDelimiter+item->text(1));
@@ -1466,6 +1529,7 @@ void MainWindow::saveClicked(const QString &data)
 {
     QStringList strList;
     CodeEditor* codeEditor;
+    ProjectFileEditor* projectFileEditor;
     QString name;
     QString path;
     bool futherSavingPossible = false;
@@ -1475,10 +1539,17 @@ void MainWindow::saveClicked(const QString &data)
         unsigned currentIdx = ui->fileEditor->currentIndex();
 
         name = ui->fileEditor->tabText(currentIdx);
-        codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
+        codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->currentWidget());
+        projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->currentWidget());
 
         if ( codeEditor )
             path = codeEditor->path;
+        else if ( projectFileEditor )
+        {
+            path = projectFileEditor->path;
+            m_saveSignalMapper->removeMappings(projectFileEditor);
+            disconnect(projectFileEditor,SIGNAL(saveRequested()),m_saveSignalMapper,SLOT(map()));
+        }
 
         ui->actionReload->setEnabled(true);
         ui->actionSave_as->setEnabled(false);
@@ -1513,8 +1584,10 @@ void MainWindow::saveClicked(const QString &data)
         if ( ui->fileEditor->tabText(i) == name )
         {
             codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+            projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
 
             if ( codeEditor )
+            {
                 if ( codeEditor->path == path)
                 {
                     QString newName = name.left(name.length()-1);
@@ -1532,6 +1605,27 @@ void MainWindow::saveClicked(const QString &data)
                         ui->actionSave_as->setEnabled(false);
                     }
                 }
+            }
+            else if ( projectFileEditor )
+            {
+                if ( projectFileEditor->path == path )
+                {
+                    QString newName = name.left(name.length()-1);
+
+                    saveFile(path,newName,projectFileEditor->toStr());
+                    ui->fileEditor->setTabText(i,newName);
+
+                    m_textChangedMapper->setMapping(projectFileEditor,projectFileEditor);
+                    connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+                    if ( ui->fileEditor->currentIndex() == i )
+                    {
+                        ui->actionSave->setEnabled(false);
+                        ui->actionReload->setEnabled(true);
+                        ui->actionSave_as->setEnabled(false);
+                    }
+                }
+            }
         }
         else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*' )
             // Now i hope that i never let file have empty tab text
@@ -1683,6 +1777,7 @@ void MainWindow::reloadClicked(const QString &data)
 {
     QStringList strList;
     CodeEditor* codeEditor;
+    ProjectFileEditor* projectFileEditor;
     QString name;
     QString path;
 
@@ -1692,6 +1787,7 @@ void MainWindow::reloadClicked(const QString &data)
 
         name = ui->fileEditor->tabText(currentIdx);
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
+        projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(currentIdx));
 
         if ( codeEditor )
         {
@@ -1701,12 +1797,27 @@ void MainWindow::reloadClicked(const QString &data)
 
             if ( file.open(QIODevice::ReadWrite | QFile::Text))
             {
-                QTextStream textStrem(&file);
+                QTextStream textStream(&file);
 
                 disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
                 codeEditor->document()->clear();
-                codeEditor->document()->setPlainText(textStrem.readAll());
+                codeEditor->document()->setPlainText(textStream.readAll());
                 connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            }
+        }
+        else if ( projectFileEditor )
+        {
+            path = projectFileEditor->path;
+
+            QFile file(path+name);
+
+            if ( file.open(QIODevice::ReadWrite | QFile::Text))
+            {
+                QTextStream textStream(&file);
+
+                disconnect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                projectFileEditor->populateFromString(textStream.readAll());
+                connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
             }
         }
     }
@@ -1795,8 +1906,9 @@ void MainWindow::addExistClicked(const QString &name)
     QString fullPath, fullFileName, filePath;
 
     QStringList filters;
-    filters << "Openable (*.py)"
+    filters << "Openable (*.py *.pt)"
             << "Python files (*.py)"
+            << "Points files (*.pt)"
             << "Any files (*)";
 
     folderDialog.setNameFilters(filters);
@@ -1981,12 +2093,20 @@ void MainWindow::registerUndoStatus(QWidget *widget)
 
 void MainWindow::textChanged(QWidget* widget)
 {
-    CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(widget);
     QString name = ui->fileEditor->tabText(ui->fileEditor->indexOf(widget));
+
+    CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(widget);
+    ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(widget);
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
-        if ( codeEditor->path == item->text(1))
+        QString path;
+
+        if ( codeEditor ) path = codeEditor->path;
+        else if ( projectFileEditor ) path = projectFileEditor->path;
+
+
+        if ( path == item->text(1))
         {
             QString tmpStr = item->text(0);
 
@@ -1995,8 +2115,19 @@ void MainWindow::textChanged(QWidget* widget)
         }
     }
 
-    m_textChangedMapper->removeMappings(codeEditor);
-    disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+    if ( codeEditor )
+    {
+        m_textChangedMapper->removeMappings(codeEditor);
+        disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+    }
+    else if ( projectFileEditor )
+    {
+        m_textChangedMapper->removeMappings(projectFileEditor);
+        disconnect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+        m_saveSignalMapper->setMapping(projectFileEditor,"current");
+        connect(projectFileEditor,SIGNAL(saveRequested()),m_saveSignalMapper,SLOT(map()));
+    }
 
     ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
     ui->actionSaveAll->setEnabled(true);
@@ -2046,6 +2177,53 @@ void MainWindow::updateUndoStatus(bool available)
         for ( unsigned i=0; i<m_undos.count(); ++i )
             if ( m_undos[i] == m_undoRedoRegisteredItem )
                 m_undos.removeAt(i);
+    }
+}
+
+void MainWindow::determineIfUndoRedoIsAvailable(QWidget *widget)
+{
+    QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
+
+    if ( lineEdit )
+    {
+        if ( lineEdit->isUndoAvailable() )
+            ui->actionUndo->setEnabled(true);
+        else
+            ui->actionUndo->setEnabled(false);
+
+        if ( lineEdit->isRedoAvailable() )
+            ui->actionRedo->setEnabled(true);
+        else
+            ui->actionRedo->setEnabled(false);
+
+        if ( !lineEdit->text().isEmpty() )
+            ui->actionSelect_All->setEnabled(true);
+        else
+            ui->actionSelect_All->setEnabled(true);
+
+        if ( !m_clipboard->text().isEmpty() )
+            ui->actionPaste->setEnabled(true);
+        else
+            ui->actionPaste->setEnabled(false);
+    }
+}
+
+void MainWindow::determineIfCopyCutIsAvailable(QWidget *widget)
+{
+    QLineEdit* lineEdit = dynamic_cast<QLineEdit*>(widget);
+
+    if ( lineEdit )
+    {
+        if ( lineEdit->hasSelectedText() )
+        {
+            ui->actionCopy->setEnabled(true);
+            ui->actionCut->setEnabled(true);
+        }
+        else
+        {
+            ui->actionCopy->setEnabled(false);
+            ui->actionCut->setEnabled(false);
+        }
     }
 }
 
@@ -2136,6 +2314,8 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             {
                 PointsEditor* pointsEditor = new PointsEditor(this);
 
+                pointsEditor->path = item->text(1);
+
                 ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),item->text(0));
                 ui->fileEditor->setCurrentWidget(pointsEditor);
             }
@@ -2199,12 +2379,14 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             ProjectFileEditor* projectFileEditor = new ProjectFileEditor(this);
             QTextStream textStream(&file);
 
-            if ( projectFileEditor->populateFromString(textStream.readAll()) );
-            {
-                ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),item->text(0));
-                ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(projectFileEditor));
-                ui->fileEditor->currentWidget()->setFocus();
-            }
+            projectFileEditor->populateFromString(textStream.readAll());
+            projectFileEditor->path = item->text(1);
+
+            m_textChangedMapper->setMapping(projectFileEditor,projectFileEditor);
+            connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+            ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),item->text(0));
+            ui->fileEditor->setCurrentWidget(projectFileEditor);
         }
 
         break;

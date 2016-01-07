@@ -17,6 +17,7 @@ public:
     ~ScaraSC1ConfigWidget();
 
     bool populateFromDomElement(QDomElement const& root);
+    void saveChanges(QDomDocument& dom);
 
 private:
     Ui::ScaraSC1ConfigWidget *ui;
@@ -30,6 +31,9 @@ private slots:
     void increasingZonCCWClicked();
     void thirdSegmentBeginOnCWClicked();
     void thirdSegmentBeginOnCCWClicked();
+
+signals:
+    void contentChanged();
 };
 
 #endif // SCARASC1CONFIGWIDGET_H

@@ -11,7 +11,7 @@ ProjectFileEditor::ProjectFileEditor(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //setStyleSheet(currentWindowTheme);
+    setStyleSheet(currentProjectEditorTheme);
 
     ui->saveChangesButton->setStyleSheet(currentButtonTheme);
 
@@ -20,6 +20,9 @@ ProjectFileEditor::ProjectFileEditor(QWidget *parent) :
 
     serialCommunicationConfigWidget = new SerialCommunicationConfigWidget();
     scaraSC1ConfigWidget = new ScaraSC1ConfigWidget();
+
+    connect(serialCommunicationConfigWidget,SIGNAL(contentChanged()),this,SIGNAL(contentChanged()));
+    connect(scaraSC1ConfigWidget,SIGNAL(contentChanged()),this,SIGNAL(contentChanged()));
 
     hLayoutComunication->addWidget(serialCommunicationConfigWidget);
     hLayoutComunication->addStretch(1);
@@ -30,6 +33,8 @@ ProjectFileEditor::ProjectFileEditor(QWidget *parent) :
     ui->wigetsLayout->addLayout(hLayoutConfig);
     ui->wigetsLayout->addLayout(hLayoutComunication);
     ui->wigetsLayout->addStretch(1);
+
+    connect(ui->saveChangesButton,SIGNAL(clicked(bool)),this,SIGNAL(saveRequested()));
 }
 
 ProjectFileEditor::~ProjectFileEditor()
@@ -39,7 +44,6 @@ ProjectFileEditor::~ProjectFileEditor()
 
 bool ProjectFileEditor::populateFromString(const QString &data)
 {
-    QDomDocument dom;
     QDomElement root;
     QString errorStr;
     bool conf1 = false;
@@ -74,6 +78,17 @@ bool ProjectFileEditor::populateFromString(const QString &data)
         conf2 = serialCommunicationConfigWidget->populateFromDomElement(root);
 
     return conf1 && conf2;
+}
+
+QString const& ProjectFileEditor::toStr()
+{
+   if ( scaraSC1ConfigWidget != NULL )
+       scaraSC1ConfigWidget->saveChanges(dom);
+
+   if ( serialCommunicationConfigWidget != NULL )
+        serialCommunicationConfigWidget->saveChanges(dom);
+
+   return dom.toString();
 }
 
 

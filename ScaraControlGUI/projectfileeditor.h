@@ -20,9 +20,16 @@ public:
     QString path;
 
     bool populateFromString(QString const& data);
+    QString const& toStr();
+
+signals:
+    void contentChanged();
+    void saveRequested();
 
 private:
     Ui::ProjectFileEditor *ui;
+
+    QDomDocument dom;
 
     SerialCommunicationConfigWidget* serialCommunicationConfigWidget;
     ScaraSC1ConfigWidget* scaraSC1ConfigWidget;

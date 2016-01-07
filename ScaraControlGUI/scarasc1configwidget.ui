@@ -643,20 +643,31 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>scaraXYSurfaceGraphicsView</tabstop>
+  <tabstop>mainProgramComboBox</tabstop>
+  <tabstop>mainPointsFileComboBox</tabstop>
+  <tabstop>syncFreqLineEdit</tabstop>
   <tabstop>lengthOfFirstSegmentLineEdit</tabstop>
   <tabstop>lengthOfSecondSegmentLineEdit</tabstop>
+  <tabstop>correctionValueLineEdit</tabstop>
+  <tabstop>firstSegmentLimitAngleOnCWLineEdit</tabstop>
+  <tabstop>firstSegmentLimitAngleOnCCWLineEdit</tabstop>
+  <tabstop>numberOfStepsForFirstSegmentLineEdit</tabstop>
   <tabstop>secondSegmentLimitAngleOnCWLineEdit</tabstop>
   <tabstop>secondSegmentLimitAngleOnCCWLineEdit</tabstop>
-  <tabstop>lengthOfThirdSegmentLineEdit</tabstop>
-  <tabstop>firstSegmentLimitAngleOnCWLineEdit</tabstop>
-  <tabstop>numberOfStepsForFirstSegmentLineEdit</tabstop>
   <tabstop>numberOfStepsForSecondSegmentLineEdit</tabstop>
-  <tabstop>scaraZSurfaceGraphicsView</tabstop>
+  <tabstop>firstSegmentBeginOnCCWRadioButton</tabstop>
+  <tabstop>firstSegmentBeginOnCWRadioButton</tabstop>
+  <tabstop>secondSegmentBeginOnCCWRadioButton</tabstop>
+  <tabstop>secondSegmentBeginOnCWRadioButton</tabstop>
   <tabstop>distanceBetweenLimintsOnZLineEdit</tabstop>
-  <tabstop>correctionValueLineEdit</tabstop>
-  <tabstop>firstSegmentLimitAngleOnCCWLineEdit</tabstop>
+  <tabstop>lengthOfThirdSegmentLineEdit</tabstop>
   <tabstop>numberOfStepsBetweenLimitsOnZLineEdit</tabstop>
+  <tabstop>increasingZonCWRadioButton</tabstop>
+  <tabstop>increasingZonCCWRadioButton</tabstop>
+  <tabstop>thirdSegmentBeginOnCWRadioButton</tabstop>
+  <tabstop>thirdSegmentBeginOnCCWRadioButton</tabstop>
+  <tabstop>scaraXYSurfaceGraphicsView</tabstop>
+  <tabstop>scaraZSurfaceGraphicsView</tabstop>
  </tabstops>
  <resources/>
  <connections/>

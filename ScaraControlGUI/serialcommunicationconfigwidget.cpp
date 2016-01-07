@@ -3,6 +3,8 @@
 
 #include "styles.h"
 
+#include "intvalidator.h"
+
 SerialCommunicationConfigWidget::SerialCommunicationConfigWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SerialCommunicationConfigWidget)
@@ -21,11 +23,19 @@ SerialCommunicationConfigWidget::SerialCommunicationConfigWidget(QWidget *parent
     ui->flowControlComboBox->setEditable(true);
     ui->flowControlComboBox->lineEdit()->setAlignment(Qt::AlignRight);
 
-    ui->baudLineEdit->setValidator(new QIntValidator(0,30000,this));
-    ui->dataBitsLineEdit->setValidator(new QIntValidator(0,30000,this));
-    ui->stopBitsLineEdit->setValidator(new QIntValidator(0,30000,this));
+    ui->baudLineEdit->setValidator(new IntValidator(0,30000,this));
+    ui->dataBitsLineEdit->setValidator(new IntValidator(0,30000,this));
+    ui->stopBitsLineEdit->setValidator(new IntValidator(0,30000,this));
 
     ui->groupBox->setStyleSheet(currentGroupBoxTheme);
+
+    connect(ui->comLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->baudLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->dataBitsLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->stopBitsLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+
+    connect(ui->parityComboBox,SIGNAL(currentIndexChanged(int)),this,SIGNAL(contentChanged()));
+    connect(ui->flowControlComboBox,SIGNAL(currentIndexChanged(int)),this,SIGNAL(contentChanged()));
 }
 
 SerialCommunicationConfigWidget::~SerialCommunicationConfigWidget()
@@ -72,6 +82,41 @@ bool SerialCommunicationConfigWidget::populateFromDomElement(QDomElement const& 
 
     return true;
 }
+
+void SerialCommunicationConfigWidget::saveChanges(QDomDocument& dom)
+{
+    QDomElement element,root,newCom;
+
+    root = dom.documentElement();
+    newCom = dom.createElement("CommunicationConfig").toElement();
+
+    element = dom.createElement("SerialLine").toElement();
+    element.appendChild(dom.createTextNode(ui->comLineEdit->text()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("BaudRate").toElement();
+    element.appendChild(dom.createTextNode(ui->baudLineEdit->text()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("DataBits").toElement();
+    element.appendChild(dom.createTextNode(ui->dataBitsLineEdit->text()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("StopBits").toElement();
+    element.appendChild(dom.createTextNode(ui->stopBitsLineEdit->text()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("Parity").toElement();
+    element.appendChild(dom.createTextNode(ui->parityComboBox->currentText()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("FlowControl").toElement();
+    element.appendChild(dom.createTextNode(ui->flowControlComboBox->currentText()));
+    newCom.appendChild(element);
+
+    root.replaceChild(newCom,root.namedItem("CommunicationConfig"));
+}
+
 
 
 

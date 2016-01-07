@@ -17,9 +17,13 @@ public:
     ~SerialCommunicationConfigWidget();
 
     bool populateFromDomElement(QDomElement const& root);
+    void saveChanges(QDomDocument& dom);
 
 private:
     Ui::SerialCommunicationConfigWidget *ui;
+
+signals:
+    void contentChanged();
 };
 
 #endif // SERIALCOMMUNICATIONCONFIGWIDGET_H
