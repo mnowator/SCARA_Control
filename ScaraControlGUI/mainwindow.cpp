@@ -1204,6 +1204,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* reload     = new QAction(tr("Reload"),             this);
             QAction* remove     = new QAction(tr("Remove"),             this);
             QAction* close      = new QAction(tr("Close"),              this);
+            QAction* openInExplorer = new QAction(tr("Open in explorer"), this);
 
             saveProject ->setIcon(QIcon(":/new/icons/lc_save.png"));
             run         ->setIcon(QIcon(":/new/icons/avl02049.png"));
@@ -1216,6 +1217,8 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addSeparator();
             menu.addAction(setActive);
             menu.addSeparator();
+            menu.addAction(openInExplorer);
+            menu.addSeparator();
             menu.addAction(saveProject);
             menu.addSeparator();
             menu.addAction(run);
@@ -1227,6 +1230,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(remove);
             menu.addAction(close);
 
+            m_openUrlMapper         ->  setMapping(openInExplorer,item->text(1));
             m_setActiveMapper       ->  setMapping(setActive,   item->text(0));
             m_reloadSignalMapper    ->  setMapping(reload,      item->text(0));
             m_addNewSignalMapper    ->  setMapping(addNew,      item->text(0));
@@ -1239,6 +1243,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             m_closeSignalMapper     ->  setMapping(close,       item->text(0));
             m_saveProjectMapper     ->  setMapping(saveProject, item->text(0));
 
+            connect(openInExplorer, SIGNAL(triggered(bool)),m_openUrlMapper,    SLOT(map()));
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
             connect(addNew,     SIGNAL(triggered(bool)),m_addNewSignalMapper,   SLOT(map()));
@@ -1255,30 +1260,33 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
         }
         case ConfigType:
         {
-//            QAction* remove = new QAction(tr("Remove file"), this);
-//            QAction* rename = new QAction(tr("Rename"),      this);
-//            QAction* save   = new QAction(tr("Save"),        this);
-//            QAction* saveAs = new QAction(tr("Save As..."),  this);
+            QAction* save   = new QAction(tr("Save"),        this);
+            QAction* saveAs = new QAction(tr("Save As..."),  this);
+            QAction* rename = new QAction(tr("Rename"),      this);
+            QAction* openInExplorer = new QAction(tr("Open in explorer"), this);
 
-//            save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
-//            saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
+            save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
+            saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
 
-//            menu.addAction(save);
-//            menu.addAction(saveAs);
-//            menu.addSeparator();
-//            menu.addAction(rename);
-//            menu.addSeparator();
-//            menu.addAction(remove);
+            menu.addAction(save);
+            menu.addAction(saveAs);
+            menu.addSeparator();
+            menu.addAction(rename);
+            menu.addSeparator();
+            menu.addAction(openInExplorer);
 
-//            m_removeSignalMapper    ->  setMapping(remove,      item->text(0));
-//            m_renameSignalMapper    ->  setMapping(rename,      item->text(0));
-//            m_saveSignalMapper      ->  setMapping(save,        item->text(0));
-//            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0));
+            if ( !item->text(0).endsWith('*') )
+                save->setEnabled(false);
 
-//            connect(remove,     SIGNAL(triggered(bool)),m_removeSignalMapper,   SLOT(map()));
-//            connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
-//            connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
-//            connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
+            m_openUrlMapper         ->  setMapping(openInExplorer,item->text(1));
+            m_saveSignalMapper      ->  setMapping(save,        item->text(0)+imposibleDelimiter+item->text(1));
+            m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0)+imposibleDelimiter+item->text(1));
+            m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+imposibleDelimiter+item->text(1));
+
+            connect(openInExplorer, SIGNAL(triggered(bool)),m_openUrlMapper,    SLOT(map()));
+            connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
+            connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
+            connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
 
             break;
         }
@@ -1289,6 +1297,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* rename = new QAction(tr("Rename"),      this);
             QAction* save   = new QAction(tr("Save"),        this);
             QAction* saveAs = new QAction(tr("Save As..."),  this);
+            QAction* openInExplorer = new QAction(tr("Open in explorer"), this);
 
             save    ->setIcon(QIcon(":/new/icons/lc_save.png"));
             saveAs  ->setIcon(QIcon(":/new/icons/lc_saveas.png"));
@@ -1298,14 +1307,18 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addSeparator();
             menu.addAction(rename);
             menu.addSeparator();
+            menu.addAction(openInExplorer);
+
 
             if ( !item->text(0).endsWith('*') )
                 save->setEnabled(false);
 
+            m_openUrlMapper         ->  setMapping(openInExplorer,item->text(1));
             m_saveSignalMapper      ->  setMapping(save,        item->text(0)+imposibleDelimiter+item->text(1));
             m_saveAsSignalMapper    ->  setMapping(saveAs,      item->text(0)+imposibleDelimiter+item->text(1));
             m_renameSignalMapper    ->  setMapping(rename,      item->text(0)+imposibleDelimiter+item->text(1));
 
+            connect(openInExplorer, SIGNAL(triggered(bool)),m_openUrlMapper,    SLOT(map()));
             connect(rename,     SIGNAL(triggered(bool)),m_renameSignalMapper,   SLOT(map()));
             connect(save,       SIGNAL(triggered(bool)),m_saveSignalMapper,     SLOT(map()));
             connect(saveAs,     SIGNAL(triggered(bool)),m_saveAsSignalMapper,   SLOT(map()));
@@ -1317,6 +1330,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
                 QString projectName = project->text(0)<project->text(2)?project->text(0):project->text(2);
                 QString projectPath = project->text(1);
 
+                menu.addSeparator();
                 menu.addAction(remove);
                 m_removeSignalMapper->setMapping(remove, item->text(0)+imposibleDelimiter+item->text(1)+
                                                  imposibleDelimiter+projectName+imposibleDelimiter+projectPath);
@@ -1404,7 +1418,6 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     if ( !canSave )
     {
         save->setEnabled(false);
-        saveAs->setEnabled(false);
         reload->setEnabled(true);
     }
     else
@@ -1504,10 +1517,13 @@ void MainWindow::renameClicked(QString const& data)
                 item->setText(2,newName+'*');
             }
 
-            detachFileFromProject(fileName,projectName+".pro",projectPath);
-            attachFileToProject(newName,path,projectName+".pro",projectPath);
+            if ( !name.endsWith(".pro") && !name.endsWith(".pro*") )
+            {
+                detachFileFromProject(fileName,projectName+".pro",projectPath);
+                attachFileToProject(newName,path,projectName+".pro",projectPath);
 
-            sortProjectFiles(parent);
+                sortProjectFiles(parent);
+            }
         }
     }
 
@@ -1516,8 +1532,10 @@ void MainWindow::renameClicked(QString const& data)
         if ( ui->fileEditor->tabText(i) == name )
         {
             CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+            ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
 
             if ( codeEditor )
+            {
                 if ( codeEditor->path == path )
                 {
                     if ( unsavedChanges )
@@ -1525,7 +1543,17 @@ void MainWindow::renameClicked(QString const& data)
                     else
                         ui->fileEditor->setTabText(i,newName);
                 }
-
+            }
+            else if ( projectFileEditor )
+            {
+                if ( projectFileEditor->path == path )
+                {
+                    if ( unsavedChanges )
+                        ui->fileEditor->setTabText(i,newName);
+                    else
+                        ui->fileEditor->setTabText(i,newName);
+                }
+            }
         }
     }
 }
@@ -1760,18 +1788,17 @@ void MainWindow::saveAsClicked(const QString &data)
                 {
                     if ( projectFileEditor->path == path )
                     {
-                        //ProjectFileEditor* newProjectFileEditor = new ProjectFileEditor(this);
+                        ProjectFileEditor* newProjectFileEditor = new ProjectFileEditor(this);
                         
-                        qDebug() << projectFileEditor->toStr();
-                        //newProjectFileEditor->populateFromString(projectFileEditor->toStr());
+                        newProjectFileEditor->populateFromString(projectFileEditor->toStr());
 
-                        //saveFile(newPath,newName,newProjectFileEditor->toStr());
+                        saveFile(newPath,newName,newProjectFileEditor->toStr());
                         
-//                        m_textChangedMapper->setMapping(newProjectFileEditor,newProjectFileEditor);
-//                        connect(newProjectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                        m_textChangedMapper->setMapping(newProjectFileEditor,newProjectFileEditor);
+                        connect(newProjectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
                         
-//                        ui->fileEditor->addTab(newProjectFileEditor,QIcon(":/new/icons/profile.png"),newName);
-//                        ui->fileEditor->setCurrentWidget(newProjectFileEditor);
+                        ui->fileEditor->addTab(newProjectFileEditor,QIcon(":/new/icons/profile.png"),newName);
+                        ui->fileEditor->setCurrentWidget(newProjectFileEditor);
                         
                         return;
                     }

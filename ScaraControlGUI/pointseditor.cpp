@@ -1,8 +1,8 @@
 #include "pointseditor.h"
 
 #include <QHeaderView>
+#include <QAbstractButton>
 
-#include "styles.h"
 
 PointsEditor::PointsEditor(QWidget *parent)
     : QTableWidget(parent)
@@ -18,7 +18,7 @@ PointsEditor::PointsEditor(QWidget *parent)
     setColumnCount(4);
     setRowCount(1);
 
-
+    setCornerButtonEnabled(false);
 
     this->setHorizontalHeaderLabels(labels);
     this->horizontalHeader()->show();

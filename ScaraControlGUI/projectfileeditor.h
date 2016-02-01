@@ -20,7 +20,7 @@ public:
     QString path;
 
     bool populateFromString(QString const& data);
-    QString const& toStr();
+    QString toStr();
 
 signals:
     void contentChanged();

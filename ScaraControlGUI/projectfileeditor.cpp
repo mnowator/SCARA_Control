@@ -81,7 +81,9 @@ bool ProjectFileEditor::populateFromString(const QString &data)
     return conf1 && conf2;
 }
 
-QString const& ProjectFileEditor::toStr()
+#include <QDebug>
+
+QString ProjectFileEditor::toStr()
 {
    if ( scaraSC1ConfigWidget != NULL )
        scaraSC1ConfigWidget->saveChanges(dom);
