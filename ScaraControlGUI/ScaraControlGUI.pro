@@ -39,7 +39,8 @@ SOURCES += \
     scarasc1configwidget.cpp \
     pointseditor.cpp \
     intvalidator.cpp \
-    doublevalidator.cpp
+    doublevalidator.cpp \
+    lineedit.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -56,7 +57,8 @@ HEADERS += \
     scarasc1configwidget.h \
     pointseditor.h \
     intvalidator.h \
-    doublevalidator.h
+    doublevalidator.h \
+    lineedit.h
 
 unix {
     target.path = /usr/lib

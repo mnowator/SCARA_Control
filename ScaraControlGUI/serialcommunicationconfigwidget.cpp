@@ -16,6 +16,9 @@ SerialCommunicationConfigWidget::SerialCommunicationConfigWidget(QWidget *parent
     ui->dataBitsLineEdit->setStyleSheet(currentLineEditTheme);
     ui->stopBitsLineEdit->setStyleSheet(currentLineEditTheme);
 
+    ui->parityComboBox->setContextMenuPolicy(Qt::NoContextMenu);
+    ui->flowControlComboBox->setContextMenuPolicy(Qt::NoContextMenu);
+
     ui->parityComboBox->setStyleSheet(currentComboBoxTheme);
     ui->parityComboBox->setEditable(true);
     ui->parityComboBox->lineEdit()->setAlignment(Qt::AlignRight);

@@ -221,6 +221,10 @@ void CodeEditor::customContextMenuRequested(const QPoint &pos )
     QAction* selectAll = new QAction(tr("Select All"),this);
     selectAll->setShortcut(QKeySequence::SelectAll);
     connect(selectAll,SIGNAL(triggered(bool)),this,SLOT(selectAll()));
+
+    if ( document()->isEmpty() )
+        selectAll->setEnabled(false);
+
     menu.addAction(selectAll);
 
     menu.setStyleSheet(currentMenuBarTheme);

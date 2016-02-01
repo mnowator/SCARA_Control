@@ -58,6 +58,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
             <widget class="QLineEdit" name="projectNameLineEdit">
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
              <property name="text">
               <string>untitled</string>
              </property>
@@ -65,6 +68,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="projectTypeComboBox">
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
              <item>
               <property name="text">
                <string>SCARA - SC1</string>
@@ -84,6 +90,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="communicationTypeComboBox">
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
              <item>
               <property name="text">
                <string>Serial Communication ( COM )</string>
@@ -115,7 +124,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="projectPathLineEdit"/>
+          <widget class="QLineEdit" name="projectPathLineEdit">
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="browseButton">
@@ -166,6 +179,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>createButton</tabstop>
+  <tabstop>projectTypeComboBox</tabstop>
+  <tabstop>communicationTypeComboBox</tabstop>
+  <tabstop>projectPathLineEdit</tabstop>
+  <tabstop>browseButton</tabstop>
+  <tabstop>projectNameLineEdit</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

@@ -1356,6 +1356,8 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     }
 
     CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(clickedTabIndex));
+    ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>( ui->fileEditor->widget(clickedTabIndex));
+
     tabName = ui->fileEditor->tabText(clickedTabIndex);
 
     if (tabName.endsWith('*'))
@@ -1364,6 +1366,10 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     if (codeEditor)
     {
         path = codeEditor->path;
+    }
+    else if ( projectFileEditor )
+    {
+        path = projectFileEditor->path;
     }
     else
         return;
@@ -1416,7 +1422,6 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     menu.addAction(closeTab);
 
     menu.setStyleSheet(currentMenuBarTheme);
-
     menu.exec(ui->fileEditor->tabBar()->mapToGlobal(pos));
 }
 
@@ -1643,6 +1648,7 @@ void MainWindow::saveAsClicked(const QString &data)
     QStringList strList;
     QFileDialog fileDialog;
     CodeEditor* codeEditor;
+    ProjectFileEditor* projectFileEditor;
     QString name;
     QString path;
     QString nameWithoutStar;
@@ -1653,9 +1659,12 @@ void MainWindow::saveAsClicked(const QString &data)
 
         name = ui->fileEditor->tabText(currentIdx);
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
+        projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(currentIdx));
 
         if ( codeEditor )
             path = codeEditor->path;
+        else if ( projectFileEditor )
+            path = projectFileEditor->path;
     }
     else
     {
@@ -1676,7 +1685,20 @@ void MainWindow::saveAsClicked(const QString &data)
     fileDialog.setDirectory(path);
     fileDialog.selectFile(nameWithoutStar);
     fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-    fileDialog.setNameFilter("(*.py, *pro)");
+
+    QStringList filters;
+    filters << "Openable (*.pro *.py *.pt)"
+            << "Project files (*.pro)"
+            << "Python files (*.py)"
+            << "Points files (*.pt)"
+            << "Any files (*)";
+
+    fileDialog.setNameFilters(filters);
+
+    if ( name.endsWith(".py") || name.endsWith(".py*") )
+        fileDialog.setDefaultSuffix(".py");
+    else if ( name.endsWith(".pro") || name.endsWith(".pro*"))
+        fileDialog.setDefaultSuffix(".pro");
 
     if ( fileDialog.exec() )
     {
@@ -1690,10 +1712,18 @@ void MainWindow::saveAsClicked(const QString &data)
             {
                 newPath = newFullPath.left(i);
                 newName = newFullPath.right(newFullPath.length()-i);
-                newName = newName.left(newName.length()-1);
+                newName = newName.left(newName.length());
 
                 break;
             }
+        }
+
+        if ( newName == nameWithoutStar && newPath == path )
+        {
+            if ( name.endsWith('*') )
+                saveClicked(name+imposibleDelimiter+path);
+
+            return;
         }
 
         for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
@@ -1701,6 +1731,7 @@ void MainWindow::saveAsClicked(const QString &data)
             if ( ui->fileEditor->tabText(i) == name )
             {
                 codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+                projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
 
                 if ( codeEditor )
                 {
@@ -1720,9 +1751,28 @@ void MainWindow::saveAsClicked(const QString &data)
                         connect(newCodeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
 
                         ui->fileEditor->addTab(newCodeEditor,QIcon(":/new/icons/pythonfile.png"),newName);
-                        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(newCodeEditor));
-                        ui->fileEditor->currentWidget()->setFocus();
+                        ui->fileEditor->setCurrentWidget(newCodeEditor);
 
+                        return;
+                    }
+                }
+                else if ( projectFileEditor )
+                {
+                    if ( projectFileEditor->path == path )
+                    {
+                        //ProjectFileEditor* newProjectFileEditor = new ProjectFileEditor(this);
+                        
+                        qDebug() << projectFileEditor->toStr();
+                        //newProjectFileEditor->populateFromString(projectFileEditor->toStr());
+
+                        //saveFile(newPath,newName,newProjectFileEditor->toStr());
+                        
+//                        m_textChangedMapper->setMapping(newProjectFileEditor,newProjectFileEditor);
+//                        connect(newProjectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                        
+//                        ui->fileEditor->addTab(newProjectFileEditor,QIcon(":/new/icons/profile.png"),newName);
+//                        ui->fileEditor->setCurrentWidget(newProjectFileEditor);
+                        
                         return;
                     }
                 }
@@ -1730,22 +1780,41 @@ void MainWindow::saveAsClicked(const QString &data)
         }
 
         // If file is not opened, we have to load it
-        QString content = loadFile(path,name);
+        if ( name.endsWith(".py") )
+        {
+            QString content = loadFile(path,name);
+    
+            codeEditor = new CodeEditor(this);
+    
+            codeEditor->document()->setPlainText(content);
+            codeEditor->path = newPath;
+    
+            m_textChangedMapper->setMapping(codeEditor,codeEditor);
+            connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+            connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+    
+            saveFile(newPath,newName,codeEditor->toPlainText());
+    
+            ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),newName);
+            ui->fileEditor->setCurrentWidget(codeEditor);
+        }
+        else if ( name.endsWith(".pro") )
+        {
+            QString content = loadFile(path,name);
+            
+            projectFileEditor = new ProjectFileEditor(this);
 
-        codeEditor = new CodeEditor(this);
+            projectFileEditor->path = newPath;
+            //projectFileEditor->populateFromString(content);
 
-        codeEditor->document()->setPlainText(content);
-        codeEditor->path = newPath;
+            m_textChangedMapper->setMapping(projectFileEditor,projectFileEditor);
+            connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
 
-        m_textChangedMapper->setMapping(codeEditor,codeEditor);
-        connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
-        connect(codeEditor,SIGNAL(copyAvailable(bool)),this,SLOT(copyAvailable(bool)));
+            saveFile(newPath,newName,projectFileEditor->toStr());
 
-        saveFile(newPath,newName,codeEditor->toPlainText());
-
-        ui->fileEditor->addTab(codeEditor,QIcon(":/new/icons/pythonfile.png"),newName);
-        ui->fileEditor->setCurrentIndex(ui->fileEditor->indexOf(codeEditor));
-        ui->fileEditor->currentWidget()->setFocus();
+            ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),newName);
+            ui->fileEditor->setCurrentWidget(projectFileEditor);
+        }
     }
 }
 

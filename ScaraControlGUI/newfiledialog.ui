@@ -42,10 +42,17 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QLineEdit" name="fileName"/>
+          <widget class="QLineEdit" name="fileName">
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QComboBox" name="fileTypeComboBox">
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
            <item>
             <property name="text">
              <string>Program ( Python File )</string>

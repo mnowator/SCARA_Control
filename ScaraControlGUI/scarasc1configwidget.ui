@@ -96,7 +96,10 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="syncFreqLineEdit">
+                <widget class="LineEdit" name="syncFreqLineEdit">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::CustomContextMenu</enum>
+                 </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
@@ -148,7 +151,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lengthOfFirstSegmentLineEdit">
+                  <widget class="LineEdit" name="lengthOfFirstSegmentLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -169,7 +175,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lengthOfSecondSegmentLineEdit">
+                  <widget class="LineEdit" name="lengthOfSecondSegmentLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -193,7 +202,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="correctionValueLineEdit">
+                  <widget class="LineEdit" name="correctionValueLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -214,7 +226,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="firstSegmentLimitAngleOnCWLineEdit">
+                  <widget class="LineEdit" name="firstSegmentLimitAngleOnCWLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -244,7 +259,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="firstSegmentLimitAngleOnCCWLineEdit">
+                  <widget class="LineEdit" name="firstSegmentLimitAngleOnCCWLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -272,7 +290,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="numberOfStepsForFirstSegmentLineEdit">
+                  <widget class="LineEdit" name="numberOfStepsForFirstSegmentLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -293,7 +314,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="secondSegmentLimitAngleOnCWLineEdit">
+                  <widget class="LineEdit" name="secondSegmentLimitAngleOnCWLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -314,7 +338,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="secondSegmentLimitAngleOnCCWLineEdit">
+                  <widget class="LineEdit" name="secondSegmentLimitAngleOnCCWLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -345,7 +372,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="numberOfStepsForSecondSegmentLineEdit">
+                  <widget class="LineEdit" name="numberOfStepsForSecondSegmentLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -482,7 +512,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="distanceBetweenLimintsOnZLineEdit">
+                  <widget class="LineEdit" name="distanceBetweenLimintsOnZLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -503,7 +536,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lengthOfThirdSegmentLineEdit">
+                  <widget class="LineEdit" name="lengthOfThirdSegmentLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -531,7 +567,10 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="numberOfStepsBetweenLimitsOnZLineEdit">
+                  <widget class="LineEdit" name="numberOfStepsBetweenLimitsOnZLineEdit">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
@@ -642,6 +681,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>lineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>mainProgramComboBox</tabstop>
   <tabstop>mainPointsFileComboBox</tabstop>

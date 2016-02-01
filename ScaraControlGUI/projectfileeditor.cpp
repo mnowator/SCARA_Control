@@ -4,6 +4,7 @@
 #include "styles.h"
 
 #include <QMessageBox>
+#include <QtWidgets>
 
 ProjectFileEditor::ProjectFileEditor(QWidget *parent) :
     QWidget(parent),
@@ -90,7 +91,6 @@ QString const& ProjectFileEditor::toStr()
 
    return dom.toString();
 }
-
 
 
 

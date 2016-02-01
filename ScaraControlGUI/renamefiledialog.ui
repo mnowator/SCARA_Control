@@ -26,7 +26,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="filename"/>
+        <widget class="QLineEdit" name="filename">
+         <property name="contextMenuPolicy">
+          <enum>Qt::NoContextMenu</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
