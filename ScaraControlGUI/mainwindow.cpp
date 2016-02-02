@@ -15,7 +15,7 @@
 #include <QDesktopServices>
 
 #include "projectfileeditor.h"
-#include "pointseditor.h"
+#include "pointsfileeditor.h"
 #include "styles.h"
 
 #include <QDebug>
@@ -699,7 +699,7 @@ void MainWindow::openProjectProjectOrFile()
             if ( ui->fileEditor->tabText(i) == fileName ||
                  ui->fileEditor->tabText(i) == fileName+'*' )
             {
-                PointsEditor* pointsEditor = dynamic_cast<PointsEditor*>( ui->fileEditor->widget(i));
+                PointsFileEditor* pointsEditor = dynamic_cast<PointsFileEditor*>( ui->fileEditor->widget(i));
 
                 if ( pointsEditor->path == filePath )
                 {
@@ -724,7 +724,7 @@ void MainWindow::openProjectProjectOrFile()
         }
         else
         {
-            PointsEditor* pointsEditor = new PointsEditor(this);
+            PointsFileEditor* pointsEditor = new PointsFileEditor(this);
 
             ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),fileName);
             ui->fileEditor->setCurrentWidget(pointsEditor);
@@ -2193,6 +2193,7 @@ void MainWindow::textChanged(QWidget* widget)
 
     CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(widget);
     ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(widget);
+    PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>(widget);
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly | Qt::MatchRecursive,0) )
     {
@@ -2200,7 +2201,7 @@ void MainWindow::textChanged(QWidget* widget)
 
         if ( codeEditor ) path = codeEditor->path;
         else if ( projectFileEditor ) path = projectFileEditor->path;
-
+        else if ( pointsFileEditor ) path = pointsFileEditor->path;
 
         if ( path == item->text(1))
         {
@@ -2223,6 +2224,11 @@ void MainWindow::textChanged(QWidget* widget)
 
         m_saveSignalMapper->setMapping(projectFileEditor,"current");
         connect(projectFileEditor,SIGNAL(saveRequested()),m_saveSignalMapper,SLOT(map()));
+    }
+    else if ( pointsFileEditor )
+    {
+        m_textChangedMapper->removeMappings(pointsFileEditor);
+        disconnect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
     }
 
     ui->fileEditor->setTabText(ui->fileEditor->indexOf(widget),name+'*');
@@ -2363,7 +2369,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
                 }
                 else if ( name.endsWith(".pt"))
                 {
-                    PointsEditor* pointsEditor = dynamic_cast<PointsEditor*>(ui->fileEditor->widget(idx));
+                    PointsFileEditor* pointsEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(idx));
 
                     if ( pointsEditor->path == item->text(1) )
                     {
@@ -2408,9 +2414,12 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             }
             else if ( name.endsWith(".pt") )
             {
-                PointsEditor* pointsEditor = new PointsEditor(this);
+                PointsFileEditor* pointsEditor = new PointsFileEditor(this);
 
                 pointsEditor->path = item->text(1);
+
+                m_textChangedMapper->setMapping(pointsEditor,pointsEditor);
+                connect(pointsEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
 
                 ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),item->text(0));
                 ui->fileEditor->setCurrentWidget(pointsEditor);

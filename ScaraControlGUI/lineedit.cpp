@@ -66,7 +66,8 @@ void LineEdit::contextMenuRequested(const QPoint &pos)
     selectAll->setShortcut(QKeySequence::SelectAll);
     connect(selectAll,SIGNAL(triggered(bool)),this,SLOT(selectAll()));
 
-    menu.addAction(selectAll);
+    if ( !text().isEmpty() )
+        menu.addAction(selectAll);
 
     menu.setStyleSheet(currentMenuBarTheme);
     menu.exec(mapToGlobal(pos));

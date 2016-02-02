@@ -40,7 +40,8 @@ SOURCES += \
     pointseditor.cpp \
     intvalidator.cpp \
     doublevalidator.cpp \
-    lineedit.cpp
+    lineedit.cpp \
+    pointsfileeditor.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -58,7 +59,8 @@ HEADERS += \
     pointseditor.h \
     intvalidator.h \
     doublevalidator.h \
-    lineedit.h
+    lineedit.h \
+    pointsfileeditor.h
 
 unix {
     target.path = /usr/lib
@@ -74,7 +76,8 @@ FORMS += \
     removefiledialog.ui \
     serialcommunicationconfigwidget.ui \
     projectfileeditor.ui \
-    scarasc1configwidget.ui
+    scarasc1configwidget.ui \
+    pointsfileeditor.ui
 
 RESOURCES += \
     resource.qrc
