@@ -14,11 +14,14 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     connect(ui->browseButton,SIGNAL(clicked(bool)),this,SLOT(browseButtonClicked()));
     connect(ui->createButton,SIGNAL(clicked(bool)),this,SLOT(createButtonClicked()));
 
-    ui->projectPathLineEdit->setText(QDir::homePath()+tr("/SCARA Control/"));
+    ui->projectPathLineEdit->setText(QDir::homePath()+tr("/NWRT Robotics/"));
 
     ui->browseButton->setStyleSheet(currentButtonTheme);
+    ui->browseButton->setMinimumWidth(60);
     ui->createButton->setStyleSheet(currentButtonTheme);
+    ui->createButton->setMinimumWidth(60);
     ui->cancelButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setMinimumWidth(60);
 
     ui->projectNameLineEdit->setStyleSheet(currentLineEditTheme);
     ui->projectPathLineEdit->setStyleSheet(currentLineEditTheme);

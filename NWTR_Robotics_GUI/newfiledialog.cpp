@@ -13,7 +13,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     connect(ui->cancelButton,SIGNAL(clicked(bool)),this,SLOT(cancelClicked()));
 
     ui->cancelButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setMinimumWidth(60);
     ui->createButton->setStyleSheet(currentButtonTheme);
+    ui->createButton->setMinimumWidth(60);
 
     ui->fileTypeComboBox->setStyleSheet(currentComboBoxTheme);
 

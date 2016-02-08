@@ -26,8 +26,11 @@ CodeEditor::CodeEditor(QWidget *parent)
 
     setFont(font);
 
-    this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    QFontMetrics metrices(font);
 
+    this->setTabStopWidth(5*metrices.width(' '));
+
+    this->setLineWrapMode(QPlainTextEdit::NoWrap);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
@@ -142,6 +145,30 @@ void CodeEditor::wheelEvent(QWheelEvent *event)
     QPlainTextEdit::wheelEvent(event);
 }
 
+void CodeEditor::keyPressEvent(QKeyEvent *event)
+{
+    if ( event->key() == Qt::Key_Return )
+    {
+        QTextBlock textBlock = this->textCursor().block();
+
+        numOfIndents = textBlock.text().count('\t');
+
+        QPlainTextEdit::keyPressEvent(event);
+
+        for ( unsigned i=0; i<numOfIndents; ++i )
+              this->textCursor().insertText("\t");
+    }
+    else if ( event->key() == Qt::Key_Backspace )
+    {
+        if ( this->textCursor().block().text().endsWith('\t'))
+            --numOfIndents;
+
+        QPlainTextEdit::keyPressEvent(event);
+    }
+    else
+        QPlainTextEdit::keyPressEvent(event);
+}
+
 void CodeEditor::undoAvailable(bool available)
 {
     undoIsAvailable = available;
@@ -234,8 +261,11 @@ void CodeEditor::customContextMenuRequested(const QPoint &pos )
 
 void CodeEditor::deleteSelection()
 {
-    foreach( QTextEdit::ExtraSelection selection, this->extraSelections() )
-        selection.cursor.removeSelectedText();
+    QTextCursor cursor = this->textCursor();
+
+    cursor.removeSelectedText();
+
+    this->setTextCursor(cursor);
 }
 
 

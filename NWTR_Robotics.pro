@@ -3,8 +3,8 @@ TEMPLATE = subdirs
 CONFIG += c++11
 
 SUBDIRS += \
-    SCARA_Control_IDE \
-    ScaraControlGUI \
+    NWTR_Robotics_IDE \
+    NWTR_Robotics_GUI \
     ScaraRobot \
     ScaraLogic \
     ScaraCommunicationLayer

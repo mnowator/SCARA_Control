@@ -8,20 +8,20 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SCARA_Control_IDE
+TARGET = NWTR_Robotics_IDE
 TEMPLATE = app
 
-DEPENDPATH += . ../ScaraControlGUI\
+DEPENDPATH += . ../NWTR_Robotics_GUI\
 ../ScaraRobot\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
-INCLUDEPATH += ../ScaraControlGUI\
+INCLUDEPATH += ../NWTR_Robotics_GUI\
 ../ScaraRobot\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
-LIBS += -L../ScaraControlGUI/debug -lScaraControlGUI\
+LIBS += -L../NWTR_Robotics_GUI/debug -lNWTR_Robotics_GUI\
 -L../ScaraRobot/debug -lScaraRobot\
 -L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
 -L../ScaraLogic/debug -lScaraLogic

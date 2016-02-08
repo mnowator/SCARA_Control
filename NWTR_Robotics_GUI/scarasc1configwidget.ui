@@ -486,7 +486,7 @@
         <item>
          <widget class="QGroupBox" name="z_surface">
           <property name="title">
-           <string>Z Surface</string>
+           <string>ZY Surface</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
            <property name="topMargin">

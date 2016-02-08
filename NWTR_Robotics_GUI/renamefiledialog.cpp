@@ -10,7 +10,9 @@ RenameFileDialog::RenameFileDialog(QWidget *parent) :
     ui->setupUi(this);
 
     ui->renameButton->setStyleSheet(currentButtonTheme);
+    ui->renameButton->setMinimumWidth(60);
     ui->cancelButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setMinimumWidth(60);
 
     ui->filename->setStyleSheet(currentLineEditTheme);
 }

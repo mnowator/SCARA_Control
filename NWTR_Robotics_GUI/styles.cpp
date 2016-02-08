@@ -34,7 +34,7 @@ QString darkMenuBarTheme = "QMenuBar::item {"
                            "}"
                            "border-bottom-color: rgb(255, 255, 255);";
 
-QString darkButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; width: 65; background-color: rgb(60, 63, 65); }"
+QString darkButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; background-color: rgb(60, 63, 65); }"
                            "QPushButton:hover { background-color: rgb(60, 187, 255); }";
 
 QString darkLineEditTheme = "QLineEdit {"

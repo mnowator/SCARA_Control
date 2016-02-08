@@ -26,6 +26,7 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
     void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private slots:
     void undoAvailable(bool available);
@@ -42,6 +43,8 @@ private:
 
     bool undoIsAvailable;
     bool redoIsAvailable;
+
+    unsigned numOfIndents = 0;
 };
 
 class LineNumberArea : public QWidget

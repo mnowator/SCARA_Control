@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSignalMapper>
+#include <QDomDocument>
 
 namespace Ui {
 class PointsFileEditor;
@@ -17,6 +18,9 @@ public:
     ~PointsFileEditor();
 
     QString path;
+
+    QString toStr();
+    bool populateFromString(QString const& data);
 
 private:
     Ui::PointsFileEditor *ui;

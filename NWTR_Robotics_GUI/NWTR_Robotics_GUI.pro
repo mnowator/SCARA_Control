@@ -8,7 +8,7 @@ QT       += widgets xml
 
 CONFIG += c++11
 
-TARGET = ScaraControlGUI
+TARGET = NWTR_Robotics_GUI
 TEMPLATE = lib
 
 DEPENDPATH += . ../ScaraRobot\
@@ -41,7 +41,8 @@ SOURCES += \
     intvalidator.cpp \
     doublevalidator.cpp \
     lineedit.cpp \
-    pointsfileeditor.cpp
+    pointsfileeditor.cpp \
+    reloadfilesdialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -60,7 +61,8 @@ HEADERS += \
     intvalidator.h \
     doublevalidator.h \
     lineedit.h \
-    pointsfileeditor.h
+    pointsfileeditor.h \
+    reloadfilesdialog.h
 
 unix {
     target.path = /usr/lib
@@ -77,7 +79,8 @@ FORMS += \
     serialcommunicationconfigwidget.ui \
     projectfileeditor.ui \
     scarasc1configwidget.ui \
-    pointsfileeditor.ui
+    pointsfileeditor.ui \
+    reloadfilesdialog.ui
 
 RESOURCES += \
     resource.qrc

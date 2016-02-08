@@ -6,6 +6,7 @@
 #include <QTreeWidget>
 #include <QHash>
 #include <QSignalMapper>
+#include <QFileSystemWatcher>
 
 #include "scararobot.h"
 #include "newprojectdialog.h"
@@ -14,6 +15,7 @@
 #include "renamefiledialog.h"
 #include "removefiledialog.h"
 #include "codeeditor.h"
+#include "reloadfilesdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -58,6 +60,8 @@ private:
     QSignalMapper* m_determineUndoRedoMapper;
     QSignalMapper* m_determineCopyCutMapper;
 
+    QFileSystemWatcher* m_fileSystemWatcher;
+
     Ui::MainWindow *ui;
 
     CodeEditor* m_undoRedoRegisteredItem;
@@ -73,6 +77,7 @@ private:
     SaveChangesDialog* m_saveChangesDialog;
     RenameFileDialog* m_renameFileDialog;
     RemoveFileDialog* m_removeFileDialog;
+    ReloadFilesDialog* m_reloadFilesDialog;
 
     static bool lessThenTreeWidgetItem(QTreeWidgetItem* first, QTreeWidgetItem* second);
 
@@ -103,6 +108,8 @@ private slots:
     void undoClicked();
     void redoClicked();
     void closeFileClicked();
+
+    void deleteReloadFileDialog();
 
     void focusChanged(QWidget* old, QWidget* now);
 
@@ -142,7 +149,17 @@ private slots:
     void determineIfUndoRedoIsAvailable(QWidget* widget);
     void determineIfCopyCutIsAvailable(QWidget* widget);
 
+    void fileChanged(QString const& path);
+    void reloadFiles(QList<QPair<QString, QString> > listOfFiles);
+
     void copyAvailable      (bool yes);
 };
 
 #endif // MAINWINDOW_H
+
+
+
+
+
+
+

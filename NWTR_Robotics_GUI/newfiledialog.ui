@@ -89,6 +89,9 @@
          <property name="text">
           <string>Create</string>
          </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -104,6 +107,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>fileName</tabstop>
+  <tabstop>fileTypeComboBox</tabstop>
+  <tabstop>createButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

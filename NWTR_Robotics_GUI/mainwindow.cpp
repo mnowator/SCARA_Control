@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->fileEditor->hide();
     ui->logo->show();
 
+    m_reloadFilesDialog = NULL;
+
     m_renameSignalMapper    =   new QSignalMapper(this);
     m_saveSignalMapper      =   new QSignalMapper(this);
     m_saveAsSignalMapper    =   new QSignalMapper(this);
@@ -52,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_reloadSignalMapper    =   new QSignalMapper(this);
     m_determineUndoRedoMapper   =   new QSignalMapper(this);
     m_determineCopyCutMapper    =   new QSignalMapper(this);
+
+    m_fileSystemWatcher = new QFileSystemWatcher(this);
+    connect(m_fileSystemWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
 
     m_clipboard = QApplication::clipboard();
     connect((QObject*)m_clipboard,SIGNAL(dataChanged()),this,SLOT(clipboardChange()));
@@ -242,17 +247,36 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     m_saveChangesDialog = new SaveChangesDialog(this);
 
-    for ( unsigned i=0; i< ui->projectExplorer->topLevelItemCount(); ++i)
+    for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
     {
-        QTreeWidgetItem* project = ui->projectExplorer->topLevelItem(i);
-
-        for ( unsigned j=0; j<project->childCount(); ++j )
+        if ( ui->fileEditor->tabText(i).endsWith('*') )
         {
-            QTreeWidgetItem* child = project->child(j);
+            CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+            ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
+            PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(i));
 
-            if ( child->text(0) > child->text(2) )
+            if ( codeEditor )
             {
-                m_saveChangesDialog->addFile(QIcon(":/new/icons/lc_adddirect.png"),child->text(0),child->text(1));
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             codeEditor->path);
+
+                prevent = true;
+            }
+            else if ( projectFileEditor )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/profile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             projectFileEditor->path);
+
+                prevent = true;
+            }
+            else if ( pointsFileEditor )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/pointsfile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             pointsFileEditor->path);
+
                 prevent = true;
             }
         }
@@ -419,6 +443,8 @@ void MainWindow::detachFileFromProject(const QString &fileName, const QString &p
 
 void MainWindow::saveFile(const QString &filePath, const QString &fileName, const QString &fileContent)
 {
+    m_fileSystemWatcher->removePath(filePath+'/'+fileName);
+
     QFile file(filePath+'/'+fileName);
 
     if ( file.open(QFile::WriteOnly | QFile::Text))
@@ -438,6 +464,7 @@ void MainWindow::saveFile(const QString &filePath, const QString &fileName, cons
 
         msgBox.exec();
     }
+    m_fileSystemWatcher->addPath(filePath+'/'+fileName);
 }
 
 QString MainWindow::loadFile(const QString &filePath, const QString &fileName)
@@ -621,7 +648,7 @@ void MainWindow::openProjectProjectOrFile()
         }
 
         ui->projectExplorer->addTopLevelItem(project);
-        m_projects[fileName] = ScaraRobot();
+        m_projects[pureFileName] = ScaraRobot();
 
         setActiveProject(pureFileName);
         sortProjectFiles(project);
@@ -666,6 +693,8 @@ void MainWindow::openProjectProjectOrFile()
         {
             CodeEditor* codeEditor = new CodeEditor(this);
             QTextStream textStream(&file);
+
+            m_fileSystemWatcher->addPath(fullPath);
 
             codeEditor->turnOnPythonHighlighting();
 
@@ -724,6 +753,7 @@ void MainWindow::openProjectProjectOrFile()
         }
         else
         {
+            m_fileSystemWatcher->addPath(fullPath);
             PointsFileEditor* pointsEditor = new PointsFileEditor(this);
 
             ui->fileEditor->addTab(pointsEditor,QIcon(":/new/icons/pointsfile.png"),fileName);
@@ -749,17 +779,33 @@ void MainWindow::closeAllFilesClicked()
     {
         if ( ui->fileEditor->tabText(i).endsWith('*') )
         {
-            if ( ui->fileEditor->tabText(i).endsWith(".py*"))
-            {
-                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+            CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
+            ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
+            PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(i));
 
-                if ( codeEditor )
-                {
-                    m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
-                                                 ui->fileEditor->tabText(i),
-                                                 codeEditor->path);
-                    prevent = true;
-                }
+            if ( codeEditor )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             codeEditor->path);
+
+                prevent = true;
+            }
+            else if ( projectFileEditor )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/profile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             projectFileEditor->path);
+
+                prevent = true;
+            }
+            else if ( pointsFileEditor )
+            {
+                m_saveChangesDialog->addFile(QIcon(":/new/icons/pointsfile.png"),
+                                             ui->fileEditor->tabText(i),
+                                             pointsFileEditor->path);
+
+                prevent = true;
             }
         }
     }
@@ -776,6 +822,24 @@ void MainWindow::closeAllFilesClicked()
     }
 
     ui->fileEditor->clear();
+
+    for ( unsigned i=0; i<ui->projectExplorer->topLevelItemCount(); ++i )
+    {
+        QTreeWidgetItem* topLevelItem = ui->projectExplorer->topLevelItem(i);
+
+        for ( unsigned j=0; j<topLevelItem->childCount(); ++j)
+        {
+            QTreeWidgetItem* child = topLevelItem->child(j);
+
+            if ( child->text(0).endsWith("*") )
+            {
+                QString tmpStr = child->text(0);
+
+                child->setText(0,child->text(2));
+                child->setText(2,tmpStr);
+            }
+        }
+    }
 
     ui->actionSaveAll->setEnabled(false);
     ui->actionCloseAllFiles->setEnabled(false);
@@ -985,6 +1049,13 @@ void MainWindow::focusChanged(QWidget *old, QWidget *now)
             ui->actionRedo->setEnabled(true);
         else
             ui->actionRedo->setEnabled(false);
+    }
+    else
+    {
+        ui->actionUndo->setEnabled(false);
+        ui->actionRedo->setEnabled(false);
+        ui->actionPaste->setEnabled(false);
+        ui->actionSelect_All->setEnabled(false);
     }
 
     if ( oldLineEdit )
@@ -1371,6 +1442,7 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
 
     CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(clickedTabIndex));
     ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>( ui->fileEditor->widget(clickedTabIndex));
+    PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>( ui->fileEditor->widget(clickedTabIndex));
 
     tabName = ui->fileEditor->tabText(clickedTabIndex);
 
@@ -1384,6 +1456,10 @@ void MainWindow::fileEditorContextMenuRequested(const QPoint &pos)
     else if ( projectFileEditor )
     {
         path = projectFileEditor->path;
+    }
+    else if ( pointsFileEditor )
+    {
+        path = pointsFileEditor->path;
     }
     else
         return;
@@ -1563,6 +1639,7 @@ void MainWindow::saveClicked(const QString &data)
     QStringList strList;
     CodeEditor* codeEditor;
     ProjectFileEditor* projectFileEditor;
+    PointsFileEditor* pointsFileEditor;
     QString name;
     QString path;
     bool futherSavingPossible = false;
@@ -1574,6 +1651,7 @@ void MainWindow::saveClicked(const QString &data)
         name = ui->fileEditor->tabText(currentIdx);
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->currentWidget());
         projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->currentWidget());
+        pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->currentWidget());
 
         if ( codeEditor )
             path = codeEditor->path;
@@ -1582,6 +1660,10 @@ void MainWindow::saveClicked(const QString &data)
             path = projectFileEditor->path;
             m_saveSignalMapper->removeMappings(projectFileEditor);
             disconnect(projectFileEditor,SIGNAL(saveRequested()),m_saveSignalMapper,SLOT(map()));
+        }
+        else if ( pointsFileEditor)
+        {
+            path = pointsFileEditor->path;
         }
 
         ui->actionReload->setEnabled(true);
@@ -1618,6 +1700,7 @@ void MainWindow::saveClicked(const QString &data)
         {
             codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
             projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
+            pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(i));
 
             if ( codeEditor )
             {
@@ -1659,6 +1742,26 @@ void MainWindow::saveClicked(const QString &data)
                     }
                 }
             }
+            else if ( pointsFileEditor )
+            {
+                QString newName = name.left(name.length()-1);
+
+                saveFile(path,newName,pointsFileEditor->toStr());
+                ui->fileEditor->setTabText(i,newName);
+
+                m_textChangedMapper->setMapping(pointsFileEditor,pointsFileEditor);
+                connect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+                if ( pointsFileEditor->path == path )
+                {
+                    if ( ui->fileEditor->currentIndex() == i )
+                    {
+                        ui->actionSave->setEnabled(false);
+                        ui->actionReload->setEnabled(true);
+                        ui->actionSave_as->setEnabled(false);
+                    }
+                }
+            }
         }
         else if ( ui->fileEditor->tabText(i)[ui->fileEditor->tabText(i).length()-1] == '*' )
             // Now i hope that i never let file have empty tab text
@@ -1677,6 +1780,7 @@ void MainWindow::saveAsClicked(const QString &data)
     QFileDialog fileDialog;
     CodeEditor* codeEditor;
     ProjectFileEditor* projectFileEditor;
+    PointsFileEditor* pointsFileEditor;
     QString name;
     QString path;
     QString nameWithoutStar;
@@ -1688,11 +1792,14 @@ void MainWindow::saveAsClicked(const QString &data)
         name = ui->fileEditor->tabText(currentIdx);
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
         projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(currentIdx));
+        pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(currentIdx));
 
         if ( codeEditor )
             path = codeEditor->path;
         else if ( projectFileEditor )
             path = projectFileEditor->path;
+        else if ( pointsFileEditor )
+            path = pointsFileEditor->path;
     }
     else
     {
@@ -1760,6 +1867,7 @@ void MainWindow::saveAsClicked(const QString &data)
             {
                 codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(i));
                 projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(i));
+                pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(i));
 
                 if ( codeEditor )
                 {
@@ -1803,6 +1911,22 @@ void MainWindow::saveAsClicked(const QString &data)
                         return;
                     }
                 }
+                else if ( pointsFileEditor )
+                {
+                    PointsFileEditor* newPointsFileEditor = new PointsFileEditor(this);
+
+                    newPointsFileEditor->populateFromString(pointsFileEditor->toStr());
+
+                    saveFile(newPath,newName,newPointsFileEditor->toStr());
+
+                    m_textChangedMapper->setMapping(newPointsFileEditor,newPointsFileEditor);
+                    connect(newPointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+                    ui->fileEditor->addTab(newPointsFileEditor,QIcon(":/new/icons/pointsfile.png"),newName);
+                    ui->fileEditor->setCurrentWidget(newPointsFileEditor);
+
+                    return;
+                }
             }
         }
 
@@ -1832,7 +1956,7 @@ void MainWindow::saveAsClicked(const QString &data)
             projectFileEditor = new ProjectFileEditor(this);
 
             projectFileEditor->path = newPath;
-            //projectFileEditor->populateFromString(content);
+            projectFileEditor->populateFromString(content);
 
             m_textChangedMapper->setMapping(projectFileEditor,projectFileEditor);
             connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
@@ -1842,12 +1966,35 @@ void MainWindow::saveAsClicked(const QString &data)
             ui->fileEditor->addTab(projectFileEditor,QIcon(":/new/icons/profile.png"),newName);
             ui->fileEditor->setCurrentWidget(projectFileEditor);
         }
+        else if ( name.endsWith(".pt") )
+        {
+            QString content = loadFile(path,name);
+
+            pointsFileEditor = new PointsFileEditor(this);
+
+            pointsFileEditor->path = newPath;
+            pointsFileEditor->populateFromString(content);
+
+            m_textChangedMapper->setMapping(pointsFileEditor,pointsFileEditor);
+            connect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+            saveFile(newPath,newName,pointsFileEditor->toStr());
+
+            ui->fileEditor->addTab(pointsFileEditor,QIcon(":/new/icons/pointsfile.png"),newName);
+            ui->fileEditor->setCurrentWidget(pointsFileEditor);
+        }
     }
 }
 
 void MainWindow::closeFileClicked()
 {
     tabCloseClicked(ui->fileEditor->currentIndex());
+}
+
+void MainWindow::deleteReloadFileDialog()
+{
+    delete m_reloadFilesDialog;
+    m_reloadFilesDialog = NULL;
 }
 
 void MainWindow::setActiveClicked(const QString &name)
@@ -1871,9 +2018,9 @@ void MainWindow::closeClicked(const QString &name)
 
 void MainWindow::reloadClicked(const QString &data)
 {
-    QStringList strList;
     CodeEditor* codeEditor;
     ProjectFileEditor* projectFileEditor;
+    PointsFileEditor* pointsFileEditor;
     QString name;
     QString path;
 
@@ -1884,6 +2031,7 @@ void MainWindow::reloadClicked(const QString &data)
         name = ui->fileEditor->tabText(currentIdx);
         codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(currentIdx));
         projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(currentIdx));
+        pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(currentIdx));
 
         if ( codeEditor )
         {
@@ -1916,6 +2064,22 @@ void MainWindow::reloadClicked(const QString &data)
                 connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
             }
         }
+        else if ( pointsFileEditor )
+        {
+            path = pointsFileEditor->path;
+
+            QFile file(path+name);
+
+            if ( file.open(QIODevice::ReadWrite | QFile::Text))
+            {
+                QTextStream textStream(&file);
+
+                disconnect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                pointsFileEditor->populateFromString(textStream.readAll());
+                connect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+            }
+        }
+
     }
     // at this moment i do not let situation where file that isnt current can call this function
 }
@@ -2329,6 +2493,102 @@ void MainWindow::determineIfCopyCutIsAvailable(QWidget *widget)
     }
 }
 
+void MainWindow::fileChanged(const QString &path)
+{
+    QString fileName, filePath;
+
+    if ( m_reloadFilesDialog == NULL )
+    {
+        m_reloadFilesDialog = new ReloadFilesDialog(this);
+        connect(m_reloadFilesDialog,SIGNAL(reloadFiles(QList<QPair<QString,QString> >)),this,SLOT(reloadFiles(QList<QPair<QString,QString> >)));
+        connect(m_reloadFilesDialog,SIGNAL(rejected()),this,SLOT(deleteReloadFileDialog()));
+        m_reloadFilesDialog->show();
+    }
+
+    for (unsigned i=path.length();i!=0;--i)
+    {
+        if ( path[i-1] == '\\' || path[i-1] == '/' )
+        {
+            filePath = path.left(i);
+            fileName = path.right(path.length()-i);
+            break;
+        }
+    }
+
+    if ( fileName.endsWith(".pro") || fileName.endsWith(".pro*") )
+        m_reloadFilesDialog->addFile(QIcon(":/new/icons/profile.png"), filePath, fileName);
+    else if ( fileName.endsWith(".py") || fileName.endsWith(".py*") )
+        m_reloadFilesDialog->addFile(QIcon(":/new/icons/pythonfile.png"), filePath, fileName);
+    else if ( fileName.endsWith(".pt") || fileName.endsWith(".pt*") )
+        m_reloadFilesDialog->addFile(QIcon(":/new/icons/pointsfile.png"), filePath, fileName);
+}
+
+void MainWindow::reloadFiles(QList<QPair<QString, QString> > listOfFiles)
+{
+    for ( QPair<QString, QString> fileNpath : listOfFiles )
+    {
+        for ( unsigned i=0; i<ui->fileEditor->count(); ++i)
+        {
+            if ( ui->fileEditor->tabText(i) == fileNpath.first ||
+                 ui->fileEditor->tabText(i) == fileNpath.first+"*" )
+            {
+                ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>( ui->fileEditor->widget(i) );
+                CodeEditor* codeEditor = dynamic_cast<CodeEditor*>( ui->fileEditor->widget(i) );
+                PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>( ui->fileEditor->widget(i) );
+                QFile file(fileNpath.second  +fileNpath.first);
+
+                if ( file.open(QIODevice::ReadWrite | QFile::Text))
+                {
+                    QTextStream textStream(&file);
+                    m_fileSystemWatcher->removePath(fileNpath.second + fileNpath.first);
+
+                    if ( projectFileEditor )
+                    {
+                        if ( projectFileEditor->path == fileNpath.second )
+                        {
+                            disconnect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+                            projectFileEditor->populateFromString(textStream.readAll());
+                            saveClicked(fileNpath.second+fileNpath.first);
+
+                            connect(projectFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                        }
+                    }
+                    else if ( codeEditor )
+                    {
+                        if ( codeEditor->path == fileNpath.second )
+                        {
+                            disconnect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+
+                            codeEditor->document()->setPlainText(textStream.readAll());
+                            saveClicked(fileNpath.second+fileNpath.first);
+
+                            connect(codeEditor,SIGNAL(textChanged()),m_textChangedMapper,SLOT(map()));
+                        }
+                    }
+                    else if ( pointsFileEditor )
+                    {
+                        if ( pointsFileEditor->path == fileNpath.second )
+                        {
+                            disconnect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+
+                            pointsFileEditor->populateFromString(textStream.readAll());
+                            saveClicked(fileNpath.second+fileNpath.first);
+
+                            connect(pointsFileEditor,SIGNAL(contentChanged()),m_textChangedMapper,SLOT(map()));
+                        }
+                    }
+
+                    m_fileSystemWatcher->addPath(fileNpath.second + fileNpath.first);
+                }
+            }
+        }
+    }
+
+    delete m_reloadFilesDialog;
+    m_reloadFilesDialog = NULL;
+}
+
 void MainWindow::copyAvailable(bool yes)
 {
     if ( yes )
@@ -2415,7 +2675,9 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             else if ( name.endsWith(".pt") )
             {
                 PointsFileEditor* pointsEditor = new PointsFileEditor(this);
+                QTextStream textStream(&file);
 
+                pointsEditor->populateFromString(textStream.readAll());
                 pointsEditor->path = item->text(1);
 
                 m_textChangedMapper->setMapping(pointsEditor,pointsEditor);
@@ -2452,6 +2714,8 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             ui->fileEditor->currentWidget()->setFocus();
 
             ui->actionReload->setEnabled(true);
+
+            m_fileSystemWatcher->addPath(item->text(1)+name);
         }
 
         break;
@@ -2509,12 +2773,26 @@ void MainWindow::tabCloseClicked(int idx)
     {
         m_saveChangesDialog = new SaveChangesDialog(this);
         CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
+        ProjectFileEditor* projectFileEditor = dynamic_cast<ProjectFileEditor*>(ui->fileEditor->widget(idx));
+        PointsFileEditor* pointsFileEditor = dynamic_cast<PointsFileEditor*>(ui->fileEditor->widget(idx));
 
         if ( codeEditor )
         {
             m_saveChangesDialog->addFile(QIcon(":/new/icons/pythonfile.png"),
                                          tabName,
                                          codeEditor->path);
+        }
+        else if ( projectFileEditor )
+        {
+            m_saveChangesDialog->addFile(QIcon(":/new/icons/profile.png"),
+                                         tabName,
+                                         projectFileEditor->path);
+        }
+        else if ( pointsFileEditor )
+        {
+            m_saveChangesDialog->addFile(QIcon(":/new/icons/pointsfile.png"),
+                                         tabName,
+                                         pointsFileEditor->path);
         }
 
         if ( m_saveChangesDialog->exec() )
@@ -2538,6 +2816,10 @@ void MainWindow::tabCloseClicked(int idx)
 
 void MainWindow::currentTabChanged(int idx)
 {
+    QString name = ui->fileEditor->tabText(idx);
+    name = name.endsWith("*") ? name.left(name.length()-1) : name;
+    this->setWindowTitle("NWTR Robotics - " + name);
+
     if ( ui->fileEditor->currentIndex() > 0 )
         ui->actionBack->setEnabled(true);
     else

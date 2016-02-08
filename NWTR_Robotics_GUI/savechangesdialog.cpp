@@ -18,8 +18,11 @@ SaveChangesDialog::SaveChangesDialog(QWidget *parent) :
     connect(ui->doNotSaveButton,    SIGNAL(clicked(bool)),this,SLOT(doNotSave()));
 
     ui->saveButton->setStyleSheet(currentButtonTheme);
+    ui->saveButton->setMinimumWidth(60);
     ui->doNotSaveButton->setStyleSheet(currentButtonTheme);
+    ui->doNotSaveButton->setMinimumWidth(75);
     ui->cancelButton->setStyleSheet(currentButtonTheme);
+    ui->cancelButton->setMinimumWidth(50);
 }
 
 SaveChangesDialog::~SaveChangesDialog()
@@ -56,12 +59,15 @@ int SaveChangesDialog::exec()
 {
     ui->tableWidget->selectAll();
 
+    connect(ui->tableWidget->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(selectionChanged()));
+
     return QDialog::exec();
 }
 
 void SaveChangesDialog::selectionChanged()
 {
-
+    ui->saveButton->setText(tr("Save selected"));
+    ui->saveButton->setMinimumWidth(80);
 }
 
 void SaveChangesDialog::saveButtonClicked()
