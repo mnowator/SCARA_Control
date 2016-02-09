@@ -16,6 +16,7 @@
 #include "removefiledialog.h"
 #include "codeeditor.h"
 #include "reloadfilesdialog.h"
+#include "optionsdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -78,6 +79,7 @@ private:
     RenameFileDialog* m_renameFileDialog;
     RemoveFileDialog* m_removeFileDialog;
     ReloadFilesDialog* m_reloadFilesDialog;
+    OptionsDialog* m_optionsDialog;
 
     static bool lessThenTreeWidgetItem(QTreeWidgetItem* first, QTreeWidgetItem* second);
 
@@ -108,6 +110,7 @@ private slots:
     void undoClicked();
     void redoClicked();
     void closeFileClicked();
+    void optionsClicked();
 
     void deleteReloadFileDialog();
 

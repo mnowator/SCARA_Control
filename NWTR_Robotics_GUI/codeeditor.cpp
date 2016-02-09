@@ -145,6 +145,8 @@ void CodeEditor::wheelEvent(QWheelEvent *event)
     QPlainTextEdit::wheelEvent(event);
 }
 
+#include <QDebug>
+
 void CodeEditor::keyPressEvent(QKeyEvent *event)
 {
     if ( event->key() == Qt::Key_Return )
@@ -152,6 +154,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *event)
         QTextBlock textBlock = this->textCursor().block();
 
         numOfIndents = textBlock.text().count('\t');
+
+        if ( (textBlock.text()+QString(" ")).contains(QRegExp(":(\\W{1,})?$")))
+        {
+            ++numOfIndents;
+        }
 
         QPlainTextEdit::keyPressEvent(event);
 

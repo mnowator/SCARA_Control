@@ -42,7 +42,8 @@ SOURCES += \
     doublevalidator.cpp \
     lineedit.cpp \
     pointsfileeditor.cpp \
-    reloadfilesdialog.cpp
+    reloadfilesdialog.cpp \
+    optionsdialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -62,7 +63,8 @@ HEADERS += \
     doublevalidator.h \
     lineedit.h \
     pointsfileeditor.h \
-    reloadfilesdialog.h
+    reloadfilesdialog.h \
+    optionsdialog.h
 
 unix {
     target.path = /usr/lib
@@ -80,7 +82,8 @@ FORMS += \
     projectfileeditor.ui \
     scarasc1configwidget.ui \
     pointsfileeditor.ui \
-    reloadfilesdialog.ui
+    reloadfilesdialog.ui \
+    optionsdialog.ui
 
 RESOURCES += \
     resource.qrc

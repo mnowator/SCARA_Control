@@ -111,6 +111,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionUndo,                 SIGNAL(triggered(bool)),this,SLOT(undoClicked()));
     connect(ui->actionSelect_All,           SIGNAL(triggered(bool)),this,SLOT(selectAllClicked()));
     connect(ui->actionClose_File,           SIGNAL(triggered(bool)),this,SLOT(closeFileClicked()));
+    connect(ui->actionOptions,              SIGNAL(triggered(bool)),this,SLOT(optionsClicked()));
 
     connect(ui->projectExplorer, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(projectExplorerDoubleClicked(QTreeWidgetItem*,int)));
     connect(ui->projectExplorer, SIGNAL(customContextMenuRequested(QPoint)),     this,SLOT(projectExplorerContextMenuRequested(QPoint)));
@@ -1989,6 +1990,12 @@ void MainWindow::saveAsClicked(const QString &data)
 void MainWindow::closeFileClicked()
 {
     tabCloseClicked(ui->fileEditor->currentIndex());
+}
+
+void MainWindow::optionsClicked()
+{
+    m_optionsDialog = new OptionsDialog(this);
+    m_optionsDialog->show();
 }
 
 void MainWindow::deleteReloadFileDialog()
