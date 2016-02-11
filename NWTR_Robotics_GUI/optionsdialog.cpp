@@ -21,16 +21,32 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui->browseButton->setStyleSheet(currentButtonTheme);
     ui->browseButton->setMinimumWidth(50);
 
+    ui->systemGroupBox->setStyleSheet(currentGroupBoxTheme);
+    ui->userInterfaceGruopBox->setStyleSheet(currentGroupBoxTheme);
+    ui->fontGroupBox->setStyleSheet(currentGroupBoxTheme);
+
     ui->themeComboBox->setStyleSheet(currentComboBoxTheme);
     ui->languageComboBox->setStyleSheet(currentComboBoxTheme);
+    ui->fontFamilyComboBox->setStyleSheet(currentComboBoxTheme);
 
     ui->defaultProjectPathLineEdit->setStyleSheet(currentLineEditTheme);
 
     ui->tabWidget->setStyleSheet(currentTabWidgetTheme);
 
-    ui->defaultProjectPathLineEdit->setText(QDir::homePath());
-
     connect(ui->browseButton,SIGNAL(clicked(bool)),this,SLOT(browseClicked()));
+
+    QFileInfo configFile(QDir::homePath()+QString("\.NWTR Robotics\config.txt"));
+
+    if ( configFile.exists() )
+    {
+
+    }
+    else
+    {
+        ui->defaultProjectPathLineEdit->setText(QDir::homePath());
+
+
+    }
 }
 
 OptionsDialog::~OptionsDialog()
