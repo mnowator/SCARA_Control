@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets xml
+QT       += widgets xml network
 
 CONFIG += c++11
 
@@ -12,15 +12,15 @@ TARGET = NWTR_Robotics_GUI
 TEMPLATE = lib
 
 DEPENDPATH += . ../Robot_Project\
-../ScaraCommunicationLayer\
+../Communication_Layer\
 ../ScaraLogic
 
 INCLUDEPATH += ../Robot_Project\
-../ScaraCommunicationLayer\
+../Communication_Layer\
 ../ScaraLogic
 
 LIBS += -L../Robot_Project/debug -lRobot_Project\
--L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
+-L../Communication_Layer/debug -lCommunication_Layer\
 -L../ScaraLogic/debug -lScaraLogic
 
 

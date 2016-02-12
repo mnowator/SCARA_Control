@@ -4,20 +4,16 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core network widgets
 
-TARGET = ScaraCommunicationLayer
+TARGET = Communication_Layer
 TEMPLATE = lib
 
-DEFINES += SCARACOMMUNICATIONLAYER_LIBRARY
-
 SOURCES += \
-    abstractcommunicationlayer.cpp \
-    comcommunicationlayer.cpp
+    ethernetcommunicationwidget.cpp
 
 HEADERS += \
-    abstractcommunicationlayer.h \
-    comcommunicationlayer.h
+    ethernetcommunicationwidget.h
 
 unix {
     target.path = /usr/lib

@@ -16,9 +16,11 @@ EthernetTcpCommunicationConfigWidget::EthernetTcpCommunicationConfigWidget(QWidg
     ui->ipAddressLineEdit->setStyleSheet(currentLineEditTheme);
     ui->portLineEdit->setStyleSheet(currentLineEditTheme);
     ui->bytesOnCommandLineEdit->setStyleSheet(currentLineEditTheme);
+    ui->wastedBytesLineEdit->setStyleSheet(currentLineEditTheme);
 
     ui->portLineEdit->setValidator(new IntValidator(0,65500,this));
     ui->bytesOnCommandLineEdit->setValidator(new IntValidator(0,64,this));
+    ui->wastedBytesLineEdit->setValidator(new IntValidator(0,1000,this));
 
     connect(ui->ipAddressLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
     connect(ui->portLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
@@ -51,6 +53,10 @@ bool EthernetTcpCommunicationConfigWidget::populateFromDomElement(const QDomElem
     if ( !element.isNull() )
         ui->bytesOnCommandLineEdit->setText(element.text());
 
+    element = com.namedItem("WastedBytes").toElement();
+    if ( !element.isNull() )
+        ui->wastedBytesLineEdit->setText(element.text());
+
 
     return true;
 }
@@ -72,6 +78,10 @@ void EthernetTcpCommunicationConfigWidget::saveChanges(QDomDocument &dom)
 
     element = dom.createElement("BytesOnCommand").toElement();
     element.appendChild(dom.createTextNode(ui->bytesOnCommandLineEdit->text()));
+    newCom.appendChild(element);
+
+    element = dom.createElement("WastedBytes").toElement();
+    element.appendChild(dom.createTextNode(ui->wastedBytesLineEdit->text()));
     newCom.appendChild(element);
 
     newCom.setAttribute("communication_type", "Ethernet Communication (TCP/IP)");

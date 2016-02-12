@@ -4,16 +4,16 @@
 #
 #-------------------------------------------------
 
-QT       += core widgets
+QT       += core widgets network xml
 
 TARGET = Robot_Project
 TEMPLATE = lib
 
-DEPENDPATH += . ../ScaraCommunicationLayer\
+DEPENDPATH += . ../Communication_Layer\
    ../ScaraLogic
-INCLUDEPATH += ../ScaraCommunicationLayer\
+INCLUDEPATH += ../Communication_Layer\
     ../ScaraLogic
-LIBS += -L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
+LIBS += -L../Communication_Layer/debug -lCommunication_Layer\
     -L../ScaraLogic/debug -lScaraLogic
 
 SOURCES += \

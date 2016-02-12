@@ -1230,12 +1230,17 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
         elHigher.setAttribute("communication_type", communicationType);
 
         elLower = dom.createElement("AddressIP");
-        elLower.appendChild(dom.createTextNode("192.168.0.1"));
+        elLower.appendChild(dom.createTextNode("192.168.0.2"));
 
         elHigher.appendChild(elLower);
 
         elLower = dom.createElement("Port");
         elLower.appendChild(dom.createTextNode("2000"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("WastedBytes");
+        elLower.appendChild(dom.createTextNode("2"));
 
         elHigher.appendChild(elLower);
 
@@ -2374,12 +2379,50 @@ void MainWindow::openCommandPrompt(const QString &name)
 {
     foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
     {
+        QTreeWidgetItem* configFile;
         CommandPrompt* commandPrompt = new CommandPrompt();
+        QString data, configFileName;
+
+        for ( unsigned i=0; project->childCount(); ++i)
+        {
+            if ( project->child(i)->type() == ConfigType )
+            {
+                configFile = project->child(i);
+
+                break;
+            }
+        }
+
+        configFileName = configFile->text(0)<configFile->text(2)?configFile->text(0):configFile->text(2);
 
         if ( project->text(0) < project->text(2) )
-            commandPrompt->setWindowTitle(project->text(0) + " - Command Prompt");
+        {
+            data = loadFile(configFile->text(1),configFileName);
+            m_projects[project->text(0)]->populateFromString(data);
+
+            commandPrompt->setTitle(project->text(0));
+
+            connect(commandPrompt,SIGNAL(establishConnection()),m_projects[project->text(0)],SLOT(establishConnectionSlot()));
+            connect(commandPrompt,SIGNAL(dropConnection()),m_projects[project->text(0)],SLOT(dropConnectionSlot()));
+            connect(commandPrompt,SIGNAL(sendCommand(QString)),m_projects[project->text(0)],SLOT(sendCommandSlot(QString)));
+
+            connect(m_projects[project->text(0)],SIGNAL(sendProjectInfo(QString)),commandPrompt,SLOT(receiveProjectInfo(QString)));
+            connect(m_projects[project->text(0)],SIGNAL(receivedCommand(QString)),commandPrompt,SLOT(receiveCommand(QString)));
+        }
         else if ( project->text(0) > project->text(2) )
-            commandPrompt->setWindowTitle(project->text(2) + " - Command Prompt");
+        {
+            data = loadFile(configFile->text(1),configFileName);
+            m_projects[project->text(2)]->populateFromString(data);
+
+            commandPrompt->setTitle(project->text(2));
+
+            connect(commandPrompt,SIGNAL(establishConnection()),m_projects[project->text(2)],SLOT(establishConnectionSlot()));
+            connect(commandPrompt,SIGNAL(dropConnection()),m_projects[project->text(2)],SLOT(dropConnectionSlot()));
+            connect(commandPrompt,SIGNAL(sendCommand(QString)),m_projects[project->text(2)],SLOT(sendCommandSlot(QString)));
+
+            connect(m_projects[project->text(2)],SIGNAL(sendProjectInfo(QString)),commandPrompt,SLOT(receiveProjectInfo(QString)));
+            connect(m_projects[project->text(2)],SIGNAL(receivedCommand(QString)),commandPrompt,SLOT(receiveCommand(QString)));
+        }
 
         commandPrompt->show();
     }

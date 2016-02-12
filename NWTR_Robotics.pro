@@ -7,4 +7,4 @@ SUBDIRS += \
     NWTR_Robotics_GUI \
     Robot_Project \
     ScaraLogic \
-    ScaraCommunicationLayer
+    Communication_Layer

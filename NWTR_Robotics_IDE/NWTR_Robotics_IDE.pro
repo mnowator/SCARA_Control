@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,17 +13,17 @@ TEMPLATE = app
 
 DEPENDPATH += . ../NWTR_Robotics_GUI\
 ../Robot_Project\
-../ScaraCommunicationLayer\
+../Communication_Layer\
 ../ScaraLogic
 
 INCLUDEPATH += ../NWTR_Robotics_GUI\
 ../Robot_Project\
-../ScaraCommunicationLayer\
+../Communication_Layer\
 ../ScaraLogic
 
 LIBS += -L../NWTR_Robotics_GUI/debug -lNWTR_Robotics_GUI\
 -L../Robot_Project/debug -lRobot_Project\
--L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
+-L../Communication_Layer/debug -lCommunication_Layer\
 -L../ScaraLogic/debug -lScaraLogic
 
 

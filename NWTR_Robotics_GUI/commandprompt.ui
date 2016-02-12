@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>626</width>
-    <height>431</height>
+    <width>506</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,37 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="disconnectPushButton">
+         <property name="text">
+          <string>Disconnect</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="connectPushButton">
+         <property name="text">
+          <string>Connect</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <widget class="QTextEdit" name="commandPromptTextEdit">
        <property name="readOnly">
@@ -88,6 +119,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>commandLineEdit</tabstop>
+  <tabstop>sendPushButton</tabstop>
+  <tabstop>dataFormatComboBox</tabstop>
+  <tabstop>commandPromptTextEdit</tabstop>
+  <tabstop>disconnectPushButton</tabstop>
+  <tabstop>connectPushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
