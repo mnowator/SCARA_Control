@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_reloadSignalMapper    =   new QSignalMapper(this);
     m_determineUndoRedoMapper   =   new QSignalMapper(this);
     m_determineCopyCutMapper    =   new QSignalMapper(this);
+    m_openCommandPromptMapper   =   new QSignalMapper(this);
 
     m_fileSystemWatcher = new QFileSystemWatcher(this);
     connect(m_fileSystemWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
@@ -78,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_renameSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(renameClicked     (QString)));
     connect(m_openUrlMapper,        SIGNAL(mapped(QString)),this,SLOT(openUrlClicked    (QString)));
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
+    connect(m_openCommandPromptMapper,SIGNAL(mapped(QString)),this,SLOT(openCommandPrompt(QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
@@ -649,7 +651,7 @@ void MainWindow::openProjectProjectOrFile()
         }
 
         ui->projectExplorer->addTopLevelItem(project);
-        m_projects[pureFileName] = ScaraRobot();
+        m_projects[pureFileName] = new Project(this);
 
         setActiveProject(pureFileName);
         sortProjectFiles(project);
@@ -1223,6 +1225,27 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
 
         root.appendChild(elHigher);
     }
+    else if ( communicationType == "Ethernet Communication (TCP/IP)")
+    {
+        elHigher.setAttribute("communication_type", communicationType);
+
+        elLower = dom.createElement("AddressIP");
+        elLower.appendChild(dom.createTextNode("192.168.0.1"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("Port");
+        elLower.appendChild(dom.createTextNode("2000"));
+
+        elHigher.appendChild(elLower);
+
+        elLower = dom.createElement("BytesOnCommand");
+        elLower.appendChild(dom.createTextNode("16"));
+
+        elHigher.appendChild(elLower);
+
+        root.appendChild(elHigher);
+    }
 
     saveFile(projectPath+projectName,projectName+".pro",dom.toString());
 
@@ -1246,7 +1269,7 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     ui->projectExplorer->addTopLevelItem(project);
     ui->actionCloseAllProjects->setEnabled(true);
 
-    m_projects[projectName] = ScaraRobot();
+    m_projects[projectName] = new Project();
     setActiveProject(projectName);
 
     ui->projectExplorer->show();
@@ -1277,6 +1300,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* remove     = new QAction(tr("Remove"),             this);
             QAction* close      = new QAction(tr("Close"),              this);
             QAction* openInExplorer = new QAction(tr("Open in explorer"), this);
+            QAction* openCommandPrompt = new QAction(tr("Open Command Prompt"), this);
 
             saveProject ->setIcon(QIcon(":/new/icons/lc_save.png"));
             run         ->setIcon(QIcon(":/new/icons/avl02049.png"));
@@ -1292,6 +1316,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(openInExplorer);
             menu.addSeparator();
             menu.addAction(saveProject);
+            menu.addAction(openCommandPrompt);
             menu.addSeparator();
             menu.addAction(run);
             menu.addAction(pause);
@@ -1314,7 +1339,9 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             m_restartSignalMapper   ->  setMapping(restart,     item->text(0));
             m_closeSignalMapper     ->  setMapping(close,       item->text(0));
             m_saveProjectMapper     ->  setMapping(saveProject, item->text(0));
+            m_openCommandPromptMapper->setMapping(openCommandPrompt, item->text(0));
 
+            connect(openCommandPrompt,SIGNAL(triggered(bool)),m_openCommandPromptMapper,SLOT(map()));
             connect(openInExplorer, SIGNAL(triggered(bool)),m_openUrlMapper,    SLOT(map()));
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
             connect(reload,     SIGNAL(triggered(bool)),m_reloadSignalMapper,   SLOT(map()));
@@ -2340,6 +2367,21 @@ void MainWindow::saveProjectClicked(const QString &name)
                 saveClicked(child->text(0));
             }
         }
+    }
+}
+
+void MainWindow::openCommandPrompt(const QString &name)
+{
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        CommandPrompt* commandPrompt = new CommandPrompt();
+
+        if ( project->text(0) < project->text(2) )
+            commandPrompt->setWindowTitle(project->text(0) + " - Command Prompt");
+        else if ( project->text(0) > project->text(2) )
+            commandPrompt->setWindowTitle(project->text(2) + " - Command Prompt");
+
+        commandPrompt->show();
     }
 }
 

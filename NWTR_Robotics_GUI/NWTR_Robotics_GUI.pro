@@ -11,15 +11,15 @@ CONFIG += c++11
 TARGET = NWTR_Robotics_GUI
 TEMPLATE = lib
 
-DEPENDPATH += . ../ScaraRobot\
+DEPENDPATH += . ../Robot_Project\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
-INCLUDEPATH += ../ScaraRobot\
+INCLUDEPATH += ../Robot_Project\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
-LIBS += -L../ScaraRobot/debug -lScaraRobot\
+LIBS += -L../Robot_Project/debug -lRobot_Project\
 -L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
 -L../ScaraLogic/debug -lScaraLogic
 
@@ -43,7 +43,9 @@ SOURCES += \
     lineedit.cpp \
     pointsfileeditor.cpp \
     reloadfilesdialog.cpp \
-    optionsdialog.cpp
+    optionsdialog.cpp \
+    ethernettcpcommunicationconfigwidget.cpp \
+    commandprompt.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -64,7 +66,9 @@ HEADERS += \
     lineedit.h \
     pointsfileeditor.h \
     reloadfilesdialog.h \
-    optionsdialog.h
+    optionsdialog.h \
+    ethernettcpcommunicationconfigwidget.h \
+    commandprompt.h
 
 unix {
     target.path = /usr/lib
@@ -83,7 +87,9 @@ FORMS += \
     scarasc1configwidget.ui \
     pointsfileeditor.ui \
     reloadfilesdialog.ui \
-    optionsdialog.ui
+    optionsdialog.ui \
+    ethernettcpcommunicationconfigwidget.ui \
+    commandprompt.ui
 
 RESOURCES += \
     resource.qrc

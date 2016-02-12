@@ -12,17 +12,17 @@ TARGET = NWTR_Robotics_IDE
 TEMPLATE = app
 
 DEPENDPATH += . ../NWTR_Robotics_GUI\
-../ScaraRobot\
+../Robot_Project\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
 INCLUDEPATH += ../NWTR_Robotics_GUI\
-../ScaraRobot\
+../Robot_Project\
 ../ScaraCommunicationLayer\
 ../ScaraLogic
 
 LIBS += -L../NWTR_Robotics_GUI/debug -lNWTR_Robotics_GUI\
--L../ScaraRobot/debug -lScaraRobot\
+-L../Robot_Project/debug -lRobot_Project\
 -L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
 -L../ScaraLogic/debug -lScaraLogic
 

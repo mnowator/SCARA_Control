@@ -8,7 +8,7 @@
 #include <QSignalMapper>
 #include <QFileSystemWatcher>
 
-#include "scararobot.h"
+#include "project.h"
 #include "newprojectdialog.h"
 #include "newfiledialog.h"
 #include "savechangesdialog.h"
@@ -17,6 +17,7 @@
 #include "codeeditor.h"
 #include "reloadfilesdialog.h"
 #include "optionsdialog.h"
+#include "commandprompt.h"
 
 namespace Ui {
 class MainWindow;
@@ -60,6 +61,7 @@ private:
     QSignalMapper* m_openUrlMapper;
     QSignalMapper* m_determineUndoRedoMapper;
     QSignalMapper* m_determineCopyCutMapper;
+    QSignalMapper* m_openCommandPromptMapper;
 
     QFileSystemWatcher* m_fileSystemWatcher;
 
@@ -69,7 +71,7 @@ private:
     QList<CodeEditor*> m_redos;
     QList<CodeEditor*> m_undos;
 
-    QHash<QString, ScaraRobot> m_projects;
+    QHash<QString, Project*> m_projects;
 
     QString m_activeProject;
 
@@ -140,6 +142,7 @@ private slots:
     void stopClicked        (QString const& name);
     void restartClicked     (QString const& name);
     void saveProjectClicked (QString const& name);
+    void openCommandPrompt  (QString const& name);
     void openUrlClicked     (QString const& url);
 
     void registerRedoStatus (QWidget* widget);

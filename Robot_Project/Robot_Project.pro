@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core widgets
 
-TARGET = ScaraRobot
+TARGET = Robot_Project
 TEMPLATE = lib
 
 DEPENDPATH += . ../ScaraCommunicationLayer\
@@ -16,9 +16,11 @@ INCLUDEPATH += ../ScaraCommunicationLayer\
 LIBS += -L../ScaraCommunicationLayer/debug -lScaraCommunicationLayer\
     -L../ScaraLogic/debug -lScaraLogic
 
-SOURCES += scararobot.cpp
+SOURCES += \
+    project.cpp
 
-HEADERS += scararobot.h
+HEADERS += \
+    project.h
 
 unix {
     target.path = /usr/lib

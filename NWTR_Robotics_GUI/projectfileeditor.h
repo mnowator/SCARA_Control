@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "serialcommunicationconfigwidget.h"
 #include "scarasc1configwidget.h"
+#include "ethernettcpcommunicationconfigwidget.h"
 
 namespace Ui {
 class ProjectFileEditor;
@@ -32,6 +33,8 @@ private:
     QDomDocument dom;
 
     SerialCommunicationConfigWidget* serialCommunicationConfigWidget;
+    EthernetTcpCommunicationConfigWidget* ethernetTcpCommunicationConfigWidget;
+
     ScaraSC1ConfigWidget* scaraSC1ConfigWidget;
 };
 

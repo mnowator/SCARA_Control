@@ -117,6 +117,8 @@ void SerialCommunicationConfigWidget::saveChanges(QDomDocument& dom)
     element.appendChild(dom.createTextNode(ui->flowControlComboBox->currentText()));
     newCom.appendChild(element);
 
+    newCom.setAttribute("communication_type", "Serial Communication ( COM )");
+
     root.replaceChild(newCom,root.namedItem("CommunicationConfig"));
 }
 
