@@ -13,6 +13,7 @@
 #include <QCoreApplication>
 #include <QLineEdit>
 #include <QDesktopServices>
+#include <QThreadPool>
 
 #include "projectfileeditor.h"
 #include "pointsfileeditor.h"
@@ -651,7 +652,8 @@ void MainWindow::openProjectProjectOrFile()
         }
 
         ui->projectExplorer->addTopLevelItem(project);
-        m_projects[pureFileName] = new Project(this);
+
+        m_projects[pureFileName] = new Project();
 
         setActiveProject(pureFileName);
         sortProjectFiles(project);
@@ -1275,6 +1277,7 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     ui->actionCloseAllProjects->setEnabled(true);
 
     m_projects[projectName] = new Project();
+
     setActiveProject(projectName);
 
     ui->projectExplorer->show();
@@ -2341,7 +2344,48 @@ void MainWindow::removeClicked(const QString &data)
 
 void MainWindow::runClicked(const QString &name)
 {
+    saveProjectClicked(name);
 
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        QTreeWidgetItem* configFile;
+        QString data, configFileName;
+
+        for ( unsigned i=0; project->childCount(); ++i)
+        {
+            if ( project->child(i)->type() == ConfigType )
+            {
+                configFile = project->child(i);
+
+                break;
+            }
+        }
+
+        configFileName = configFile->text(0)<configFile->text(2)?configFile->text(0):configFile->text(2);
+
+        if ( project->text(0) < project->text(2) )
+        {
+            data = loadFile(configFile->text(1),configFileName);
+
+            m_projects[project->text(0)]->populateFromString(data);
+            m_projects[project->text(0)]->setAutoDelete(false);
+
+            QThreadPool::globalInstance()->start(m_projects[project->text(0)]);
+        }
+        else if ( project->text(0) > project->text(2) ) // then project is active
+        {
+            data = loadFile(configFile->text(1),configFileName);
+
+            m_projects[project->text(2)]->populateFromString(data);
+            m_projects[project->text(2)]->setAutoDelete(false);
+
+            QThreadPool::globalInstance()->start(m_projects[project->text(2)]);
+
+            ui->actionPause->setEnabled(true);
+            ui->actionStop->setEnabled(true);
+            ui->actionRestart->setEnabled(true);
+        }
+    }
 }
 
 void MainWindow::pauseClicked(const QString &name)
@@ -2369,7 +2413,7 @@ void MainWindow::saveProjectClicked(const QString &name)
 
             if ( child->text(0) > child->text(2) )
             {
-                saveClicked(child->text(0));
+                saveClicked(child->text(0)+imposibleDelimiter+child->text(1));
             }
         }
     }

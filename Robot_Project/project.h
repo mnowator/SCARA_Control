@@ -2,10 +2,11 @@
 #define PROJECT_H
 
 #include <QWidget>
+#include <QRunnable>
 
 #include "ethernetcommunicationwidget.h"
 
-class Q_DECL_EXPORT Project : public QWidget
+class Q_DECL_EXPORT Project : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
@@ -15,14 +16,15 @@ public:
         Idle,
     };
 
-    Project(QWidget *parent = 0);
+    Project(QObject *parent = 0);
 
     bool populateFromString(QString data);
     ProjectState projectState();
 
-private:
-    ProjectState m_projectState;
+    void run();
 
+private:
+    ProjectState m_projectState;    
     EthernetCommunicationWidget* m_ethernetCommunicationWidget;
 
 signals:
@@ -37,7 +39,6 @@ public slots:
     void sendCommandSlot(QString command);
     void establishConnectionSlot();
     void dropConnectionSlot();
-
 };
 
 #endif // PROJECT_H

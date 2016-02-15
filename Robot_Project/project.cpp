@@ -3,8 +3,11 @@
 #include <QDebug>
 #include <QDomDocument>
 
-Project::Project(QWidget *parent) : QWidget(parent)
+
+Project::Project(QObject *parent)
+    : QObject(parent)
 {
+
 }
 
 bool Project::populateFromString(QString data)
@@ -32,7 +35,7 @@ bool Project::populateFromString(QString data)
 
     if ( com.attribute("communication_type") == "Ethernet Communication (TCP/IP)")
     {
-        m_ethernetCommunicationWidget = new EthernetCommunicationWidget(this);
+        m_ethernetCommunicationWidget = new EthernetCommunicationWidget();
         QDomElement element;
 
         element = com.namedItem("AddressIP").toElement();
@@ -70,6 +73,15 @@ Project::ProjectState Project::projectState()
 {
     1;
 }
+void Project::run()
+{
+    for ( unsigned i=0; i<20; ++i)
+    {
+        qDebug() << i;
+
+        QThread::currentThread()->msleep(500);
+    }
+}
 
 void Project::sendCommandSlot(QString command)
 {
@@ -85,3 +97,21 @@ void Project::dropConnectionSlot()
 {
     emit dropConnectionSignal();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
