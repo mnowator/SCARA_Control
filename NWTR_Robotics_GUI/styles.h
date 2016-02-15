@@ -3,6 +3,9 @@
 
 #include <QString>
 
+extern QString connectButtonsTheme;
+extern QString disconnectButtonsTheme;
+
 extern QString currentWindowTheme;
 extern QString currentMenuBarTheme;
 extern QString currentButtonTheme;

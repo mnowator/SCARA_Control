@@ -199,6 +199,7 @@ bool PointsFileEditor::populateFromString(const QString &data)
             QPushButton* pushButton = new QPushButton(QIcon(":/new/icons/lc_quit.png"),"",this);
             removeRowMapper->setMapping(pushButton,row);
             connect(pushButton,SIGNAL(clicked(bool)),removeRowMapper,SLOT(map()));
+            connect(pushButton,SIGNAL(clicked(bool)),this,SIGNAL(contentChanged()));
             ui->tableWidget->setItem(row,4,tableWidgetItem);
             ui->tableWidget->setCellWidget(row,4,pushButton);
         }
@@ -264,6 +265,7 @@ void PointsFileEditor::addButtonClicked()
     QPushButton* pushButton = new QPushButton(QIcon(":/new/icons/lc_quit.png"),"",this);
     removeRowMapper->setMapping(pushButton,row);
     connect(pushButton,SIGNAL(clicked(bool)),removeRowMapper,SLOT(map()));
+    connect(pushButton,SIGNAL(clicked(bool)),this,SIGNAL(contentChanged()));
     ui->tableWidget->setItem(row,4,tableWidgetItem);
     ui->tableWidget->setCellWidget(row,4,pushButton);
 

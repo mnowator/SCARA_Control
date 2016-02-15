@@ -66,6 +66,11 @@ bool Project::populateFromString(QString data)
     return true;
 }
 
+Project::ProjectState Project::projectState()
+{
+    1;
+}
+
 void Project::sendCommandSlot(QString command)
 {
     emit sendCommandSignal(command);

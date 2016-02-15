@@ -8,13 +8,22 @@
 class Q_DECL_EXPORT Project : public QWidget
 {
     Q_OBJECT
-private:
-    EthernetCommunicationWidget* m_ethernetCommunicationWidget;
-
 public:
+    enum ProjectState
+    {
+        ControlledByScript,
+        Idle,
+    };
+
     Project(QWidget *parent = 0);
 
     bool populateFromString(QString data);
+    ProjectState projectState();
+
+private:
+    ProjectState m_projectState;
+
+    EthernetCommunicationWidget* m_ethernetCommunicationWidget;
 
 signals:
     void sendProjectInfo(QString info);
@@ -22,6 +31,7 @@ signals:
     void receivedCommand(QString command);
     void establishConnectionSignal();
     void dropConnectionSignal();
+    void changeState(ProjectState state);
 
 public slots:
     void sendCommandSlot(QString command);

@@ -35,7 +35,11 @@ void EthernetCommunicationWidget::setCommandBytes(const QString &commandByets)
 void EthernetCommunicationWidget::sendCommand(QString command)
 {
     if ( m_socket->state() != QAbstractSocket::ConnectedState )
+    {
+        emit sendInfo(tr("You are not connected."));
+
         return;
+    }
 
     QString preparedCommand;
     QString wastedBytes;
@@ -74,31 +78,33 @@ void EthernetCommunicationWidget::readyRead()
 
 void EthernetCommunicationWidget::connectedToHost()
 {
-    emit sendInfo(tr("Connected to host"));
+    emit sendInfo(tr("Connected to host."));
 }
 
 void EthernetCommunicationWidget::disconnectedFromHost()
 {
-    emit sendInfo(tr("Disconnected from host"));
+    emit sendInfo(tr("Disconnected from host."));
 }
 
 void EthernetCommunicationWidget::establishConnection()
 {
-    emit sendInfo(tr("Connecting to host..."));
-
-    qDebug() << m_address;
-    qDebug() << m_port;
+    emit sendInfo(tr("Connecting to host at ")+m_address+":"+m_port+"...");
 
     m_socket->connectToHost(QHostAddress(m_address), m_port.toUShort(0,10));
 
-    m_socket->waitForConnected(1000);
+    if ( !m_socket->waitForConnected(100) )
+        emit sendInfo(tr("Connection has not been established."));
 }
 
 void EthernetCommunicationWidget::dropConnection()
 {
-    m_socket->disconnectFromHost();
-
-    m_socket->waitForDisconnected(1000);
+    if ( m_socket->state() == QAbstractSocket::ConnectedState )
+    {
+        m_socket->disconnectFromHost();
+        m_socket->waitForDisconnected(100);
+    }
+    else
+        emit sendInfo(tr("You are already disconnected from host."));
 }
 
 

@@ -4,7 +4,6 @@
 #include "styles.h"
 
 #include <QStringBuilder>
-
 #include <QDebug>
 
 CommandPrompt::CommandPrompt(QWidget *parent) :
@@ -20,14 +19,16 @@ CommandPrompt::CommandPrompt(QWidget *parent) :
     ui->commandPromptTextEdit->setStyleSheet(currentCodeEditorTheme);
     ui->sendPushButton->setStyleSheet(currentButtonTheme);
     ui->sendPushButton->setMinimumWidth(70);
-    ui->connectPushButton->setStyleSheet(currentButtonTheme);
+    ui->connectPushButton->setStyleSheet(connectButtonsTheme);
     ui->connectPushButton->setMinimumWidth(80);
-    ui->disconnectPushButton->setStyleSheet(currentButtonTheme);
+    ui->disconnectPushButton->setStyleSheet(disconnectButtonsTheme);
     ui->disconnectPushButton->setMinimumWidth(80);
 
     connect(ui->sendPushButton,SIGNAL(clicked(bool)),this,SLOT(sendButtonClicked()));
     connect(ui->connectPushButton,SIGNAL(clicked(bool)),this,SLOT(connectButtonClicked()));
     connect(ui->disconnectPushButton,SIGNAL(clicked(bool)),this,SLOT(disconnectButtonClicked()));
+
+    ui->disconnectPushButton->hide();
 }
 
 CommandPrompt::~CommandPrompt()
@@ -44,9 +45,20 @@ void CommandPrompt::setTitle(QString title)
     setWindowTitle(m_title+" - Command Prompt");
 }
 
+void CommandPrompt::setProjectPointer(Project *project)
+{
+    m_project = project;
+
+    if ( project->projectState() == Project::ControlledByScript )
+    {
+        ui->connectPushButton->hide();
+        ui->disconnectPushButton->hide();
+    }
+}
+
 void CommandPrompt::receiveCommand(QString command)
 {
-    QString text = infoHTMLFormat % QString("["+m_title+"]:");
+    QString text = deviceHTMLFormat % QString("["+m_title+"]:");
 
     ui->commandPromptTextEdit->insertHtml(text);
 
@@ -57,10 +69,36 @@ void CommandPrompt::receiveCommand(QString command)
 
 void CommandPrompt::receiveProjectInfo(QString info)
 {
+    if ( info == "Connected to host.")
+    {
+        ui->connectPushButton->hide();
+        ui->disconnectPushButton->show();
+    }
+    else if ( info == "Disconnected from host.")
+    {
+        ui->connectPushButton->show();
+        ui->disconnectPushButton->hide();
+    }
+
+
     QString text = infoHTMLFormat % info;
 
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
+}
+
+void CommandPrompt::projectChangeStateSlot(Project::ProjectState state)
+{
+    if ( state == Project::ControlledByScript )
+    {
+        ui->connectPushButton->hide();
+        ui->disconnectPushButton->hide();
+    }
+    else if ( state == Project::Idle )
+    {
+        ui->connectPushButton->show();
+        ui->disconnectPushButton->show();
+    }
 }
 
 void CommandPrompt::sendButtonClicked()

@@ -2,6 +2,7 @@
 #define COMMANDPROMPT_H
 
 #include <QDialog>
+#include "project.h"
 
 namespace Ui {
 class CommandPrompt;
@@ -16,16 +17,18 @@ public:
     ~CommandPrompt();
 
     void setTitle(QString title);
+    void setProjectPointer(Project* project);
 
 private:
     Ui::CommandPrompt *ui;
 
     const QString ownTextHTMLFormat = "<font color=\"chartreuse\">";
     const QString dataHTMLFormat = "<font color=\"white\">";
-    const QString controllerHTMLFormat = "<font color=\"orange\">";
+    const QString deviceHTMLFormat = "<font color=\"orange\">";
     const QString infoHTMLFormat = "<font color=\"red\">";
 
     QString m_title;
+    Project* m_project;
 
 signals:
     void sendCommand(QString command);
@@ -35,6 +38,7 @@ signals:
 public slots:
     void receiveCommand(QString command);
     void receiveProjectInfo(QString info);
+    void projectChangeStateSlot(Project::ProjectState state);
 
 private slots:
     void sendButtonClicked();
