@@ -99,6 +99,18 @@ MainWindow::MainWindow(QWidget *parent) :
     m_reloadSignalMapper->setMapping(ui->actionReload,"current");
     connect(ui->actionReload,SIGNAL(triggered(bool)),m_reloadSignalMapper,SLOT(map()));
 
+    m_runSignalMapper->setMapping(ui->actionRun,"current");
+    connect(ui->actionRun,SIGNAL(triggered(bool)),m_runSignalMapper,SLOT(map()));
+
+    m_pauseSignalMapper->setMapping(ui->actionPause,"current");
+    connect(ui->actionPause,SIGNAL(triggered(bool)),m_pauseSignalMapper,SLOT(map()));
+
+    m_stopSignalMapper->setMapping(ui->actionStop,"current");
+    connect(ui->actionRestart,SIGNAL(triggered(bool)),m_restartSignalMapper,SLOT(map()));
+
+    m_restartSignalMapper->setMapping(ui->actionRestart,"current");
+    connect(ui->actionRestart,SIGNAL(triggered(bool)),m_restartSignalMapper,SLOT(map()));
+
     connect(ui->actionNew_Project,          SIGNAL(triggered(bool)),this,SLOT(newProjectClicked()));
     connect(ui->actionExit,                 SIGNAL(triggered(bool)),this,SLOT(exitAppClicked()));
     connect(ui->actionOpen_Project_or_File, SIGNAL(triggered(bool)),this,SLOT(openProjectProjectOrFile()));
@@ -2344,10 +2356,17 @@ void MainWindow::removeClicked(const QString &data)
 
 void MainWindow::runClicked(const QString &name)
 {
+    QString projectName = name == "current" ? m_activeProject : name;
+    unsigned column = name == "current" ? 2 : 0;
+
+    qDebug() << projectName;
+    qDebug() << column;
+
     saveProjectClicked(name);
 
-    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchCaseSensitive,column) )
     {
+        qDebug() << "kutas";
         QTreeWidgetItem* configFile;
         QString data, configFileName;
 
@@ -2371,6 +2390,8 @@ void MainWindow::runClicked(const QString &name)
             m_projects[project->text(0)]->setAutoDelete(false);
 
             QThreadPool::globalInstance()->start(m_projects[project->text(0)]);
+
+
         }
         else if ( project->text(0) > project->text(2) ) // then project is active
         {
@@ -2381,6 +2402,7 @@ void MainWindow::runClicked(const QString &name)
 
             QThreadPool::globalInstance()->start(m_projects[project->text(2)]);
 
+            ui->actionRun->setEnabled(false);
             ui->actionPause->setEnabled(true);
             ui->actionStop->setEnabled(true);
             ui->actionRestart->setEnabled(true);
