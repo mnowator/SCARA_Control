@@ -5,6 +5,7 @@
 
 #include <QStringBuilder>
 #include <QDebug>
+#include <QScrollBar>
 
 CommandPrompt::CommandPrompt(QWidget *parent) :
     QDialog(parent),
@@ -65,6 +66,9 @@ void CommandPrompt::receiveCommand(QString command)
     text = dataHTMLFormat % command;
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
+    sb->setValue(sb->maximum());
 }
 
 void CommandPrompt::receiveProjectInfo(QString info)
@@ -85,6 +89,9 @@ void CommandPrompt::receiveProjectInfo(QString info)
 
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
+    sb->setValue(sb->maximum());
 }
 
 void CommandPrompt::projectChangeStateSlot(Project::ProjectState state)
@@ -115,6 +122,9 @@ void CommandPrompt::sendButtonClicked()
     toSend = dataHTMLFormat % ui->commandLineEdit->text();
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
+    sb->setValue(sb->maximum());
 
     ui->commandLineEdit->clear();
 }
