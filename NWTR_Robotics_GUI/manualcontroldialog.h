@@ -37,12 +37,12 @@ private slots:
     void receiveProjectInfo(QString info);
 
     void on_sendPushButton_clicked();
-
     void on_homingFirstSegmentPushButon_clicked();
-
     void on_homingSecondSegmentPushButton_clicked();
-
     void on_homingThirdSegmentPushButton_clicked();
+    void on_firstSegmentSpinBox_editingFinished();
+    void on_secondSegmentSpinBox_editingFinished();
+    void on_thirdSegmentSpinBox_editingFinished();
 
 signals:
     void sendCommand(QString command);

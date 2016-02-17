@@ -73,7 +73,7 @@ void EthernetCommunicationWidget::readyRead()
     while ( m_socket->bytesAvailable())
         data += m_socket->readAll();
 
-    emit pushCommand(data);
+    emit pushCommand(data.right(m_commandBytes-m_wastedBytes));
 }
 
 void EthernetCommunicationWidget::connectedToHost()
@@ -101,7 +101,8 @@ void EthernetCommunicationWidget::dropConnection()
     if ( m_socket->state() == QAbstractSocket::ConnectedState )
     {
         m_socket->disconnectFromHost();
-        m_socket->waitForDisconnected(100);
+
+        if (m_socket->state() == QAbstractSocket::UnconnectedState || m_socket->waitForDisconnected(1000));
     }
     else
         emit sendInfo(tr("You are already disconnected from host."));

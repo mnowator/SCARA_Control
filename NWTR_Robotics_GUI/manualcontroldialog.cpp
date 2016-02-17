@@ -29,9 +29,11 @@ ManualControlDialog::ManualControlDialog(QWidget *parent) :
 
     ui->sendPushButton->setStyleSheet(currentButtonTheme);
     ui->savePointPushButton->setStyleSheet(currentButtonTheme);
+
     ui->homingFirstSegmentPushButon->setStyleSheet(currentButtonTheme);
     ui->homingSecondSegmentPushButton->setStyleSheet(currentButtonTheme);
     ui->homingThirdSegmentPushButton->setStyleSheet(currentButtonTheme);
+
     ui->connectPushButton->setStyleSheet(connectButtonsTheme);
     ui->disconnectPushButton->setStyleSheet(disconnectButtonsTheme);
 
@@ -45,6 +47,8 @@ ManualControlDialog::ManualControlDialog(QWidget *parent) :
     ui->moveJogRightFirstSegmentPushButton->setStyleSheet(moveButtonsTheme);
     ui->moveJogLeftSecondSegmentPushButton->setStyleSheet(moveButtonsTheme);
     ui->moveJogRightSecondSegmentPushButton->setStyleSheet(moveButtonsTheme);
+
+    ui->commandPromptTextEdit->setStyleSheet(currentCodeEditorTheme);
 
     ui->pickNPlacePushButton->setStyleSheet(connectButtonsTheme);
     ui->pickNPlacePushButton->setText("Pick");
@@ -114,13 +118,13 @@ void ManualControlDialog::on_moveJogLeftFirstSegmentPushButton_released()
 
 void ManualControlDialog::on_moveJogRightFirstSegmentPushButton_pressed()
 {
-    emit sendCommand(QString("MJRM2"));
+    emit sendCommand(QString("MJPM2"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
-    toSend = dataHTMLFormat % QString("MJRM2");
+    toSend = dataHTMLFormat % QString("MJPM2");
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
@@ -182,13 +186,13 @@ void ManualControlDialog::on_moveJogLeftSecondSegmentPushButton_released()
 
 void ManualControlDialog::on_moveJogRightSecondSegmentPushButton_pressed()
 {
-    emit sendCommand(QString("MJRM3"));
+    emit sendCommand(QString("MJPM3"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
-    toSend = dataHTMLFormat % QString("MJRM3");
+    toSend = dataHTMLFormat % QString("MJPM3");
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
@@ -250,13 +254,13 @@ void ManualControlDialog::on_zPlusPushButton_pressed()
 
 void ManualControlDialog::on_zMinusPushButton_pressed()
 {
-    emit sendCommand(QString("MJRM4"));
+    emit sendCommand(QString("MJPM4"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
-    toSend = dataHTMLFormat % QString("MJRM4");
+    toSend = dataHTMLFormat % QString("MJPM4");
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
@@ -284,6 +288,19 @@ void ManualControlDialog::on_zMinusPushButton_released()
 
 void ManualControlDialog::receiveCommand(QString command)
 {
+    if ( command.contains("HOMING_M2_DONE"))
+    {
+        ui->homingFirstSegmentPushButon->setStyleSheet(currentButtonTheme);
+    }
+    else if( command.contains("HOMING_M3_DONE"))
+    {
+        ui->homingSecondSegmentPushButton->setStyleSheet(currentButtonTheme);
+    }
+    else if ( command.contains("HOMING_M4_DONE"))
+    {
+        ui->homingThirdSegmentPushButton->setStyleSheet(currentButtonTheme);
+    }
+
     QString text = deviceHTMLFormat % QString("["+m_title+"]:");
 
     ui->commandPromptTextEdit->insertHtml(text);
@@ -309,7 +326,6 @@ void ManualControlDialog::receiveProjectInfo(QString info)
         ui->connectPushButton->show();
         ui->disconnectPushButton->hide();
     }
-
 
     QString text = infoHTMLFormat % info;
 
@@ -347,6 +363,8 @@ void ManualControlDialog::on_homingFirstSegmentPushButon_clicked()
 {
     emit sendCommand(QString("HOMINGM2"));
 
+    ui->homingFirstSegmentPushButon->setStyleSheet(connectButtonsTheme);
+
     QString toSend = ownTextHTMLFormat % ">>> ";
 
     ui->commandPromptTextEdit->insertHtml(toSend);
@@ -363,6 +381,8 @@ void ManualControlDialog::on_homingFirstSegmentPushButon_clicked()
 void ManualControlDialog::on_homingSecondSegmentPushButton_clicked()
 {
     emit sendCommand(QString("HOMINGM3"));
+
+    ui->homingSecondSegmentPushButton->setStyleSheet(connectButtonsTheme);
 
     QString toSend = ownTextHTMLFormat % ">>> ";
 
@@ -381,6 +401,8 @@ void ManualControlDialog::on_homingThirdSegmentPushButton_clicked()
 {
     emit sendCommand(QString("HOMINGM4"));
 
+    ui->homingThirdSegmentPushButton->setStyleSheet(connectButtonsTheme);
+
     QString toSend = ownTextHTMLFormat % ">>> ";
 
     ui->commandPromptTextEdit->insertHtml(toSend);
@@ -393,3 +415,75 @@ void ManualControlDialog::on_homingThirdSegmentPushButton_clicked()
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
+
+void ManualControlDialog::on_firstSegmentSpinBox_editingFinished()
+{
+    emit sendCommand("VM2"+QString::number(ui->firstSegmentSpinBox->value()));
+
+    QString toSend = ownTextHTMLFormat % ">>> ";
+
+    ui->commandPromptTextEdit->insertHtml(toSend);
+
+    toSend = dataHTMLFormat % ("VM2"+QString::number(ui->firstSegmentSpinBox->value()));
+    ui->commandPromptTextEdit->insertHtml(toSend);
+    ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
+}
+
+void ManualControlDialog::on_secondSegmentSpinBox_editingFinished()
+{
+    emit sendCommand("VM3"+QString::number(ui->secondSegmentSpinBox->value()));
+
+    QString toSend = ownTextHTMLFormat % ">>> ";
+
+    ui->commandPromptTextEdit->insertHtml(toSend);
+
+    toSend = dataHTMLFormat % ("VM3"+QString::number(ui->secondSegmentSpinBox->value()));
+    ui->commandPromptTextEdit->insertHtml(toSend);
+    ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
+}
+
+void ManualControlDialog::on_thirdSegmentSpinBox_editingFinished()
+{
+    emit sendCommand("VM4"+QString::number(ui->thirdSegmentSpinBox->value()));
+
+    QString toSend = ownTextHTMLFormat % ">>> ";
+
+    ui->commandPromptTextEdit->insertHtml(toSend);
+
+    toSend = dataHTMLFormat % ("VM4"+QString::number(ui->thirdSegmentSpinBox->value()));
+    ui->commandPromptTextEdit->insertHtml(toSend);
+    ui->commandPromptTextEdit->insertPlainText("\n");
+
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
