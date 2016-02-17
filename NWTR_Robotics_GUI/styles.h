@@ -5,6 +5,7 @@
 
 extern QString connectButtonsTheme;
 extern QString disconnectButtonsTheme;
+extern QString moveButtonsTheme;
 
 extern QString currentWindowTheme;
 extern QString currentMenuBarTheme;

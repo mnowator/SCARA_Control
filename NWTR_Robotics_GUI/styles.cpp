@@ -39,6 +39,8 @@ QString darkButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radi
 
 QString connectButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; background-color: green; }";
 QString disconnectButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; background-color: darkred; }";
+QString moveButtonsTheme = "QPushButton { border: 2px solid #8f8f91; border-radius: 3px; height: 30px; background-color: rgb(60, 63, 65); }"
+        "QPushButton:pressed { background-color: green;}";
 
 QString darkLineEditTheme = "QLineEdit {"
                             "border: 2px solid #8f8f91;"

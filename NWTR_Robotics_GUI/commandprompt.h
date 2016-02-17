@@ -17,7 +17,6 @@ public:
     ~CommandPrompt();
 
     void setTitle(QString title);
-    void setProjectPointer(Project* project);
 
 private:
     Ui::CommandPrompt *ui;
@@ -28,7 +27,6 @@ private:
     const QString infoHTMLFormat = "<font color=\"red\">";
 
     QString m_title;
-    Project* m_project;
 
 signals:
     void sendCommand(QString command);

@@ -45,7 +45,8 @@ SOURCES += \
     reloadfilesdialog.cpp \
     optionsdialog.cpp \
     ethernettcpcommunicationconfigwidget.cpp \
-    commandprompt.cpp
+    commandprompt.cpp \
+    manualcontroldialog.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -68,7 +69,8 @@ HEADERS += \
     reloadfilesdialog.h \
     optionsdialog.h \
     ethernettcpcommunicationconfigwidget.h \
-    commandprompt.h
+    commandprompt.h \
+    manualcontroldialog.h
 
 unix {
     target.path = /usr/lib
@@ -89,7 +91,8 @@ FORMS += \
     reloadfilesdialog.ui \
     optionsdialog.ui \
     ethernettcpcommunicationconfigwidget.ui \
-    commandprompt.ui
+    commandprompt.ui \
+    manualcontroldialog.ui
 
 RESOURCES += \
     resource.qrc

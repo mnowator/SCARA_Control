@@ -18,6 +18,7 @@
 #include "reloadfilesdialog.h"
 #include "optionsdialog.h"
 #include "commandprompt.h"
+#include "manualcontroldialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -62,6 +63,7 @@ private:
     QSignalMapper* m_determineUndoRedoMapper;
     QSignalMapper* m_determineCopyCutMapper;
     QSignalMapper* m_openCommandPromptMapper;
+    QSignalMapper* m_openManualControl;
 
     QFileSystemWatcher* m_fileSystemWatcher;
 
@@ -82,6 +84,7 @@ private:
     RemoveFileDialog* m_removeFileDialog;
     ReloadFilesDialog* m_reloadFilesDialog;
     OptionsDialog* m_optionsDialog;
+    ManualControlDialog* m_manualControlDialog;
 
     static bool lessThenTreeWidgetItem(QTreeWidgetItem* first, QTreeWidgetItem* second);
 
@@ -143,6 +146,7 @@ private slots:
     void restartClicked     (QString const& name);
     void saveProjectClicked (QString const& name);
     void openCommandPrompt  (QString const& name);
+    void openManualControl  (QString const& name);
     void openUrlClicked     (QString const& url);
 
     void registerRedoStatus (QWidget* widget);

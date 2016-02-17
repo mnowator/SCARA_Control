@@ -46,17 +46,6 @@ void CommandPrompt::setTitle(QString title)
     setWindowTitle(m_title+" - Command Prompt");
 }
 
-void CommandPrompt::setProjectPointer(Project *project)
-{
-    m_project = project;
-
-    if ( project->projectState() == Project::ControlledByScript )
-    {
-        ui->connectPushButton->hide();
-        ui->disconnectPushButton->hide();
-    }
-}
-
 void CommandPrompt::receiveCommand(QString command)
 {
     QString text = deviceHTMLFormat % QString("["+m_title+"]:");
@@ -67,8 +56,9 @@ void CommandPrompt::receiveCommand(QString command)
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
-    sb->setValue(sb->maximum());
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 }
 
 void CommandPrompt::receiveProjectInfo(QString info)
@@ -90,8 +80,9 @@ void CommandPrompt::receiveProjectInfo(QString info)
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
-    sb->setValue(sb->maximum());
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 }
 
 void CommandPrompt::projectChangeStateSlot(Project::ProjectState state)
@@ -123,8 +114,9 @@ void CommandPrompt::sendButtonClicked()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QScrollBar* sb = ui->commandPromptTextEdit->verticalScrollBar();
-    sb->setValue(sb->maximum());
+    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandLineEdit->clear();
 }

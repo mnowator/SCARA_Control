@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_determineUndoRedoMapper   =   new QSignalMapper(this);
     m_determineCopyCutMapper    =   new QSignalMapper(this);
     m_openCommandPromptMapper   =   new QSignalMapper(this);
+    m_openManualControl     = new QSignalMapper(this);
 
     m_fileSystemWatcher = new QFileSystemWatcher(this);
     connect(m_fileSystemWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
@@ -81,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_openUrlMapper,        SIGNAL(mapped(QString)),this,SLOT(openUrlClicked    (QString)));
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
     connect(m_openCommandPromptMapper,SIGNAL(mapped(QString)),this,SLOT(openCommandPrompt(QString)));
+    connect(m_openManualControl,    SIGNAL(mapped(QString)),this,SLOT(openManualControl(QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
@@ -1321,6 +1323,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             QAction* close      = new QAction(tr("Close"),              this);
             QAction* openInExplorer = new QAction(tr("Open in explorer"), this);
             QAction* openCommandPrompt = new QAction(tr("Open Command Prompt"), this);
+            QAction* openManualControl = new QAction(tr("Manual Control"), this);
 
             saveProject ->setIcon(QIcon(":/new/icons/lc_save.png"));
             run         ->setIcon(QIcon(":/new/icons/avl02049.png"));
@@ -1337,6 +1340,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addSeparator();
             menu.addAction(saveProject);
             menu.addAction(openCommandPrompt);
+            menu.addAction(openManualControl);
             menu.addSeparator();
             menu.addAction(run);
             menu.addAction(pause);
@@ -1347,6 +1351,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             menu.addAction(remove);
             menu.addAction(close);
 
+            m_openManualControl->setMapping(openManualControl,item->text(0));
             m_openUrlMapper         ->  setMapping(openInExplorer,item->text(1));
             m_setActiveMapper       ->  setMapping(setActive,   item->text(0));
             m_reloadSignalMapper    ->  setMapping(reload,      item->text(0));
@@ -1361,6 +1366,7 @@ void MainWindow::projectExplorerContextMenuRequested(const QPoint &pos)
             m_saveProjectMapper     ->  setMapping(saveProject, item->text(0));
             m_openCommandPromptMapper->setMapping(openCommandPrompt, item->text(0));
 
+            connect(openManualControl,SIGNAL(triggered(bool)),m_openManualControl,SLOT(map()));
             connect(openCommandPrompt,SIGNAL(triggered(bool)),m_openCommandPromptMapper,SLOT(map()));
             connect(openInExplorer, SIGNAL(triggered(bool)),m_openUrlMapper,    SLOT(map()));
             connect(setActive,  SIGNAL(triggered(bool)),m_setActiveMapper,      SLOT(map()));
@@ -2491,6 +2497,59 @@ void MainWindow::openCommandPrompt(const QString &name)
         }
 
         commandPrompt->show();
+    }
+}
+
+void MainWindow::openManualControl(const QString &name)
+{
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        QTreeWidgetItem* configFile;
+        ManualControlDialog* manualControlDialog = new ManualControlDialog();
+        QString data, configFileName;
+
+        for ( unsigned i=0; project->childCount(); ++i)
+        {
+            if ( project->child(i)->type() == ConfigType )
+            {
+                configFile = project->child(i);
+
+                break;
+            }
+        }
+
+        configFileName = configFile->text(0)<configFile->text(2)?configFile->text(0):configFile->text(2);
+
+        if ( project->text(0) < project->text(2) )
+        {
+            data = loadFile(configFile->text(1),configFileName);
+            m_projects[project->text(0)]->populateFromString(data);
+
+            manualControlDialog->setTitle(project->text(0));
+
+            connect(manualControlDialog,SIGNAL(establishConnection()),m_projects[project->text(0)],SLOT(establishConnectionSlot()));
+            connect(manualControlDialog,SIGNAL(dropConnection()),m_projects[project->text(0)],SLOT(dropConnectionSlot()));
+            connect(manualControlDialog,SIGNAL(sendCommand(QString)),m_projects[project->text(0)],SLOT(sendCommandSlot(QString)));
+
+            connect(m_projects[project->text(0)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
+            connect(m_projects[project->text(0)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+        }
+        else if ( project->text(0) > project->text(2) )
+        {
+            data = loadFile(configFile->text(1),configFileName);
+            m_projects[project->text(2)]->populateFromString(data);
+
+            manualControlDialog->setTitle(project->text(2));
+
+            connect(manualControlDialog,SIGNAL(establishConnection()),m_projects[project->text(2)],SLOT(establishConnectionSlot()));
+            connect(manualControlDialog,SIGNAL(dropConnection()),m_projects[project->text(2)],SLOT(dropConnectionSlot()));
+            connect(manualControlDialog,SIGNAL(sendCommand(QString)),m_projects[project->text(2)],SLOT(sendCommandSlot(QString)));
+
+            connect(m_projects[project->text(2)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
+            connect(m_projects[project->text(2)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+        }
+
+        manualControlDialog->show();
     }
 }
 
