@@ -6,6 +6,26 @@ ScaraLogic::ScaraLogic()
 {
 }
 
+void ScaraLogic::computePositionBySteps(unsigned firstMotorSteps, unsigned secondMotorSteps, unsigned thirdMotorSteps)
+{
+
+}
+
+//void ScaraLogic::computeAnglePerStepMotor1()
+//{
+//    m_motor1anglePerStep = (180+m_firstSegmentCWLimitAngle+m_firstSegmentCCWLimitAngle)/m_motor1maxSteps;
+//}
+
+//void ScaraLogic::computeAnglePerStepMotor2()
+//{
+//    m_motor2anglePerStep = (180+m_secondSegmentCWLimitAngle+m_secondSegmentCCWLimitAngle)/m_motor2maxSteps;
+//}
+
+//void ScaraLogic::computeDistancePerStepMotor3()
+//{
+//    m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/m_motor3maxSteps;
+//}
+
 void ScaraLogic::setFirstSegmentLength(double length)
 {
     if ( length < MIN_FIRST_SEGMENT_LENGTH )
@@ -28,9 +48,6 @@ void ScaraLogic::setThirdSegmentLength(double length)
         throw Exception(QObject::tr("Third segment length is less than min value."));
 
     m_thirdSegmentLength = length;
-
-    if ( m_motor3maxSteps != 0 )
-        m_motor3distPerStep = m_thirdSegmentLength / m_motor3maxSteps;
 }
 
 void ScaraLogic::setCorrectionValue(double length)
@@ -38,73 +55,56 @@ void ScaraLogic::setCorrectionValue(double length)
     m_correctionValue = length;
 }
 
+void ScaraLogic::setDistanceBetweenTwoLimitsOnZ(double length)
+{
+    m_distanceBetweenTwoLimitsOnZ = length;
+}
+
 void ScaraLogic::setFirstSegmentCWLimitAngle(double angle)
 {
-    m_firstSegmentBeginLimitAngle = std::fmod(angle, 360.0);
-
-    if (m_motor1maxSteps !=0)
-        m_motor1anglePerStep = std::abs(m_firstSegmentBeginLimitAngle-m_firstSegmentEndLimitAngle)/m_motor1maxSteps;
+    m_firstSegmentCWLimitAngle = std::fmod(angle, 360.0);
 }
 
 void ScaraLogic::setFirstSegmentCCWLimitAngle(double angle)
 {
-    m_firstSegmentEndLimitAngle = std::fmod(angle, 360.0);
-
-    if (m_motor1maxSteps !=0)
-        m_motor1anglePerStep = std::abs(m_firstSegmentBeginLimitAngle-m_firstSegmentEndLimitAngle)/m_motor1maxSteps;
+    m_firstSegmentCCWLimitAngle = std::fmod(angle, 360.0);
 }
 
 void ScaraLogic::setSecondSegmentCWLimitAngle(double angle)
 {
-    m_secondSegmentBeginLimitAngle = std::fmod(angle, 360.0);
-
-    if (m_motor2maxSteps !=0)
-        m_motor2anglePerStep = std::abs(m_secondSegmentBeginLimitAngle-m_secondSegmentEndLimitAngle)/m_motor2maxSteps;
+    m_secondSegmentCWLimitAngle = std::fmod(angle, 360.0);;
 }
 
 void ScaraLogic::setSecondSegmentCCWLimitAngle(double angle)
 {
-    m_secondSegmentEndLimitAngle = std::fmod(angle, 360.0);
-
-    if (m_motor2maxSteps !=0)
-        m_motor2anglePerStep = std::abs(m_secondSegmentBeginLimitAngle-m_secondSegmentEndLimitAngle)/m_motor2maxSteps;
+    m_secondSegmentCCWLimitAngle = std::fmod(angle, 360.0);
 }
 
-void ScaraLogic::setSyncFreq(unsigned freq)
+void ScaraLogic::setMotor1maxSteps(unsigned steps)
 {
-    if ( freq == 0 )
-        throw Exception(QObject::tr("Sync frequency cannot be equal to 0."));
-
-    m_syncFreq = freq;
+    m_motor1maxSteps = steps;
 }
 
-void ScaraLogic::setMotor1maxFreq(unsigned freq)
+void ScaraLogic::setMotor2maxSteps(unsigned steps)
 {
-    if ( freq == 0 )
-        throw Exception(QObject::tr("Motor1 frequency cannot be equal to 0."));
-
-    m_motor1maxFreq = freq;
-    m_motor1timePerStep = 1/m_motor1maxFreq;
+    m_motor2maxSteps = steps;
 }
 
-void ScaraLogic::setMotor2maxFreq(unsigned freq)
+void ScaraLogic::setMotor3maxSteps(unsigned steps)
 {
-    if ( freq == 0 )
-        throw Exception(QObject::tr("Motor2 frequency cannot be equal to 0."));
+    m_motor3maxSteps = steps;
 
-    m_motor2maxFreq = freq;
-    m_motor1timePerStep = 1/m_motor1maxFreq;
 }
 
-void ScaraLogic::setMotor3maxFreq(unsigned freq)
+void ScaraLogic::setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION so)
 {
-    if ( freq == 0 )
-        throw Exception(QObject::tr("Motor3 frequency cannot be equal to 0."));
-
-    m_motor3maxFreq = freq;
-    m_motor1timePerStep = 1/m_motor1maxFreq;
+    m_motor1SwitchOrientation = so;
 }
 
+void ScaraLogic::setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION so)
+{
+    m_motor2SwitchOrientation = so;
+}
 
 double ScaraLogic::getFirstSegmentLength() const
 {
@@ -121,44 +121,29 @@ double ScaraLogic::getThirdSegmentLength() const
     return m_thirdSegmentLength;
 }
 
+double ScaraLogic::getDistanceBetweenTwoLimitsOnZ() const
+{
+    return m_distanceBetweenTwoLimitsOnZ;
+}
+
 double ScaraLogic::getFirstSegmentBeginLimitAngle() const
 {
-    return m_firstSegmentBeginLimitAngle;
+    return m_firstSegmentCWLimitAngle;
 }
 
 double ScaraLogic::getFirstSegmentEndLimitAngle() const
 {
-    return m_firstSegmentEndLimitAngle;
+    return m_firstSegmentCCWLimitAngle;
 }
 
 double ScaraLogic::getSecondSegmentBeginLimitAngle() const
 {
-    return m_secondSegmentBeginLimitAngle;
+    return m_secondSegmentCWLimitAngle;
 }
 
 double ScaraLogic::getSecondegmentEndLimitAngle() const
 {
-    return m_secondSegmentEndLimitAngle;
-}
-
-unsigned ScaraLogic::getSyncFreq() const
-{
-    return m_syncFreq;
-}
-
-unsigned ScaraLogic::getMotor1maxFreq() const
-{
-    return m_motor1maxFreq;
-}
-
-unsigned ScaraLogic::getMotor2maxFreq() const
-{
-    return m_motor2maxFreq;
-}
-
-unsigned ScaraLogic::getMotor3maxFreq() const
-{
-    return m_motor3maxFreq;
+    return m_secondSegmentCCWLimitAngle;
 }
 
 unsigned ScaraLogic::getMotor1maxSteps() const

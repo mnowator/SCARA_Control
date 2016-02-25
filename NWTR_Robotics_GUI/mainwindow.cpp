@@ -2414,9 +2414,6 @@ void MainWindow::runClicked(const QString &name)
     QString projectName = name == "current" ? m_activeProject : name;
     unsigned column = name == "current" ? 2 : 0;
 
-    qDebug() << projectName;
-    qDebug() << column;
-
     saveProjectClicked(name);
 
     foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchCaseSensitive,column) )
@@ -2444,7 +2441,9 @@ void MainWindow::runClicked(const QString &name)
             m_projects[project->text(0)]->populateFromString(data);
             m_projects[project->text(0)]->setAutoDelete(false);
 
-            QThreadPool::globalInstance()->start(m_projects[project->text(0)]);
+            m_projects[project->text(0)]->run();
+
+            //QThreadPool::globalInstance()->start(m_projects[project->text(0)]);
 
 
         }
@@ -2455,7 +2454,9 @@ void MainWindow::runClicked(const QString &name)
             m_projects[project->text(2)]->populateFromString(data);
             m_projects[project->text(2)]->setAutoDelete(false);
 
-            QThreadPool::globalInstance()->start(m_projects[project->text(2)]);
+            m_projects[project->text(2)]->run();
+
+//          QThreadPool::globalInstance()->start(m_projects[project->text(2)]);
 
             ui->actionRun->setEnabled(false);
             ui->actionPause->setEnabled(true);

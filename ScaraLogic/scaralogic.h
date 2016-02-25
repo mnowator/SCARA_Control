@@ -6,26 +6,34 @@
 
 class Q_DECL_EXPORT ScaraLogic
 {
+public:
+    enum SWITCH_ORIENTATION
+    {
+        CW,
+        CCW,
+    };
 private:
     const double MIN_FIRST_SEGMENT_LENGTH = 10;
     const double MIN_SECOND_SEGMENT_LENGTH = 10;
     const double MIN_THIRD_SEGMENT_LENGTH = 10;
+
+    double m_x;
+    double m_y;
+    double m_z;
 
     double m_firstSegmentLength;
     double m_secondSegmentLength;
     double m_thirdSegmentLength;
     double m_correctionValue;
 
-    double m_firstSegmentBeginLimitAngle;
-    double m_firstSegmentEndLimitAngle;
+    double m_distanceBetweenTwoLimitsOnZ;
 
-    double m_secondSegmentBeginLimitAngle;
-    double m_secondSegmentEndLimitAngle;
+    double m_firstSegmentCWLimitAngle;
+    double m_firstSegmentCCWLimitAngle;
 
-    unsigned m_syncFreq;
-    unsigned m_motor1maxFreq;
-    unsigned m_motor2maxFreq;
-    unsigned m_motor3maxFreq;
+    double m_secondSegmentCWLimitAngle;
+    double m_secondSegmentCCWLimitAngle;
+
     unsigned m_motor1maxSteps;
     unsigned m_motor2maxSteps;
     unsigned m_motor3maxSteps;
@@ -34,9 +42,8 @@ private:
     double m_motor2anglePerStep;
     double m_motor3distPerStep;
 
-    double m_motor1timePerStep;
-    double m_motor2timePerStep;
-    double m_motor3timePerStep;
+    SWITCH_ORIENTATION m_motor1SwitchOrientation;
+    SWITCH_ORIENTATION m_motor2SwitchOrientation;
 
 public:
     ScaraLogic();
@@ -65,10 +72,18 @@ public:
         }
     };
 
+    void computePositionBySteps(unsigned firstMotorSteps, unsigned secondMotorSteps, unsigned thirdMotorSteps);
+
+    void motor1Homed();
+    void motor2Homed();
+    void motor3Homed();
+
     void setFirstSegmentLength(double length);
     void setSecondSegmentLength(double length);
     void setThirdSegmentLength(double length);
     void setCorrectionValue(double length);
+
+    void setDistanceBetweenTwoLimitsOnZ(double length);
 
     void setFirstSegmentCWLimitAngle(double angle);
     void setFirstSegmentCCWLimitAngle(double angle);
@@ -76,37 +91,30 @@ public:
     void setSecondSegmentCWLimitAngle(double angle);
     void setSecondSegmentCCWLimitAngle(double angle);
 
-    void setSyncFreq(unsigned freq);
-
-    void setMotor1maxFreq(unsigned freq);
-    void setMotor2maxFreq(unsigned freq);
-    void setMotor3maxFreq(unsigned freq);
-
     void setMotor1maxSteps(unsigned steps);
     void setMotor2maxSteps(unsigned steps);
     void setMotor3maxSteps(unsigned steps);
 
+    void setMotor1HomingSwitchOrientation(SWITCH_ORIENTATION so);
+    void setMotor2HomingSwitchOrientation(SWITCH_ORIENTATION so);
 
     double getFirstSegmentLength() const;
     double getSecondSegmentLength() const;
     double getThirdSegmentLength() const;
     double getCorrectionValue() const;
 
+    double getDistanceBetweenTwoLimitsOnZ() const;
+
     double getFirstSegmentBeginLimitAngle() const;
     double getFirstSegmentEndLimitAngle() const;
-
     double getSecondSegmentBeginLimitAngle() const;
     double getSecondegmentEndLimitAngle() const;
-
-    unsigned getSyncFreq() const;
-
-    unsigned getMotor1maxFreq() const;
-    unsigned getMotor2maxFreq() const;
-    unsigned getMotor3maxFreq() const;
 
     unsigned getMotor1maxSteps() const;
     unsigned getMotor2maxSteps() const;
     unsigned getMotor3maxSteps() const;
+
+
 };
 
 #endif // SCARALOGIC_H

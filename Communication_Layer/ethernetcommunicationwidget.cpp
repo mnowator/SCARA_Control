@@ -64,6 +64,7 @@ void EthernetCommunicationWidget::sendCommand(QString command)
     }
 
     m_socket->write(preparedCommand.toStdString().c_str());
+    m_socket->flush();
 }
 
 void EthernetCommunicationWidget::readyRead()

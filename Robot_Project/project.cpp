@@ -31,60 +31,97 @@ bool Project::populateFromString(QString data)
         m_scaraLogic = new ScaraLogic();
         QDomElement element;
 
-        element = com.namedItem("LengthOfFirstSegment").toElement();
+        element = root.namedItem("LengthOfFirstSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setFirstSegmentLength(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("LengthOfSecondSegment").toElement();
+        element = root.namedItem("LengthOfSecondSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setSecondSegmentLength(element.text());
+            m_scaraLogic->setSecondSegmentLength(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("CorrectionValue").toElement();
+        element = root.namedItem("CorrectionValue").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setCorrectionValue(element.text());
+            m_scaraLogic->setCorrectionValue(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("FirstSegmentAngleOnCw").toElement();
+        element = root.namedItem("FirstSegmentAngleOnCw").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentCWLimitAngle(element.text());
+            m_scaraLogic->setFirstSegmentCWLimitAngle(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("FirstSegmentAngleOnCCW").toElement();
+        element = root.namedItem("FirstSegmentAngleOnCCW").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentCCWLimitAngle(element.text());
+            m_scaraLogic->setFirstSegmentCCWLimitAngle(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("NumberOfStepsForFirstSegment").toElement();
+        element = root.namedItem("NumberOfStepsForFirstSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->set(element.text());
+            m_scaraLogic->setMotor1maxSteps(element.text().toUInt());
         else return false;
 
-        element = com.namedItem("SecondSegmentAngleOnCw").toElement();
+        element = root.namedItem("SecondSegmentAngleOnCw").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setSecondSegmentCWLimitAngle(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("NumberOfStepsForSecondSegment").toElement();
+        element = root.namedItem("SecondSegmentAngleOnCCW").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setSecondSegmentCCWLimitAngle(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("DistanceBetweenTwoLimtsOnZ").toElement();
+        element = root.namedItem("NumberOfStepsForSecondSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setMotor2maxSteps(element.text().toUInt());
         else return false;
 
-        element = com.namedItem("NumberOfStepsBetweenLimitsOnZ").toElement();
+        element = root.namedItem("LengthOfThirdSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setThirdSegmentLength(element.text().toDouble());
         else return false;
 
-        element = com.namedItem("FirstSegmentAngleOnCCW").toElement();
+        element = root.namedItem("DistanceBetweenTwoLimtsOnZ").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text());
+            m_scaraLogic->setDistanceBetweenTwoLimitsOnZ(element.text().toDouble());
         else return false;
+
+        element = root.namedItem("NumberOfStepsBetweenLimitsOnZ").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setMotor3maxSteps(element.text().toDouble());
+        else return false;
+
+//        element = root.namedItem("FirstSegmentBeginOn").toElement();
+//        if ( !element.isNull() )
+//        {
+//            if ( element.text() == "CW" )
+//            {
+//                m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+//            }
+//            else if ( element.text() == "CCW" )
+//            {
+//                m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+//            }
+//        }
+//        else return false;
+
+//        element = root.namedItem("SecondSegmentBeginOn").toElement();
+//        if ( !element.isNull() )
+//        {
+//            if ( element.text() == "CW" )
+//            {
+//                m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+//            }
+//            else if ( element.text() == "CCW" )
+//            {
+//                m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+//            }
+//        }
+//        else return false;
+
+//        m_scaraLogic->computeAnglePerStepMotor1();
+//        m_scaraLogic->computeAnglePerStepMotor2();
+//        m_scaraLogic->computeDistancePerStepMotor3();
     }
     else
         return false;
@@ -146,12 +183,29 @@ void Project::setProjectState(Project::ProjectState const& state)
 
 void Project::run()
 {
-    for ( unsigned i=0; i<20; ++i)
+    m_ethernetCommunicationWidget->establishConnection();
+
+    for ( unsigned i=0; i<5; ++i)
     {
         qDebug() << i;
 
-        QThread::currentThread()->msleep(500);
+        m_ethernetCommunicationWidget->sendCommand("ABM2-3785");
+        m_ethernetCommunicationWidget->sendCommand("ABM33860");
+        QThread::currentThread()->msleep(1000);
+        m_ethernetCommunicationWidget->sendCommand("ABM4-757");
+
+        QThread::currentThread()->msleep(5000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM2-7866");
+        m_ethernetCommunicationWidget->sendCommand("ABM313157");
+
+        QThread::currentThread()->msleep(2200);
+        m_ethernetCommunicationWidget->sendCommand("ABM4-940");
+
+        QThread::currentThread()->msleep(10000);
     }
+
+    m_ethernetCommunicationWidget->dropConnection();
 }
 
 void Project::sendCommandSlot(QString command)
