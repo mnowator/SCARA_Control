@@ -17,6 +17,7 @@ public:
     ~CommandPrompt();
 
     void setTitle(QString title);
+    QString getTitle();
 
 private:
     Ui::CommandPrompt *ui;

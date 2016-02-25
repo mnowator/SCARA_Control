@@ -7,7 +7,7 @@
 Project::Project(QObject *parent)
     : QObject(parent)
 {
-
+    m_projectState = Idle;
 }
 
 bool Project::populateFromString(QString data)
@@ -25,6 +25,69 @@ bool Project::populateFromString(QString data)
     {
         return false;
     }
+
+    if ( root.attribute("project_type") == "SCARA - SC1" )
+    {
+        m_scaraLogic = new ScaraLogic();
+        QDomElement element;
+
+        element = com.namedItem("LengthOfFirstSegment").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("LengthOfSecondSegment").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setSecondSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("CorrectionValue").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setCorrectionValue(element.text());
+        else return false;
+
+        element = com.namedItem("FirstSegmentAngleOnCw").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentCWLimitAngle(element.text());
+        else return false;
+
+        element = com.namedItem("FirstSegmentAngleOnCCW").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentCCWLimitAngle(element.text());
+        else return false;
+
+        element = com.namedItem("NumberOfStepsForFirstSegment").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->set(element.text());
+        else return false;
+
+        element = com.namedItem("SecondSegmentAngleOnCw").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("NumberOfStepsForSecondSegment").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("DistanceBetweenTwoLimtsOnZ").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("NumberOfStepsBetweenLimitsOnZ").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+
+        element = com.namedItem("FirstSegmentAngleOnCCW").toElement();
+        if ( !element.isNull() )
+            m_scaraLogic->setFirstSegmentLength(element.text());
+        else return false;
+    }
+    else
+        return false;
 
     com = root.namedItem("CommunicationConfig").toElement();
 
@@ -65,14 +128,22 @@ bool Project::populateFromString(QString data)
         connect(this,SIGNAL(establishConnectionSignal()),m_ethernetCommunicationWidget,SLOT(establishConnection()));
         connect(this,SIGNAL(dropConnectionSignal()),m_ethernetCommunicationWidget,SLOT(dropConnection()));
     }
+    else
+        return false;
 
     return true;
 }
 
 Project::ProjectState Project::projectState()
 {
-    1;
+    return m_projectState;
 }
+
+void Project::setProjectState(Project::ProjectState const& state)
+{
+    m_projectState = state;
+}
+
 void Project::run()
 {
     for ( unsigned i=0; i<20; ++i)

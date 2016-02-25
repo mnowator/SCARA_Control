@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_determineCopyCutMapper    =   new QSignalMapper(this);
     m_openCommandPromptMapper   =   new QSignalMapper(this);
     m_openManualControl     = new QSignalMapper(this);
+    m_commandPromptFinishedMapper = new QSignalMapper(this);
 
     m_fileSystemWatcher = new QFileSystemWatcher(this);
     connect(m_fileSystemWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
@@ -83,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_reloadSignalMapper,   SIGNAL(mapped(QString)),this,SLOT(reloadClicked     (QString)));
     connect(m_openCommandPromptMapper,SIGNAL(mapped(QString)),this,SLOT(openCommandPrompt(QString)));
     connect(m_openManualControl,    SIGNAL(mapped(QString)),this,SLOT(openManualControl(QString)));
+    connect(m_commandPromptFinishedMapper, SIGNAL(mapped(QString)),this,SLOT(commandPromptFinished(QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
@@ -365,6 +367,9 @@ void MainWindow::attachFileToProject(const QString &fileName, const QString &fil
     if (!domProject.setContent(projectFileContent, false, &errorStr, &errorLine, &errorColumn))
     {
         QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+
+        msgBox.setStyleSheet(currentErrorBoxTheme);
+
         msgBox.exec();
         return;
     }
@@ -2051,6 +2056,11 @@ void MainWindow::optionsClicked()
     m_optionsDialog->show();
 }
 
+void MainWindow::commandPromptFinished(const QString &name)
+{
+    m_projects[name]->setProjectState(Project::ProjectState::Idle);
+}
+
 void MainWindow::deleteReloadFileDialog()
 {
     delete m_reloadFilesDialog;
@@ -2066,7 +2076,46 @@ void MainWindow::setActiveClicked(const QString &name)
 void MainWindow::closeClicked(const QString &name)
 {
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,0) )
+    {
+        QString projectName = item->text(0)<item->text(2)?item->text(0):item->text(2);
+
+        if ( m_projects.contains(projectName))
+        {
+            if ( m_projects[projectName]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot close project because it is under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+                msgBox.exec();
+
+                break;
+            }
+        }
+
         delete item;
+        m_projects.take(name);
+    }
+
+    foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,2) )
+    {
+        QString projectName = item->text(0)<item->text(2)?item->text(0):item->text(2);
+
+        if (  m_projects.contains(projectName))
+        {
+            if ( m_projects[projectName]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot close project because it is under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+                msgBox.exec();
+
+                break;
+            }
+        }
+
+        delete item;
+        m_projects.take(name);
+    }
 
     if ( ui->projectExplorer->topLevelItemCount() == 0 )
     {
@@ -2469,8 +2518,20 @@ void MainWindow::openCommandPrompt(const QString &name)
 
         if ( project->text(0) < project->text(2) )
         {
+            if ( m_projects[project->text(0)]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                return;
+            }
+
             data = loadFile(configFile->text(1),configFileName);
+
             m_projects[project->text(0)]->populateFromString(data);
+            m_projects[project->text(0)]->setProjectState(Project::ProjectState::ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(0));
 
@@ -2480,11 +2541,26 @@ void MainWindow::openCommandPrompt(const QString &name)
 
             connect(m_projects[project->text(0)],SIGNAL(sendProjectInfo(QString)),commandPrompt,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(0)],SIGNAL(receivedCommand(QString)),commandPrompt,SLOT(receiveCommand(QString)));
+
+            m_commandPromptFinishedMapper->setMapping(commandPrompt,project->text(0));
+            connect(commandPrompt,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));
         }
         else if ( project->text(0) > project->text(2) )
         {
+            if ( m_projects[project->text(2)]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                return;
+            }
+
             data = loadFile(configFile->text(1),configFileName);
+
             m_projects[project->text(2)]->populateFromString(data);
+            m_projects[project->text(2)]->setProjectState(Project::ProjectState::ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(2));
 
@@ -2494,6 +2570,9 @@ void MainWindow::openCommandPrompt(const QString &name)
 
             connect(m_projects[project->text(2)],SIGNAL(sendProjectInfo(QString)),commandPrompt,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(2)],SIGNAL(receivedCommand(QString)),commandPrompt,SLOT(receiveCommand(QString)));
+
+            m_commandPromptFinishedMapper->setMapping(commandPrompt,project->text(2));
+            connect(commandPrompt,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));
         }
 
         commandPrompt->show();
@@ -2522,8 +2601,20 @@ void MainWindow::openManualControl(const QString &name)
 
         if ( project->text(0) < project->text(2) )
         {
+            if ( m_projects[project->text(0)]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                return;
+            }
+
             data = loadFile(configFile->text(1),configFileName);
+
             m_projects[project->text(0)]->populateFromString(data);
+            m_projects[project->text(0)]->setProjectState(Project::ProjectState::ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(0));
 
@@ -2533,11 +2624,26 @@ void MainWindow::openManualControl(const QString &name)
 
             connect(m_projects[project->text(0)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(0)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+
+            m_commandPromptFinishedMapper->setMapping(manualControlDialog,project->text(0));
+            connect(manualControlDialog,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));
         }
         else if ( project->text(0) > project->text(2) )
         {
+            if ( m_projects[project->text(2)]->projectState() != Project::ProjectState::Idle )
+            {
+                QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
+
+                msgBox.setStyleSheet(currentErrorBoxTheme);
+
+                msgBox.exec();
+                return;
+            }
+
             data = loadFile(configFile->text(1),configFileName);
+
             m_projects[project->text(2)]->populateFromString(data);
+            m_projects[project->text(2)]->setProjectState(Project::ProjectState::ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(2));
 
@@ -2547,6 +2653,9 @@ void MainWindow::openManualControl(const QString &name)
 
             connect(m_projects[project->text(2)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(2)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+
+            m_commandPromptFinishedMapper->setMapping(manualControlDialog,project->text(2));
+            connect(manualControlDialog,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));
         }
 
         manualControlDialog->show();

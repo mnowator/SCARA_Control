@@ -5,6 +5,7 @@
 #include <QRunnable>
 
 #include "ethernetcommunicationwidget.h"
+#include "scaralogic.h"
 
 class Q_DECL_EXPORT Project : public QObject, public QRunnable
 {
@@ -13,6 +14,8 @@ public:
     enum ProjectState
     {
         ControlledByScript,
+        ControlledByCommandPrompt,
+        ControlledByManualControl,
         Idle,
     };
 
@@ -20,12 +23,15 @@ public:
 
     bool populateFromString(QString data);
     ProjectState projectState();
+    void setProjectState(const ProjectState &state);
 
     void run();
 
 private:
     ProjectState m_projectState;    
+
     EthernetCommunicationWidget* m_ethernetCommunicationWidget;
+    ScaraLogic* m_scaraLogic;
 
 signals:
     void sendProjectInfo(QString info);

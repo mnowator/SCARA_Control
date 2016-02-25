@@ -14,6 +14,7 @@ private:
     double m_firstSegmentLength;
     double m_secondSegmentLength;
     double m_thirdSegmentLength;
+    double m_correctionValue;
 
     double m_firstSegmentBeginLimitAngle;
     double m_firstSegmentEndLimitAngle;
@@ -67,12 +68,13 @@ public:
     void setFirstSegmentLength(double length);
     void setSecondSegmentLength(double length);
     void setThirdSegmentLength(double length);
+    void setCorrectionValue(double length);
 
-    void setFirstSegmentBeginLimitAngle(double angle);
-    void setFirstSegmentEndLimitAngle(double angle);
+    void setFirstSegmentCWLimitAngle(double angle);
+    void setFirstSegmentCCWLimitAngle(double angle);
 
-    void setSecondSegmentBeginLimitAngle(double angle);
-    void setSecondSegmentEndLimitAngle(double angle);
+    void setSecondSegmentCWLimitAngle(double angle);
+    void setSecondSegmentCCWLimitAngle(double angle);
 
     void setSyncFreq(unsigned freq);
 
@@ -88,6 +90,7 @@ public:
     double getFirstSegmentLength() const;
     double getSecondSegmentLength() const;
     double getThirdSegmentLength() const;
+    double getCorrectionValue() const;
 
     double getFirstSegmentBeginLimitAngle() const;
     double getFirstSegmentEndLimitAngle() const;

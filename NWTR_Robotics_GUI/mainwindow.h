@@ -64,6 +64,7 @@ private:
     QSignalMapper* m_determineCopyCutMapper;
     QSignalMapper* m_openCommandPromptMapper;
     QSignalMapper* m_openManualControl;
+    QSignalMapper* m_commandPromptFinishedMapper;
 
     QFileSystemWatcher* m_fileSystemWatcher;
 
@@ -116,6 +117,7 @@ private slots:
     void redoClicked();
     void closeFileClicked();
     void optionsClicked();
+    void commandPromptFinished(QString const& name);
 
     void deleteReloadFileDialog();
 

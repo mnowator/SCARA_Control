@@ -46,6 +46,11 @@ void CommandPrompt::setTitle(QString title)
     setWindowTitle(m_title+" - Command Prompt");
 }
 
+QString CommandPrompt::getTitle()
+{
+    return m_title;
+}
+
 void CommandPrompt::receiveCommand(QString command)
 {
     QString text = deviceHTMLFormat % QString("["+m_title+"]:");

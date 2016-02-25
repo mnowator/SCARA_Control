@@ -33,7 +33,12 @@ void ScaraLogic::setThirdSegmentLength(double length)
         m_motor3distPerStep = m_thirdSegmentLength / m_motor3maxSteps;
 }
 
-void ScaraLogic::setFirstSegmentBeginLimitAngle(double angle)
+void ScaraLogic::setCorrectionValue(double length)
+{
+    m_correctionValue = length;
+}
+
+void ScaraLogic::setFirstSegmentCWLimitAngle(double angle)
 {
     m_firstSegmentBeginLimitAngle = std::fmod(angle, 360.0);
 
@@ -41,7 +46,7 @@ void ScaraLogic::setFirstSegmentBeginLimitAngle(double angle)
         m_motor1anglePerStep = std::abs(m_firstSegmentBeginLimitAngle-m_firstSegmentEndLimitAngle)/m_motor1maxSteps;
 }
 
-void ScaraLogic::setFirstSegmentEndLimitAngle(double angle)
+void ScaraLogic::setFirstSegmentCCWLimitAngle(double angle)
 {
     m_firstSegmentEndLimitAngle = std::fmod(angle, 360.0);
 
@@ -49,7 +54,7 @@ void ScaraLogic::setFirstSegmentEndLimitAngle(double angle)
         m_motor1anglePerStep = std::abs(m_firstSegmentBeginLimitAngle-m_firstSegmentEndLimitAngle)/m_motor1maxSteps;
 }
 
-void ScaraLogic::setSecondSegmentBeginLimitAngle(double angle)
+void ScaraLogic::setSecondSegmentCWLimitAngle(double angle)
 {
     m_secondSegmentBeginLimitAngle = std::fmod(angle, 360.0);
 
@@ -57,7 +62,7 @@ void ScaraLogic::setSecondSegmentBeginLimitAngle(double angle)
         m_motor2anglePerStep = std::abs(m_secondSegmentBeginLimitAngle-m_secondSegmentEndLimitAngle)/m_motor2maxSteps;
 }
 
-void ScaraLogic::setSecondSegmentEndLimitAngle(double angle)
+void ScaraLogic::setSecondSegmentCCWLimitAngle(double angle)
 {
     m_secondSegmentEndLimitAngle = std::fmod(angle, 360.0);
 
