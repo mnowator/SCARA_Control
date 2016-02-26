@@ -87,6 +87,11 @@ void ManualControlDialog::on_moveJogLeftFirstSegmentPushButton_pressed()
     emit sendCommand(QString("MJLM2"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -94,7 +99,7 @@ void ManualControlDialog::on_moveJogLeftFirstSegmentPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -104,6 +109,11 @@ void ManualControlDialog::on_moveJogLeftFirstSegmentPushButton_released()
     emit sendCommand(QString("RJM2"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -111,7 +121,7 @@ void ManualControlDialog::on_moveJogLeftFirstSegmentPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -121,6 +131,11 @@ void ManualControlDialog::on_moveJogRightFirstSegmentPushButton_pressed()
     emit sendCommand(QString("MJPM2"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -128,7 +143,7 @@ void ManualControlDialog::on_moveJogRightFirstSegmentPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -138,6 +153,11 @@ void ManualControlDialog::on_moveJogRightFirstSegmentPushButton_released()
     emit sendCommand(QString("RJM2"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -145,7 +165,7 @@ void ManualControlDialog::on_moveJogRightFirstSegmentPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -155,6 +175,11 @@ void ManualControlDialog::on_moveJogLeftSecondSegmentPushButton_pressed()
     emit sendCommand(QString("MJLM3"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -162,7 +187,7 @@ void ManualControlDialog::on_moveJogLeftSecondSegmentPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -172,6 +197,11 @@ void ManualControlDialog::on_moveJogLeftSecondSegmentPushButton_released()
     emit sendCommand(QString("RJM3"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -179,7 +209,7 @@ void ManualControlDialog::on_moveJogLeftSecondSegmentPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -189,6 +219,11 @@ void ManualControlDialog::on_moveJogRightSecondSegmentPushButton_pressed()
     emit sendCommand(QString("MJPM3"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -196,7 +231,7 @@ void ManualControlDialog::on_moveJogRightSecondSegmentPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -206,6 +241,11 @@ void ManualControlDialog::on_moveJogRightSecondSegmentPushButton_released()
     emit sendCommand(QString("RJM3"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -213,7 +253,7 @@ void ManualControlDialog::on_moveJogRightSecondSegmentPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -223,6 +263,11 @@ void ManualControlDialog::on_zPlusPushButton_released()
     emit sendCommand(QString("RJM4"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -230,7 +275,7 @@ void ManualControlDialog::on_zPlusPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -240,6 +285,11 @@ void ManualControlDialog::on_zPlusPushButton_pressed()
     emit sendCommand(QString("MJLM4"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -247,7 +297,7 @@ void ManualControlDialog::on_zPlusPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -257,6 +307,11 @@ void ManualControlDialog::on_zMinusPushButton_pressed()
     emit sendCommand(QString("MJPM4"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -264,7 +319,7 @@ void ManualControlDialog::on_zMinusPushButton_pressed()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -274,6 +329,11 @@ void ManualControlDialog::on_zMinusPushButton_released()
     emit sendCommand(QString("RJM4"));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -281,7 +341,7 @@ void ManualControlDialog::on_zMinusPushButton_released()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -302,6 +362,11 @@ void ManualControlDialog::receiveCommand(QString command)
     }
 
     QString text = deviceHTMLFormat % QString("["+m_title+"]:");
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(text);
 
@@ -309,7 +374,7 @@ void ManualControlDialog::receiveCommand(QString command)
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -328,11 +393,16 @@ void ManualControlDialog::receiveProjectInfo(QString info)
     }
 
     QString text = infoHTMLFormat % info;
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(text);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -345,6 +415,11 @@ void ManualControlDialog::on_sendPushButton_clicked()
     emit sendCommand(ui->commandLineEdit->text());
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -352,7 +427,7 @@ void ManualControlDialog::on_sendPushButton_clicked()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 
@@ -366,6 +441,11 @@ void ManualControlDialog::on_homingFirstSegmentPushButon_clicked()
     ui->homingFirstSegmentPushButon->setStyleSheet(connectButtonsTheme);
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -373,7 +453,7 @@ void ManualControlDialog::on_homingFirstSegmentPushButon_clicked()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -385,6 +465,11 @@ void ManualControlDialog::on_homingSecondSegmentPushButton_clicked()
     ui->homingSecondSegmentPushButton->setStyleSheet(connectButtonsTheme);
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -392,7 +477,7 @@ void ManualControlDialog::on_homingSecondSegmentPushButton_clicked()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -404,6 +489,11 @@ void ManualControlDialog::on_homingThirdSegmentPushButton_clicked()
     ui->homingThirdSegmentPushButton->setStyleSheet(connectButtonsTheme);
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -411,7 +501,7 @@ void ManualControlDialog::on_homingThirdSegmentPushButton_clicked()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -421,6 +511,11 @@ void ManualControlDialog::on_firstSegmentSpinBox_editingFinished()
     emit sendCommand("VM2"+QString::number(ui->firstSegmentSpinBox->value()));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -428,7 +523,7 @@ void ManualControlDialog::on_firstSegmentSpinBox_editingFinished()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -438,6 +533,11 @@ void ManualControlDialog::on_secondSegmentSpinBox_editingFinished()
     emit sendCommand("VM3"+QString::number(ui->secondSegmentSpinBox->value()));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -445,7 +545,7 @@ void ManualControlDialog::on_secondSegmentSpinBox_editingFinished()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
@@ -455,6 +555,11 @@ void ManualControlDialog::on_thirdSegmentSpinBox_editingFinished()
     emit sendCommand("VM4"+QString::number(ui->thirdSegmentSpinBox->value()));
 
     QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
     ui->commandPromptTextEdit->insertHtml(toSend);
 
@@ -462,7 +567,7 @@ void ManualControlDialog::on_thirdSegmentSpinBox_editingFinished()
     ui->commandPromptTextEdit->insertHtml(toSend);
     ui->commandPromptTextEdit->insertPlainText("\n");
 
-    QTextCursor cursor = ui->commandPromptTextEdit->textCursor();
+    cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }

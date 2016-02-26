@@ -65,6 +65,7 @@ private:
     QSignalMapper* m_openCommandPromptMapper;
     QSignalMapper* m_openManualControl;
     QSignalMapper* m_commandPromptFinishedMapper;
+    QSignalMapper* m_threadFinishedMapper;
 
     QFileSystemWatcher* m_fileSystemWatcher;
 
@@ -75,6 +76,7 @@ private:
     QList<CodeEditor*> m_undos;
 
     QHash<QString, Project*> m_projects;
+    QHash<QString, QThread*> m_threads;
 
     QString m_activeProject;
 
@@ -118,6 +120,7 @@ private slots:
     void closeFileClicked();
     void optionsClicked();
     void commandPromptFinished(QString const& name);
+    void threadFinished(QString const& name);
 
     void deleteReloadFileDialog();
 

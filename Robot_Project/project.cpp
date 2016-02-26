@@ -28,7 +28,7 @@ bool Project::populateFromString(QString data)
 
     if ( root.attribute("project_type") == "SCARA - SC1" )
     {
-        m_scaraLogic = new ScaraLogic();
+        m_scaraLogic = new ScaraLogic(this);
         QDomElement element;
 
         element = root.namedItem("LengthOfFirstSegment").toElement();
@@ -91,37 +91,37 @@ bool Project::populateFromString(QString data)
             m_scaraLogic->setMotor3maxSteps(element.text().toDouble());
         else return false;
 
-//        element = root.namedItem("FirstSegmentBeginOn").toElement();
-//        if ( !element.isNull() )
-//        {
-//            if ( element.text() == "CW" )
-//            {
-//                m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
-//            }
-//            else if ( element.text() == "CCW" )
-//            {
-//                m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
-//            }
-//        }
-//        else return false;
+        element = root.namedItem("FirstSegmentBeginOn").toElement();
+        if ( !element.isNull() )
+        {
+            if ( element.text() == "CW" )
+            {
+                //m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+            }
+            else if ( element.text() == "CCW" )
+            {
+                //m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+            }
+        }
+        else return false;
 
-//        element = root.namedItem("SecondSegmentBeginOn").toElement();
-//        if ( !element.isNull() )
-//        {
-//            if ( element.text() == "CW" )
-//            {
-//                m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
-//            }
-//            else if ( element.text() == "CCW" )
-//            {
-//                m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
-//            }
-//        }
-//        else return false;
+        element = root.namedItem("SecondSegmentBeginOn").toElement();
+        if ( !element.isNull() )
+        {
+            if ( element.text() == "CW" )
+            {
+                //m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+            }
+            else if ( element.text() == "CCW" )
+            {
+                //m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+            }
+        }
+        else return false;
 
-//        m_scaraLogic->computeAnglePerStepMotor1();
-//        m_scaraLogic->computeAnglePerStepMotor2();
-//        m_scaraLogic->computeDistancePerStepMotor3();
+        m_scaraLogic->computeAnglePerStepMotor1();
+        m_scaraLogic->computeAnglePerStepMotor2();
+        m_scaraLogic->computeDistancePerStepMotor3();
     }
     else
         return false;
@@ -135,7 +135,7 @@ bool Project::populateFromString(QString data)
 
     if ( com.attribute("communication_type") == "Ethernet Communication (TCP/IP)")
     {
-        m_ethernetCommunicationWidget = new EthernetCommunicationWidget();
+        m_ethernetCommunicationWidget = new EthernetCommunicationWidget(this);
         QDomElement element;
 
         element = com.namedItem("AddressIP").toElement();
@@ -171,41 +171,93 @@ bool Project::populateFromString(QString data)
     return true;
 }
 
-Project::ProjectState Project::projectState()
+ProjectState Project::projectState()
 {
     return m_projectState;
 }
 
-void Project::setProjectState(Project::ProjectState const& state)
+void Project::setProjectState(ProjectState const& state)
 {
     m_projectState = state;
 }
 
-void Project::run()
+void Project::setupThread(QThread *thread)
+{
+    connect(thread,SIGNAL(started()),this,SLOT(doWork()));
+}
+
+void Project::doWork()
 {
     m_ethernetCommunicationWidget->establishConnection();
 
-    for ( unsigned i=0; i<5; ++i)
+    for ( unsigned i=0; i<2; ++i)
     {
         qDebug() << i;
 
-        m_ethernetCommunicationWidget->sendCommand("ABM2-3785");
-        m_ethernetCommunicationWidget->sendCommand("ABM33860");
+        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
+        m_ethernetCommunicationWidget->sendCommand("ABM33976");
+
+        QThread::currentThread()->msleep(4000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-100");
+
+        QThread::currentThread()->msleep(2000);
+
+        m_ethernetCommunicationWidget->sendCommand("SUCK");
+
         QThread::currentThread()->msleep(1000);
-        m_ethernetCommunicationWidget->sendCommand("ABM4-757");
 
-        QThread::currentThread()->msleep(5000);
+        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
 
-        m_ethernetCommunicationWidget->sendCommand("ABM2-7866");
-        m_ethernetCommunicationWidget->sendCommand("ABM313157");
+        QThread::currentThread()->msleep(2000);
 
-        QThread::currentThread()->msleep(2200);
-        m_ethernetCommunicationWidget->sendCommand("ABM4-940");
+        m_ethernetCommunicationWidget->sendCommand("ABM2-7855");
+        m_ethernetCommunicationWidget->sendCommand("ABM313291");
 
-        QThread::currentThread()->msleep(10000);
+        QThread::currentThread()->msleep(4000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-110");
+
+        QThread::currentThread()->msleep(1000);
+
+        m_ethernetCommunicationWidget->sendCommand("RSUCK");
+
+        QThread::currentThread()->msleep(2000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+
+        QThread::currentThread()->msleep(2000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-125");
+        QThread::currentThread()->msleep(2000);
+
+        m_ethernetCommunicationWidget->sendCommand("SUCK");
+        QThread::currentThread()->msleep(1000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+
+        QThread::currentThread()->msleep(2000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
+        m_ethernetCommunicationWidget->sendCommand("ABM33976");
+
+        QThread::currentThread()->msleep(4000);
+
+        m_ethernetCommunicationWidget->sendCommand("ABM4-95");
+        QThread::currentThread()->msleep(1000);
+        m_ethernetCommunicationWidget->sendCommand("RSUCK");
+        QThread::currentThread()->msleep(1000);
+        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+        QThread::currentThread()->msleep(1000);
+
+
     }
 
     m_ethernetCommunicationWidget->dropConnection();
+
+    moveToThread(qApp->thread());
+
+    QThread::currentThread()->terminate();
 }
 
 void Project::sendCommandSlot(QString command)

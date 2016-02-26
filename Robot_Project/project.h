@@ -7,25 +7,26 @@
 #include "ethernetcommunicationwidget.h"
 #include "scaralogic.h"
 
-class Q_DECL_EXPORT Project : public QObject, public QRunnable
+enum ProjectState
+{
+    ControlledByScript,
+    ControlledByCommandPrompt,
+    ControlledByManualControl,
+    Idle,
+};
+
+class Q_DECL_EXPORT Project : public QObject
 {
     Q_OBJECT
-public:
-    enum ProjectState
-    {
-        ControlledByScript,
-        ControlledByCommandPrompt,
-        ControlledByManualControl,
-        Idle,
-    };
 
+public:
     Project(QObject *parent = 0);
 
     bool populateFromString(QString data);
     ProjectState projectState();
     void setProjectState(const ProjectState &state);
 
-    void run();
+    void setupThread(QThread* thread);
 
 private:
     ProjectState m_projectState;    
@@ -40,6 +41,9 @@ signals:
     void establishConnectionSignal();
     void dropConnectionSignal();
     void changeState(ProjectState state);
+
+private slots:
+    void doWork();
 
 public slots:
     void sendCommandSlot(QString command);

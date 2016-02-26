@@ -2,9 +2,9 @@
 #define ETHERNETCOMMUNICATIONWIDGET_H
 
 #include <QtNetwork>
-#include <QWidget>
+#include <QObject>
 
-class Q_DECL_EXPORT EthernetCommunicationWidget : public QWidget
+class Q_DECL_EXPORT EthernetCommunicationWidget : public QObject
 {
     Q_OBJECT
 
@@ -17,7 +17,7 @@ private:
     unsigned m_commandBytes;
 
 public:
-    EthernetCommunicationWidget(QWidget* parent=0);
+    EthernetCommunicationWidget(QObject* parent=0);
 
     void setAddress(QString const& address);
     void setPort(QString const& port);

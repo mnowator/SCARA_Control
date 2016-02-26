@@ -2,8 +2,8 @@
 
 #include <QDebug>
 
-EthernetCommunicationWidget::EthernetCommunicationWidget(QWidget *parent)
-    : QWidget(parent)
+EthernetCommunicationWidget::EthernetCommunicationWidget(QObject *parent)
+    : QObject(parent)
 {
     m_socket = new QTcpSocket(this);
 

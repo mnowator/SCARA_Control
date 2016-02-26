@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_openCommandPromptMapper   =   new QSignalMapper(this);
     m_openManualControl     = new QSignalMapper(this);
     m_commandPromptFinishedMapper = new QSignalMapper(this);
+    m_threadFinishedMapper = new QSignalMapper(this);
 
     m_fileSystemWatcher = new QFileSystemWatcher(this);
     connect(m_fileSystemWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
@@ -85,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_openCommandPromptMapper,SIGNAL(mapped(QString)),this,SLOT(openCommandPrompt(QString)));
     connect(m_openManualControl,    SIGNAL(mapped(QString)),this,SLOT(openManualControl(QString)));
     connect(m_commandPromptFinishedMapper, SIGNAL(mapped(QString)),this,SLOT(commandPromptFinished(QString)));
+    connect(m_threadFinishedMapper, SIGNAL(mapped(QString)),this,SLOT(threadFinished(QString)));
 
     connect(m_redoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerRedoStatus(QWidget*)));
     connect(m_undoMapper,           SIGNAL(mapped(QWidget*)),this,SLOT(registerUndoStatus(QWidget*)));
@@ -673,6 +675,7 @@ void MainWindow::openProjectProjectOrFile()
         ui->projectExplorer->addTopLevelItem(project);
 
         m_projects[pureFileName] = new Project();
+        m_threads[pureFileName] = new QThread();
 
         setActiveProject(pureFileName);
         sortProjectFiles(project);
@@ -1296,6 +1299,7 @@ void MainWindow::createProject(QString const& projectName, QString const& commun
     ui->actionCloseAllProjects->setEnabled(true);
 
     m_projects[projectName] = new Project();
+    m_threads[projectName] = new QThread();
 
     setActiveProject(projectName);
 
@@ -2058,7 +2062,18 @@ void MainWindow::optionsClicked()
 
 void MainWindow::commandPromptFinished(const QString &name)
 {
-    m_projects[name]->setProjectState(Project::ProjectState::Idle);
+    m_projects.take(name);
+    m_projects[name] = new Project();
+    m_projects[name]->setProjectState(Idle);
+}
+
+void MainWindow::threadFinished(const QString &name)
+{
+    qDebug() << "thread finished";
+    qDebug() << name;
+
+    m_projects.take(name);
+    m_projects[name] = new Project();
 }
 
 void MainWindow::deleteReloadFileDialog()
@@ -2081,7 +2096,7 @@ void MainWindow::closeClicked(const QString &name)
 
         if ( m_projects.contains(projectName))
         {
-            if ( m_projects[projectName]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[projectName]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot close project because it is under control."));
 
@@ -2093,7 +2108,8 @@ void MainWindow::closeClicked(const QString &name)
         }
 
         delete item;
-        m_projects.take(name);
+        m_projects.take(projectName);
+        m_threads.take(projectName);
     }
 
     foreach ( QTreeWidgetItem* item, ui->projectExplorer->findItems(name,Qt::MatchExactly,2) )
@@ -2102,7 +2118,7 @@ void MainWindow::closeClicked(const QString &name)
 
         if (  m_projects.contains(projectName))
         {
-            if ( m_projects[projectName]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[projectName]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Cannot close project because it is under control."));
 
@@ -2114,7 +2130,8 @@ void MainWindow::closeClicked(const QString &name)
         }
 
         delete item;
-        m_projects.take(name);
+        m_projects.take(projectName);
+        m_threads.take(projectName);
     }
 
     if ( ui->projectExplorer->topLevelItemCount() == 0 )
@@ -2418,7 +2435,6 @@ void MainWindow::runClicked(const QString &name)
 
     foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchCaseSensitive,column) )
     {
-        qDebug() << "kutas";
         QTreeWidgetItem* configFile;
         QString data, configFileName;
 
@@ -2439,24 +2455,28 @@ void MainWindow::runClicked(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
-            m_projects[project->text(0)]->setAutoDelete(false);
+            m_projects[project->text(0)]->setupThread(m_threads[project->text(0)]);
+            m_projects[project->text(0)]->moveToThread(m_threads[project->text(0)]);
+            m_projects[project->text(0)]->setProjectState(ControlledByScript);
 
-            m_projects[project->text(0)]->run();
+            m_threadFinishedMapper->setMapping(m_threads[project->text(0)],project->text(0));
+            connect(m_threads[project->text(0)],SIGNAL(finished()),m_threadFinishedMapper,SLOT(map()));
 
-            //QThreadPool::globalInstance()->start(m_projects[project->text(0)]);
-
-
+            m_threads[project->text(0)]->start();
         }
         else if ( project->text(0) > project->text(2) ) // then project is active
         {
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
-            m_projects[project->text(2)]->setAutoDelete(false);
+            m_projects[project->text(2)]->setupThread(m_threads[project->text(2)]);
+            m_projects[project->text(2)]->moveToThread(m_threads[project->text(2)]);
+            m_projects[project->text(2)]->setProjectState(ControlledByScript);
 
-            m_projects[project->text(2)]->run();
+            m_threadFinishedMapper->setMapping(m_threads[project->text(2)],project->text(2));
+            connect(m_threads[project->text(2)],SIGNAL(finished()),m_threadFinishedMapper,SLOT(map()));
 
-//          QThreadPool::globalInstance()->start(m_projects[project->text(2)]);
+            m_threads[project->text(2)]->start();
 
             ui->actionRun->setEnabled(false);
             ui->actionPause->setEnabled(true);
@@ -2519,7 +2539,7 @@ void MainWindow::openCommandPrompt(const QString &name)
 
         if ( project->text(0) < project->text(2) )
         {
-            if ( m_projects[project->text(0)]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[project->text(0)]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
 
@@ -2532,7 +2552,7 @@ void MainWindow::openCommandPrompt(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
-            m_projects[project->text(0)]->setProjectState(Project::ProjectState::ControlledByCommandPrompt);
+            m_projects[project->text(0)]->setProjectState(ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(0));
 
@@ -2548,7 +2568,7 @@ void MainWindow::openCommandPrompt(const QString &name)
         }
         else if ( project->text(0) > project->text(2) )
         {
-            if ( m_projects[project->text(2)]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[project->text(2)]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
 
@@ -2561,7 +2581,7 @@ void MainWindow::openCommandPrompt(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
-            m_projects[project->text(2)]->setProjectState(Project::ProjectState::ControlledByCommandPrompt);
+            m_projects[project->text(2)]->setProjectState(ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(2));
 
@@ -2602,7 +2622,7 @@ void MainWindow::openManualControl(const QString &name)
 
         if ( project->text(0) < project->text(2) )
         {
-            if ( m_projects[project->text(0)]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[project->text(0)]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
 
@@ -2615,7 +2635,7 @@ void MainWindow::openManualControl(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
-            m_projects[project->text(0)]->setProjectState(Project::ProjectState::ControlledByManualControl);
+            m_projects[project->text(0)]->setProjectState(ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(0));
 
@@ -2631,7 +2651,7 @@ void MainWindow::openManualControl(const QString &name)
         }
         else if ( project->text(0) > project->text(2) )
         {
-            if ( m_projects[project->text(2)]->projectState() != Project::ProjectState::Idle )
+            if ( m_projects[project->text(2)]->projectState() != Idle )
             {
                 QMessageBox msgBox(QMessageBox::Warning, tr("Error"), tr("Project is already under control."));
 
@@ -2644,7 +2664,7 @@ void MainWindow::openManualControl(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
-            m_projects[project->text(2)]->setProjectState(Project::ProjectState::ControlledByManualControl);
+            m_projects[project->text(2)]->setProjectState(ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(2));
 

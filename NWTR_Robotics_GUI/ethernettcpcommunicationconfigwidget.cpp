@@ -24,7 +24,8 @@ EthernetTcpCommunicationConfigWidget::EthernetTcpCommunicationConfigWidget(QWidg
 
     connect(ui->ipAddressLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
     connect(ui->portLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
-
+    connect(ui->bytesOnCommandLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
+    connect(ui->wastedBytesLineEdit,SIGNAL(textChanged(QString)),this,SIGNAL(contentChanged()));
 }
 
 EthernetTcpCommunicationConfigWidget::~EthernetTcpCommunicationConfigWidget()

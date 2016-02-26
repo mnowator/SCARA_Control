@@ -37,7 +37,7 @@ signals:
 public slots:
     void receiveCommand(QString command);
     void receiveProjectInfo(QString info);
-    void projectChangeStateSlot(Project::ProjectState state);
+    void projectChangeStateSlot(ProjectState state);
 
 private slots:
     void sendButtonClicked();

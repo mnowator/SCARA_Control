@@ -3,23 +3,29 @@
 
 #include <QtGlobal>
 #include <QString>
+#include <QObject>
 
-class Q_DECL_EXPORT ScaraLogic
+enum SWITCH_ORIENTATION
 {
-public:
-    enum SWITCH_ORIENTATION
-    {
-        CW,
-        CCW,
-    };
+    CW,
+    CCW,
+};
+
+class Q_DECL_EXPORT ScaraLogic : public QObject
+{
+    Q_OBJECT
+
 private:
     const double MIN_FIRST_SEGMENT_LENGTH = 10;
     const double MIN_SECOND_SEGMENT_LENGTH = 10;
     const double MIN_THIRD_SEGMENT_LENGTH = 10;
 
-    double m_x;
-    double m_y;
-    double m_z;
+    double m_x = 0;
+    double m_y = 0;
+    double m_z = 0;
+
+    double m_firstSegmentAngle = 0;
+    double m_secondSegmentAngle = 0;
 
     double m_firstSegmentLength;
     double m_secondSegmentLength;
@@ -45,8 +51,12 @@ private:
     SWITCH_ORIENTATION m_motor1SwitchOrientation;
     SWITCH_ORIENTATION m_motor2SwitchOrientation;
 
+    double computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle);
+    double computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle);
+    void computeCartesianPositionByAnglesAndDistance();
+
 public:
-    ScaraLogic();
+    ScaraLogic(QObject* parent=0);
 
     class Exception
     {
@@ -73,6 +83,10 @@ public:
     };
 
     void computePositionBySteps(unsigned firstMotorSteps, unsigned secondMotorSteps, unsigned thirdMotorSteps);
+
+    void computeAnglePerStepMotor1();
+    void computeAnglePerStepMotor2();
+    void computeDistancePerStepMotor3();
 
     void motor1Homed();
     void motor2Homed();

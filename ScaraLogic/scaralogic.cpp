@@ -2,29 +2,82 @@
 #include <cmath>
 #include <QObject>
 
-ScaraLogic::ScaraLogic()
+#include <QDebug>
+
+double ScaraLogic::computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle)
+{
+    return m_firstSegmentLength*cos(firstSegmentAngle)
+            +m_secondSegmentLength*cos(secondSegmentAngle-90+firstSegmentAngle)
+            +m_correctionValue*cos(secondSegmentAngle-firstSegmentAngle);
+}
+
+double ScaraLogic::computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle)
+{
+    return m_firstSegmentLength*sin(firstSegmentAngle)
+            +m_secondSegmentLength*sin(secondSegmentAngle-90+firstSegmentAngle)
+            +m_correctionValue*sin(secondSegmentAngle-firstSegmentAngle);
+}
+
+void ScaraLogic::computeCartesianPositionByAnglesAndDistance()
+{
+    m_x = computeXCoordinate(m_firstSegmentAngle,m_secondSegmentAngle);
+    m_y = computeYCoordinate(m_firstSegmentAngle,m_secondSegmentAngle);
+}
+
+ScaraLogic::ScaraLogic(QObject *parent)
+    : QObject(parent)
 {
 }
 
 void ScaraLogic::computePositionBySteps(unsigned firstMotorSteps, unsigned secondMotorSteps, unsigned thirdMotorSteps)
 {
-
 }
 
-//void ScaraLogic::computeAnglePerStepMotor1()
-//{
-//    m_motor1anglePerStep = (180+m_firstSegmentCWLimitAngle+m_firstSegmentCCWLimitAngle)/m_motor1maxSteps;
-//}
+void ScaraLogic::computeAnglePerStepMotor1()
+{
+    m_motor1anglePerStep = (180+m_firstSegmentCWLimitAngle+m_firstSegmentCCWLimitAngle)/m_motor1maxSteps;
 
-//void ScaraLogic::computeAnglePerStepMotor2()
-//{
-//    m_motor2anglePerStep = (180+m_secondSegmentCWLimitAngle+m_secondSegmentCCWLimitAngle)/m_motor2maxSteps;
-//}
+    qDebug() << m_motor1anglePerStep;
+}
 
-//void ScaraLogic::computeDistancePerStepMotor3()
-//{
-//    m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/m_motor3maxSteps;
-//}
+void ScaraLogic::computeAnglePerStepMotor2()
+{
+    m_motor2anglePerStep = (180+m_secondSegmentCWLimitAngle+m_secondSegmentCCWLimitAngle)/m_motor2maxSteps;
+
+    qDebug() << m_motor2anglePerStep;
+}
+
+void ScaraLogic::computeDistancePerStepMotor3()
+{
+    m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/m_motor3maxSteps;
+
+    qDebug() << m_motor3distPerStep;
+}
+
+void ScaraLogic::motor1Homed()
+{
+    if ( m_motor1SwitchOrientation == CW )
+        m_firstSegmentAngle = -m_firstSegmentCWLimitAngle;
+    else if ( m_motor1SwitchOrientation == CCW )
+        m_firstSegmentAngle = 180+m_firstSegmentCCWLimitAngle;
+
+    computeCartesianPositionByAnglesAndDistance();
+}
+
+void ScaraLogic::motor2Homed()
+{
+    if ( m_motor1SwitchOrientation == CW )
+        m_secondSegmentAngle = -m_secondSegmentCWLimitAngle;
+    else if ( m_motor1SwitchOrientation == CCW )
+        m_secondSegmentAngle = 180+m_secondSegmentCCWLimitAngle;
+
+    computeCartesianPositionByAnglesAndDistance();
+}
+
+void ScaraLogic::motor3Homed()
+{
+    m_z = 0;
+}
 
 void ScaraLogic::setFirstSegmentLength(double length)
 {
@@ -96,12 +149,12 @@ void ScaraLogic::setMotor3maxSteps(unsigned steps)
 
 }
 
-void ScaraLogic::setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION so)
+void ScaraLogic::setMotor1HomingSwitchOrientation(SWITCH_ORIENTATION so)
 {
     m_motor1SwitchOrientation = so;
 }
 
-void ScaraLogic::setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION so)
+void ScaraLogic::setMotor2HomingSwitchOrientation(SWITCH_ORIENTATION so)
 {
     m_motor2SwitchOrientation = so;
 }

@@ -90,14 +90,14 @@ void CommandPrompt::receiveProjectInfo(QString info)
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
 
-void CommandPrompt::projectChangeStateSlot(Project::ProjectState state)
+void CommandPrompt::projectChangeStateSlot(ProjectState state)
 {
-    if ( state == Project::ControlledByScript )
+    if ( state == ControlledByScript )
     {
         ui->connectPushButton->hide();
         ui->disconnectPushButton->hide();
     }
-    else if ( state == Project::Idle )
+    else if ( state == Idle )
     {
         ui->connectPushButton->show();
         ui->disconnectPushButton->show();
