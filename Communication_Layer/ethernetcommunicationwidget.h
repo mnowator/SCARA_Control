@@ -27,6 +27,8 @@ public:
     QString getAddress() const;
     QString getPort() const;
 
+    QString readNonBlocking();
+
 signals:
     void sendInfo(QString info);
     void pushCommand(QString command);

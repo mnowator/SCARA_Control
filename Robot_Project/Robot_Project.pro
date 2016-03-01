@@ -17,10 +17,12 @@ LIBS += -L../Communication_Layer/debug -lCommunication_Layer\
     -L../ScaraLogic/debug -lScaraLogic
 
 SOURCES += \
-    project.cpp
+    project.cpp \
+    scararobotpythonworker.cpp
 
 HEADERS += \
-    project.h
+    project.h \
+    scararobotpythonworker.h
 
 unix {
     target.path = /usr/lib

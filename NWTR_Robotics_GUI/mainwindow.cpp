@@ -608,10 +608,6 @@ void MainWindow::openProjectProjectOrFile()
             return;
         }
 
-        QTreeWidgetItem* header = new QTreeWidgetItem();
-        header->setText(0, tr("Projects"));
-        ui->projectExplorer->setHeaderItem(header);
-
         QTreeWidgetItem* project = new QTreeWidgetItem(ProjectType);
         project->setText(0,pureFileName);
         project->setText(1,filePath);

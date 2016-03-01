@@ -60,11 +60,11 @@
           <bool>false</bool>
          </property>
          <attribute name="headerVisible">
-          <bool>false</bool>
+          <bool>true</bool>
          </attribute>
          <column>
           <property name="text">
-           <string>asdas</string>
+           <string>Projects</string>
           </property>
          </column>
         </widget>

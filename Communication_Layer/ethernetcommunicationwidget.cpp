@@ -42,6 +42,25 @@ QString EthernetCommunicationWidget::getPort() const
     return m_port;
 }
 
+QString EthernetCommunicationWidget::readNonBlocking()
+{
+    QString buffer;
+
+    if ( m_socket->state() != QAbstractSocket::ConnectedState )
+    {
+        return "ERROR";
+    }
+
+    while ( m_socket->bytesAvailable() != m_commandBytes )
+    {
+        qDebug() << m_socket->bytesAvailable();
+    }
+
+    qDebug() << m_socket->readAll();
+
+    return buffer.right(m_commandBytes-m_wastedBytes);
+}
+
 void EthernetCommunicationWidget::sendCommand(QString command)
 {
     if ( m_socket->state() != QAbstractSocket::ConnectedState )

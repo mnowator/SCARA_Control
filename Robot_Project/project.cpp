@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QDomDocument>
 
+#include "scararobotpythonworker.h"
+
 
 Project::Project(QObject *parent)
     : QObject(parent)
@@ -96,11 +98,11 @@ bool Project::populateFromString(QString data)
         {
             if ( element.text() == "CW" )
             {
-                //m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+                m_scaraLogic->setMotor1HomingSwitchOrientation(CW);
             }
             else if ( element.text() == "CCW" )
             {
-                //m_scaraLogic->setMotor1HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+                m_scaraLogic->setMotor1HomingSwitchOrientation(CCW);
             }
         }
         else return false;
@@ -110,11 +112,11 @@ bool Project::populateFromString(QString data)
         {
             if ( element.text() == "CW" )
             {
-                //m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CW);
+                m_scaraLogic->setMotor2HomingSwitchOrientation(CW);
             }
             else if ( element.text() == "CCW" )
             {
-                //m_scaraLogic->setMotor2HomingSwitchOrientation(ScaraLogic::SWITCH_ORIENTATION::CCW);
+                m_scaraLogic->setMotor2HomingSwitchOrientation(CCW);
             }
         }
         else return false;
@@ -195,6 +197,10 @@ void Project::doWork()
 {
     m_projectThreadState = Running;
 
+    ScaraRobotPythonWorker worker;
+    worker.setCommuncator(m_ethernetCommunicationWidget);
+    worker.setLogic(m_scaraLogic);
+
     qDebug() << "Project thread started...";
     qDebug() << "Thread id: " << QThread::currentThreadId();
 
@@ -223,6 +229,8 @@ void Project::doWork()
     }
 
     qDebug() << "Homing motors...";
+    worker.homing();
+    qDebug() << "Motors homed.";
 
     for ( unsigned i=0; i<10; ++i)
     {
