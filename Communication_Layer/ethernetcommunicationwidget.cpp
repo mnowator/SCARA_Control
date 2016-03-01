@@ -6,10 +6,6 @@ EthernetCommunicationWidget::EthernetCommunicationWidget(QObject *parent)
     : QObject(parent)
 {
     m_socket = new QTcpSocket(this);
-
-    connect(m_socket,SIGNAL(readyRead()),this,SLOT(readyRead()));
-    connect(m_socket,SIGNAL(connected()),this,SLOT(connectedToHost()));
-    connect(m_socket,SIGNAL(disconnected()),this,SLOT(disconnectedFromHost()));
 }
 
 void EthernetCommunicationWidget::setAddress(const QString &address)
@@ -32,6 +28,13 @@ void EthernetCommunicationWidget::setCommandBytes(const QString &commandByets)
     m_commandBytes = commandByets.toUInt(0,10);
 }
 
+void EthernetCommunicationWidget::setConnections()
+{
+    connect(m_socket,SIGNAL(readyRead()),this,SLOT(readyRead()));
+    connect(m_socket,SIGNAL(connected()),this,SLOT(connectedToHost()));
+    connect(m_socket,SIGNAL(disconnected()),this,SLOT(disconnectedFromHost()));
+}
+
 QString EthernetCommunicationWidget::getAddress() const
 {
     return m_address;
@@ -51,12 +54,13 @@ QString EthernetCommunicationWidget::readNonBlocking()
         return "ERROR";
     }
 
-    while ( m_socket->bytesAvailable() != m_commandBytes )
+    while ( m_socket->bytesAvailable() < m_commandBytes )
     {
-        qDebug() << m_socket->bytesAvailable();
+        m_socket->waitForReadyRead(2);
     }
 
-    qDebug() << m_socket->readAll();
+    buffer = m_socket->readAll();
+    qDebug() << buffer;
 
     return buffer.right(m_commandBytes-m_wastedBytes);
 }

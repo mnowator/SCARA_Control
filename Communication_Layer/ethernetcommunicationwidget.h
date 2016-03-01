@@ -23,6 +23,7 @@ public:
     void setPort(QString const& port);
     void setWastedBytes(QString const& wastedBytes);
     void setCommandBytes(QString const& commandByets);
+    void setConnections();
 
     QString getAddress() const;
     QString getPort() const;

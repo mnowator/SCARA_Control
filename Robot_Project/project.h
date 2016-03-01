@@ -34,6 +34,7 @@ public:
     void setProjectState(const ProjectState &state);
 
     void setupThread(QThread* thread);
+    void setupConnections();
 
     ProjectThreadState getProjectThreadState() const;
 

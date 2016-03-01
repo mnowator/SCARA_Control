@@ -188,6 +188,11 @@ void Project::setupThread(QThread *thread)
     connect(thread,SIGNAL(started()),this,SLOT(doWork()));
 }
 
+void Project::setupConnections()
+{
+    m_ethernetCommunicationWidget->setConnections();
+}
+
 ProjectThreadState Project::getProjectThreadState() const
 {
     return m_projectThreadState;

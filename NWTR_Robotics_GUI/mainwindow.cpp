@@ -2578,6 +2578,7 @@ void MainWindow::openCommandPrompt(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
+            m_projects[project->text(0)]->setupConnections();
             m_projects[project->text(0)]->setProjectState(ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(0));
@@ -2607,6 +2608,7 @@ void MainWindow::openCommandPrompt(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
+            m_projects[project->text(2)]->setupConnections();
             m_projects[project->text(2)]->setProjectState(ControlledByCommandPrompt);
 
             commandPrompt->setTitle(project->text(2));
@@ -2661,6 +2663,7 @@ void MainWindow::openManualControl(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
+            m_projects[project->text(0)]->setupConnections();
             m_projects[project->text(0)]->setProjectState(ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(0));
@@ -2690,6 +2693,7 @@ void MainWindow::openManualControl(const QString &name)
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
+            m_projects[project->text(2)]->setupConnections();
             m_projects[project->text(2)]->setProjectState(ControlledByManualControl);
 
             manualControlDialog->setTitle(project->text(2));
