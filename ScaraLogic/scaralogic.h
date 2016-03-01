@@ -53,6 +53,7 @@ private:
 
     double computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle);
     double computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle);
+
     void computeCartesianPositionByAnglesAndDistance();
 
 public:
@@ -91,6 +92,8 @@ public:
     void motor1Homed();
     void motor2Homed();
     void motor3Homed();
+
+    void homing();
 
     void setFirstSegmentLength(double length);
     void setSecondSegmentLength(double length);

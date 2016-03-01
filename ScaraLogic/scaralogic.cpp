@@ -79,6 +79,11 @@ void ScaraLogic::motor3Homed()
     m_z = 0;
 }
 
+void ScaraLogic::homing()
+{
+
+}
+
 void ScaraLogic::setFirstSegmentLength(double length)
 {
     if ( length < MIN_FIRST_SEGMENT_LENGTH )

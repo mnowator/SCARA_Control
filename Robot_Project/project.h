@@ -15,6 +15,13 @@ enum ProjectState
     Idle,
 };
 
+enum ProjectThreadState
+{
+    NotRunning,
+    Running,
+    Paused,
+};
+
 class Q_DECL_EXPORT Project : public QObject
 {
     Q_OBJECT
@@ -28,8 +35,11 @@ public:
 
     void setupThread(QThread* thread);
 
+    ProjectThreadState getProjectThreadState() const;
+
 private:
-    ProjectState m_projectState;    
+    ProjectState m_projectState = Idle;
+    ProjectThreadState m_projectThreadState = NotRunning;
 
     EthernetCommunicationWidget* m_ethernetCommunicationWidget;
     ScaraLogic* m_scaraLogic;

@@ -24,6 +24,9 @@ public:
     void setWastedBytes(QString const& wastedBytes);
     void setCommandBytes(QString const& commandByets);
 
+    QString getAddress() const;
+    QString getPort() const;
+
 signals:
     void sendInfo(QString info);
     void pushCommand(QString command);
@@ -35,7 +38,7 @@ private slots:
 
 public slots:
     void sendCommand(QString command);
-    void establishConnection();
+    bool establishConnection();
     void dropConnection();
 };
 

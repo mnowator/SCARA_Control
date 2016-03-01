@@ -681,7 +681,9 @@ void MainWindow::openProjectProjectOrFile()
         sortProjectFiles(project);
 
         ui->projectExplorer->show();
+
         ui->actionCloseAllProjects->setEnabled(true);
+        ui->actionRun->setEnabled(true);
 
         file.close();
     }
@@ -876,7 +878,9 @@ void MainWindow::closeAllProjectsClicked()
 {
     ui->projectExplorer->clear();
     ui->projectExplorer->hide();
+
     ui->actionCloseAllProjects->setEnabled(false);
+    ui->actionRun->setEnabled(false);
 }
 
 void MainWindow::backClicked()
@@ -2074,6 +2078,23 @@ void MainWindow::threadFinished(const QString &name)
 
     m_projects.take(name);
     m_projects[name] = new Project();
+
+    m_threads.take(name);
+    m_threads[name] = new QThread();
+
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(name,Qt::MatchContains,0) )
+        // must be active
+    {
+        project->setIcon(0,QIcon(":/new/icons/lc_dbformopen.png"));
+
+        if ( project->text(0) > project->text(2))
+        {
+            ui->actionRun->setEnabled(true);
+            ui->actionPause->setEnabled(false);
+            ui->actionStop->setEnabled(false);
+            ui->actionRestart->setEnabled(false);
+        }
+    }
 }
 
 void MainWindow::deleteReloadFileDialog()
@@ -2429,11 +2450,10 @@ void MainWindow::removeClicked(const QString &data)
 void MainWindow::runClicked(const QString &name)
 {
     QString projectName = name == "current" ? m_activeProject : name;
-    unsigned column = name == "current" ? 2 : 0;
 
     saveProjectClicked(name);
 
-    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchCaseSensitive,column) )
+    foreach ( QTreeWidgetItem* project, ui->projectExplorer->findItems(projectName,Qt::MatchContains,0) )
     {
         QTreeWidgetItem* configFile;
         QString data, configFileName;
@@ -2452,6 +2472,9 @@ void MainWindow::runClicked(const QString &name)
 
         if ( project->text(0) < project->text(2) )
         {
+            if ( m_projects[project->text(0)]->getProjectThreadState() == Running )
+                return;
+
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(0)]->populateFromString(data);
@@ -2462,10 +2485,15 @@ void MainWindow::runClicked(const QString &name)
             m_threadFinishedMapper->setMapping(m_threads[project->text(0)],project->text(0));
             connect(m_threads[project->text(0)],SIGNAL(finished()),m_threadFinishedMapper,SLOT(map()));
 
-            m_threads[project->text(0)]->start();
+            project->setIcon(0,QIcon(":/new/icons/avl02049.png"));
+
+            m_threads[project->text(0)]->start(QThread::HighestPriority);
         }
         else if ( project->text(0) > project->text(2) ) // then project is active
         {
+            if ( m_projects[project->text(2)]->getProjectThreadState() == Running )
+                return;
+
             data = loadFile(configFile->text(1),configFileName);
 
             m_projects[project->text(2)]->populateFromString(data);
@@ -2476,7 +2504,9 @@ void MainWindow::runClicked(const QString &name)
             m_threadFinishedMapper->setMapping(m_threads[project->text(2)],project->text(2));
             connect(m_threads[project->text(2)],SIGNAL(finished()),m_threadFinishedMapper,SLOT(map()));
 
-            m_threads[project->text(2)]->start();
+            project->setIcon(0,QIcon(":/new/icons/avl02049.png"));
+
+            m_threads[project->text(2)]->start(QThread::HighestPriority);
 
             ui->actionRun->setEnabled(false);
             ui->actionPause->setEnabled(true);

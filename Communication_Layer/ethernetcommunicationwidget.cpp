@@ -32,6 +32,16 @@ void EthernetCommunicationWidget::setCommandBytes(const QString &commandByets)
     m_commandBytes = commandByets.toUInt(0,10);
 }
 
+QString EthernetCommunicationWidget::getAddress() const
+{
+    return m_address;
+}
+
+QString EthernetCommunicationWidget::getPort() const
+{
+    return m_port;
+}
+
 void EthernetCommunicationWidget::sendCommand(QString command)
 {
     if ( m_socket->state() != QAbstractSocket::ConnectedState )
@@ -87,14 +97,20 @@ void EthernetCommunicationWidget::disconnectedFromHost()
     emit sendInfo(tr("Disconnected from host."));
 }
 
-void EthernetCommunicationWidget::establishConnection()
+bool EthernetCommunicationWidget::establishConnection()
 {
     emit sendInfo(tr("Connecting to host at ")+m_address+":"+m_port+"...");
 
     m_socket->connectToHost(QHostAddress(m_address), m_port.toUShort(0,10));
 
     if ( !m_socket->waitForConnected(100) )
+    {
         emit sendInfo(tr("Connection has not been established."));
+
+        return false;
+    }
+
+    return true;
 }
 
 void EthernetCommunicationWidget::dropConnection()
