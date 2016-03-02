@@ -20,28 +20,31 @@ void ScaraRobotPythonWorker::homing()
         QString receivedCommand = m_communicator->readNonBlocking();
         QString simplifiedCommand = receivedCommand.simplified();
 
-        qDebug() << receivedCommand;
+        qDebug() << simplifiedCommand;
 
         simplifiedCommand.replace(" ", "");
 
-        if ( receivedCommand == "HOMING_M2_DONE")
+        if ( simplifiedCommand == "HOMING_M2_DONE")
         {
             firstSegmentHomed = true;
         }
-        else if ( receivedCommand == "HOMING_M3_DONE" )
+        else if ( simplifiedCommand == "HOMING_M3_DONE" )
         {
             secondSegmentHomed = true;
         }
-        else if ( receivedCommand == "HOMING_M4_DONE" )
+        else if ( simplifiedCommand == "HOMING_M4_DONE" )
         {
             thirdSegmentHomed = true;
         }
 
         if ( firstSegmentHomed && secondSegmentHomed && thirdSegmentHomed )
             break;
-
-        QThread::currentThread()->msleep(2);
     }
+}
+
+void ScaraRobotPythonWorker::moveXYSegmentAngles(double firstSegmentAngle, double secondSegmentAngle)
+{
+
 }
 
 void ScaraRobotPythonWorker::setCommuncator(EthernetCommunicationWidget *communicator)

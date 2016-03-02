@@ -16,7 +16,9 @@ private:
 public:
     explicit ScaraRobotPythonWorker(QObject *parent = 0);
 
+
     void homing();
+    void moveXYSegmentAngles(double firstSegmentAngle, double secondSegmentAngle);
 
     void setCommuncator(EthernetCommunicationWidget* communicator);
     void setLogic(ScaraLogic* logic);

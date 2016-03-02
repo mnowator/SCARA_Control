@@ -56,11 +56,10 @@ QString EthernetCommunicationWidget::readNonBlocking()
 
     while ( m_socket->bytesAvailable() < m_commandBytes )
     {
-        m_socket->waitForReadyRead(2);
+        m_socket->waitForReadyRead(1);
     }
 
-    buffer = m_socket->readAll();
-    qDebug() << buffer;
+    buffer = m_socket->read(m_commandBytes);
 
     return buffer.right(m_commandBytes-m_wastedBytes);
 }

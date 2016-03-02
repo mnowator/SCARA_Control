@@ -36,22 +36,16 @@ void ScaraLogic::computePositionBySteps(unsigned firstMotorSteps, unsigned secon
 void ScaraLogic::computeAnglePerStepMotor1()
 {
     m_motor1anglePerStep = (180+m_firstSegmentCWLimitAngle+m_firstSegmentCCWLimitAngle)/m_motor1maxSteps;
-
-    qDebug() << m_motor1anglePerStep;
 }
 
 void ScaraLogic::computeAnglePerStepMotor2()
 {
     m_motor2anglePerStep = (180+m_secondSegmentCWLimitAngle+m_secondSegmentCCWLimitAngle)/m_motor2maxSteps;
-
-    qDebug() << m_motor2anglePerStep;
 }
 
 void ScaraLogic::computeDistancePerStepMotor3()
 {
     m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/m_motor3maxSteps;
-
-    qDebug() << m_motor3distPerStep;
 }
 
 void ScaraLogic::motor1Homed()
