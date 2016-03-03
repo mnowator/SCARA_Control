@@ -34,6 +34,13 @@ private slots:
     void on_zMinusPushButton_released();
 
     void receiveCommand(QString command);
+    void positionHasChanged(double x, double y, double z);
+    void firstSegmentHomed();
+    void firstSegmentNotHomed();
+    void secondSegmentHomed();
+    void secondSegmentNotHomed();
+    void thirdSegmentHomed();
+    void thirdSegmentNotHomed();
     void receiveProjectInfo(QString info);
 
     void on_sendPushButton_clicked();

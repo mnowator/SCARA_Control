@@ -348,19 +348,6 @@ void ManualControlDialog::on_zMinusPushButton_released()
 
 void ManualControlDialog::receiveCommand(QString command)
 {
-    if ( command.contains("HOMING_M2_DONE"))
-    {
-        ui->homingFirstSegmentPushButon->setStyleSheet(currentButtonTheme);
-    }
-    else if( command.contains("HOMING_M3_DONE"))
-    {
-        ui->homingSecondSegmentPushButton->setStyleSheet(currentButtonTheme);
-    }
-    else if ( command.contains("HOMING_M4_DONE"))
-    {
-        ui->homingThirdSegmentPushButton->setStyleSheet(currentButtonTheme);
-    }
-
     QString text = deviceHTMLFormat % QString("["+m_title+"]:");
     QTextCursor cursor;
 
@@ -377,6 +364,43 @@ void ManualControlDialog::receiveCommand(QString command)
     cursor = ui->commandPromptTextEdit->textCursor();
     cursor.movePosition(QTextCursor::End);
     ui->commandPromptTextEdit->setTextCursor(cursor);
+}
+
+void ManualControlDialog::positionHasChanged(double x, double y, double z)
+{
+    ui->xLineEdit->setText(QString::number(x));
+    ui->yLineEdit->setText(QString::number(y));
+    ui->zLineEdit->setText(QString::number(z));
+}
+
+void ManualControlDialog::firstSegmentHomed()
+{
+    ui->homingFirstSegmentPushButon->setStyleSheet(currentButtonTheme);
+}
+
+void ManualControlDialog::firstSegmentNotHomed()
+{
+    ui->homingFirstSegmentPushButon->setStyleSheet(connectButtonsTheme);
+}
+
+void ManualControlDialog::secondSegmentHomed()
+{
+    ui->homingSecondSegmentPushButton->setStyleSheet(currentButtonTheme);
+}
+
+void ManualControlDialog::secondSegmentNotHomed()
+{
+    ui->homingSecondSegmentPushButton->setStyleSheet(connectButtonsTheme);
+}
+
+void ManualControlDialog::thirdSegmentHomed()
+{
+    ui->homingThirdSegmentPushButton->setStyleSheet(currentButtonTheme);
+}
+
+void ManualControlDialog::thirdSegmentNotHomed()
+{
+    ui->homingThirdSegmentPushButton->setStyleSheet(connectButtonsTheme);
 }
 
 void ManualControlDialog::receiveProjectInfo(QString info)
@@ -438,8 +462,6 @@ void ManualControlDialog::on_homingFirstSegmentPushButon_clicked()
 {
     emit sendCommand(QString("HOMINGM2"));
 
-    ui->homingFirstSegmentPushButon->setStyleSheet(connectButtonsTheme);
-
     QString toSend = ownTextHTMLFormat % ">>> ";
     QTextCursor cursor;
 
@@ -462,8 +484,6 @@ void ManualControlDialog::on_homingSecondSegmentPushButton_clicked()
 {
     emit sendCommand(QString("HOMINGM3"));
 
-    ui->homingSecondSegmentPushButton->setStyleSheet(connectButtonsTheme);
-
     QString toSend = ownTextHTMLFormat % ">>> ";
     QTextCursor cursor;
 
@@ -485,8 +505,6 @@ void ManualControlDialog::on_homingSecondSegmentPushButton_clicked()
 void ManualControlDialog::on_homingThirdSegmentPushButton_clicked()
 {
     emit sendCommand(QString("HOMINGM4"));
-
-    ui->homingThirdSegmentPushButton->setStyleSheet(connectButtonsTheme);
 
     QString toSend = ownTextHTMLFormat % ">>> ";
     QTextCursor cursor;

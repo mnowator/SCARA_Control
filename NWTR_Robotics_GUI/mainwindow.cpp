@@ -2674,6 +2674,13 @@ void MainWindow::openManualControl(const QString &name)
 
             connect(m_projects[project->text(0)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(0)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+            connect(m_projects[project->text(0)],SIGNAL(positionHasChanged(double,double,double)),manualControlDialog,SLOT(positionHasChanged(double,double,double)));
+            connect(m_projects[project->text(0)],SIGNAL(firstSegmentHomed()),manualControlDialog,SLOT(firstSegmentHomed()));
+            connect(m_projects[project->text(0)],SIGNAL(firstSegmentNotHomed()),manualControlDialog,SLOT(firstSegmentNotHomed()));
+            connect(m_projects[project->text(0)],SIGNAL(secondSegmentHomed()),manualControlDialog,SLOT(secondSegmentHomed()));
+            connect(m_projects[project->text(0)],SIGNAL(secondSegmentNotHomed()),manualControlDialog,SLOT(secondSegmentNotHomed()));
+            connect(m_projects[project->text(0)],SIGNAL(thirdSegmentHomed()),manualControlDialog,SLOT(thirdSegmentHomed()));
+            connect(m_projects[project->text(0)],SIGNAL(thirdSegmentNotHomed()),manualControlDialog,SLOT(thirdSegmentNotHomed()));
 
             m_commandPromptFinishedMapper->setMapping(manualControlDialog,project->text(0));
             connect(manualControlDialog,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));
@@ -2704,6 +2711,13 @@ void MainWindow::openManualControl(const QString &name)
 
             connect(m_projects[project->text(2)],SIGNAL(sendProjectInfo(QString)),manualControlDialog,SLOT(receiveProjectInfo(QString)));
             connect(m_projects[project->text(2)],SIGNAL(receivedCommand(QString)),manualControlDialog,SLOT(receiveCommand(QString)));
+            connect(m_projects[project->text(2)],SIGNAL(positionHasChanged(double,double,double)),manualControlDialog,SLOT(positionHasChanged(double,double,double)));
+            connect(m_projects[project->text(2)],SIGNAL(firstSegmentHomed()),manualControlDialog,SLOT(firstSegmentHomed()));
+            connect(m_projects[project->text(2)],SIGNAL(firstSegmentNotHomed()),manualControlDialog,SLOT(firstSegmentNotHomed()));
+            connect(m_projects[project->text(2)],SIGNAL(secondSegmentHomed()),manualControlDialog,SLOT(secondSegmentHomed()));
+            connect(m_projects[project->text(2)],SIGNAL(secondSegmentNotHomed()),manualControlDialog,SLOT(secondSegmentNotHomed()));
+            connect(m_projects[project->text(2)],SIGNAL(thirdSegmentHomed()),manualControlDialog,SLOT(thirdSegmentHomed()));
+            connect(m_projects[project->text(2)],SIGNAL(thirdSegmentNotHomed()),manualControlDialog,SLOT(thirdSegmentNotHomed()));
 
             m_commandPromptFinishedMapper->setMapping(manualControlDialog,project->text(2));
             connect(manualControlDialog,SIGNAL(finished(int)),m_commandPromptFinishedMapper,SLOT(map()));

@@ -298,7 +298,7 @@
              <number>100</number>
             </property>
             <property name="maximum">
-             <number>2000</number>
+             <number>5000</number>
             </property>
             <property name="singleStep">
              <number>100</number>
@@ -342,7 +342,7 @@
              <number>100</number>
             </property>
             <property name="maximum">
-             <number>2000</number>
+             <number>5000</number>
             </property>
             <property name="singleStep">
              <number>100</number>
@@ -377,10 +377,10 @@
              <set>Qt::AlignCenter</set>
             </property>
             <property name="minimum">
-             <number>100</number>
+             <number>10</number>
             </property>
             <property name="maximum">
-             <number>2000</number>
+             <number>5000</number>
             </property>
             <property name="singleStep">
              <number>100</number>
@@ -424,6 +424,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -444,6 +447,9 @@
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -463,6 +469,9 @@
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

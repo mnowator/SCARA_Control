@@ -1,59 +1,35 @@
 #include "scararobotpythonworker.h"
 
-ScaraRobotPythonWorker::ScaraRobotPythonWorker(QObject *parent) : QObject(parent)
+ScaraRobotPythonWorker::ScaraRobotPythonWorker(EthernetCommunicationWidget *communicator, ScaraLogic *logic, QObject *parent) : QObject(parent),
+    m_communicator(communicator),
+    m_logic(logic)
 {
 
 }
 
 void ScaraRobotPythonWorker::homing()
 {
-    bool firstSegmentHomed = false;
-    bool secondSegmentHomed = false;
-    bool thirdSegmentHomed = false;
-
-    m_communicator->sendCommand("HOMINGM2");
-    m_communicator->sendCommand("HOMINGM3");
-    m_communicator->sendCommand("HOMINGM4");
+    m_communicator->sendCommand(m_logic->firstSegmentHomingCommand);
+    m_communicator->sendCommand(m_logic->secondSegmentHomingCommand);
+    m_communicator->sendCommand(m_logic->thirdSegmentHomingCommand);
 
     while ( true )
     {
         QString receivedCommand = m_communicator->readNonBlocking();
-        QString simplifiedCommand = receivedCommand.simplified();
+        
+        m_logic->processCommand(receivedCommand);
 
-        qDebug() << simplifiedCommand;
-
-        simplifiedCommand.replace(" ", "");
-
-        if ( simplifiedCommand == "HOMING_M2_DONE")
+        if ( m_logic->getFirstSegmentHomingState() == HOMED &&
+             m_logic->getSecondSegmentHomingState() == HOMED &&
+             m_logic->getThirdSegmentHomingState() == HOMED)
         {
-            firstSegmentHomed = true;
-        }
-        else if ( simplifiedCommand == "HOMING_M3_DONE" )
-        {
-            secondSegmentHomed = true;
-        }
-        else if ( simplifiedCommand == "HOMING_M4_DONE" )
-        {
-            thirdSegmentHomed = true;
-        }
-
-        if ( firstSegmentHomed && secondSegmentHomed && thirdSegmentHomed )
             break;
+        }
     }
 }
 
 void ScaraRobotPythonWorker::moveXYSegmentAngles(double firstSegmentAngle, double secondSegmentAngle)
 {
 
-}
-
-void ScaraRobotPythonWorker::setCommuncator(EthernetCommunicationWidget *communicator)
-{
-    m_communicator = communicator;
-}
-
-void ScaraRobotPythonWorker::setLogic(ScaraLogic *logic)
-{
-    m_logic = logic;
 }
 

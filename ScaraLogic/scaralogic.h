@@ -11,6 +11,18 @@ enum SWITCH_ORIENTATION
     CCW,
 };
 
+enum HOMING_STATE
+{
+    NOT_HOMED,
+    HOMED,
+};
+
+enum MOTOR_STATE
+{
+    IN_USE,
+    NOT_USED,
+};
+
 class Q_DECL_EXPORT ScaraLogic : public QObject
 {
     Q_OBJECT
@@ -48,8 +60,19 @@ private:
     double m_motor2anglePerStep;
     double m_motor3distPerStep;
 
-    SWITCH_ORIENTATION m_motor1SwitchOrientation;
-    SWITCH_ORIENTATION m_motor2SwitchOrientation;
+    SWITCH_ORIENTATION m_firstSegmentHomingOrientation;
+    SWITCH_ORIENTATION m_secondSegmentHomingOrientation;
+    
+    HOMING_STATE m_firstSegmentHomingState = NOT_HOMED;
+    HOMING_STATE m_secondSegmentHomingState = NOT_HOMED;
+    HOMING_STATE m_thirdSegmentHomingState = NOT_HOMED;
+    
+    MOTOR_STATE m_firstSegmentMotorState = NOT_USED;
+    MOTOR_STATE m_secondSegmentMotorState = NOT_USED;
+    MOTOR_STATE m_thirdSegmentMotorState = NOT_USED;
+
+    double computeFirstSegmentAngleByStepsPosition(int stepsPos);
+    double computeSecondSegmentAngleByStepsPosition(int stepsPos);
 
     double computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle);
     double computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle);
@@ -82,6 +105,12 @@ public:
             return m_errorMsg;
         }
     };
+    
+    const QString firstSegmentHomingCommand = "HOMINGM2";
+    const QString secondSegmentHomingCommand = "HOMINGM3";
+    const QString thirdSegmentHomingCommand = "HOMINGM4";
+    
+    void processCommand(QString command);
 
     void computePositionBySteps(unsigned firstMotorSteps, unsigned secondMotorSteps, unsigned thirdMotorSteps);
 
@@ -92,8 +121,6 @@ public:
     void motor1Homed();
     void motor2Homed();
     void motor3Homed();
-
-    void homing();
 
     void setFirstSegmentLength(double length);
     void setSecondSegmentLength(double length);
@@ -130,7 +157,14 @@ public:
     unsigned getMotor1maxSteps() const;
     unsigned getMotor2maxSteps() const;
     unsigned getMotor3maxSteps() const;
-
+    
+    double getXCoordinate() const;
+    double getYCoordinate() const;
+    double getZCoordinate() const;
+    
+    HOMING_STATE getFirstSegmentHomingState() const;
+    HOMING_STATE getSecondSegmentHomingState() const;
+    HOMING_STATE getThirdSegmentHomingState() const;
 
 };
 

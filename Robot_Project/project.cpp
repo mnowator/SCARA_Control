@@ -161,8 +161,8 @@ bool Project::populateFromString(QString data)
         else return false;
 
         connect(m_ethernetCommunicationWidget,SIGNAL(sendInfo(QString)),this,SIGNAL(sendProjectInfo(QString)));
-        connect(m_ethernetCommunicationWidget,SIGNAL(pushCommand(QString)),this,SIGNAL(receivedCommand(QString)));
 
+        connect(m_ethernetCommunicationWidget,SIGNAL(pushCommand(QString)),this,SLOT(receivedCommandSlot(QString)));
         connect(this,SIGNAL(sendCommandSignal(QString)),m_ethernetCommunicationWidget,SLOT(sendCommand(QString)));
         connect(this,SIGNAL(establishConnectionSignal()),m_ethernetCommunicationWidget,SLOT(establishConnection()));
         connect(this,SIGNAL(dropConnectionSignal()),m_ethernetCommunicationWidget,SLOT(dropConnection()));
@@ -202,9 +202,7 @@ void Project::doWork()
 {
     m_projectThreadState = Running;
 
-    ScaraRobotPythonWorker worker;
-    worker.setCommuncator(m_ethernetCommunicationWidget);
-    worker.setLogic(m_scaraLogic);
+    ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
 
     qDebug() << "Project thread started...";
     qDebug() << "Thread id: " << QThread::currentThreadId();
@@ -312,6 +310,29 @@ void Project::doWork()
     m_projectThreadState = NotRunning;
     qDebug() << "Terminating used thread.";
     QThread::currentThread()->terminate();
+}
+
+void Project::receivedCommandSlot(QString command)
+{
+    m_scaraLogic->processCommand(command);
+
+    if ( m_scaraLogic->getFirstSegmentHomingState() == HOMED )
+        emit firstSegmentHomed();
+    else
+        emit firstSegmentNotHomed();
+
+    if ( m_scaraLogic->getSecondSegmentHomingState() == HOMED )
+        emit secondSegmentHomed();
+    else
+        emit secondSegmentNotHomed();
+
+    if ( m_scaraLogic->getThirdSegmentHomingState() == HOMED )
+        emit thirdSegmentHomed();
+    else
+        emit thirdSegmentNotHomed();
+
+    emit positionHasChanged(m_scaraLogic->getXCoordinate(),m_scaraLogic->getYCoordinate(),m_scaraLogic->getZCoordinate());
+    emit receivedCommand(command);
 }
 
 void Project::sendCommandSlot(QString command)

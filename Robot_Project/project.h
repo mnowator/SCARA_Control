@@ -52,11 +52,19 @@ signals:
     void establishConnectionSignal();
     void dropConnectionSignal();
     void changeState(ProjectState state);
+    void positionHasChanged(double x, double y, double z);
+    void firstSegmentHomed();
+    void firstSegmentNotHomed();
+    void secondSegmentHomed();
+    void secondSegmentNotHomed();
+    void thirdSegmentHomed();
+    void thirdSegmentNotHomed();
 
 private slots:
     void doWork();
 
 public slots:
+    void receivedCommandSlot(QString command);
     void sendCommandSlot(QString command);
     void establishConnectionSlot();
     void dropConnectionSlot();
