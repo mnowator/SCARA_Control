@@ -2,47 +2,57 @@
 #include <cmath>
 #include <QObject>
 
+#define PI 3.14159265
+
 #include <QDebug>
 
 double ScaraLogic::computeFirstSegmentAngleByStepsPosition(int stepsPos)
 {
-    if ( m_firstSegmentHomingState == CW )
+    if ( m_firstSegmentHomingOrientation == CW )
     {
-        m_firstSegmentAngle = (-stepsPos * m_motor1anglePerStep) - m_firstSegmentCWLimitAngle;
+        m_firstSegmentAngle = 90+m_firstSegmentCWLimitAngle+(stepsPos*m_motor1anglePerStep);
+        //m_firstSegmentAngle = (-stepsPos * m_motor1anglePerStep) - m_firstSegmentCWLimitAngle;
     }
-    else if ( m_firstSegmentHomingState == CCW )
+    else if ( m_firstSegmentHomingOrientation == CCW )
     {
-        m_firstSegmentAngle = 180+m_firstSegmentCCWLimitAngle -(stepsPos * m_motor1anglePerStep);
+        m_firstSegmentAngle = -90-m_firstSegmentCCWLimitAngle+(stepsPos*m_motor1anglePerStep);
+        //m_firstSegmentAngle = 180+m_firstSegmentCCWLimitAngle -(stepsPos * m_motor1anglePerStep);
     }
 
-    qDebug() << m_firstSegmentAngle;
 }
 
 double ScaraLogic::computeSecondSegmentAngleByStepsPosition(int stepsPos)
 {
-    if ( m_secondSegmentHomingState == CW )
+    if ( m_secondSegmentHomingOrientation == CW )
     {
-        m_secondSegmentAngle = (-stepsPos * m_motor2anglePerStep) - m_secondSegmentCWLimitAngle;
+        m_secondSegmentAngle = 90+m_secondSegmentCWLimitAngle+(stepsPos*m_motor2anglePerStep);
+        //m_secondSegmentAngle = (-stepsPos * m_motor2anglePerStep) - m_secondSegmentCWLimitAngle;
     }
-    else if ( m_secondSegmentHomingState == CCW )
+    else if ( m_secondSegmentHomingOrientation == CCW )
     {
-            qDebug() << m_secondSegmentAngle;
-        m_secondSegmentAngle = 180+m_secondSegmentCCWLimitAngle -(stepsPos * m_motor2anglePerStep);
+        m_secondSegmentAngle = -90-m_secondSegmentCCWLimitAngle+(stepsPos*m_motor2anglePerStep);
+        //m_secondSegmentAngle = 180+m_secondSegmentCCWLimitAngle -(stepsPos * m_motor2anglePerStep);
     }
 }
 
 double ScaraLogic::computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle)
-{
-    return m_firstSegmentLength*cos(firstSegmentAngle)
-            +m_secondSegmentLength*cos(secondSegmentAngle-90+firstSegmentAngle)
-            +m_correctionValue*cos(secondSegmentAngle-firstSegmentAngle);
+{    
+    return m_firstSegmentLength*sin(firstSegmentAngle*PI/180)+
+            m_secondSegmentLength*sin((firstSegmentAngle+secondSegmentAngle)*PI/180);
+
+//    return m_firstSegmentLength*cos(firstSegmentAngle)
+//            +m_secondSegmentLength*cos(secondSegmentAngle-90+firstSegmentAngle)
+//            +m_correctionValue*cos(secondSegmentAngle-firstSegmentAngle);
 }
 
 double ScaraLogic::computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle)
 {
-    return m_firstSegmentLength*sin(firstSegmentAngle)
-            +m_secondSegmentLength*sin(secondSegmentAngle-90+firstSegmentAngle)
-            +m_correctionValue*sin(secondSegmentAngle-firstSegmentAngle);
+    return m_firstSegmentLength*cos(firstSegmentAngle*PI/180)+
+            m_secondSegmentLength*cos((firstSegmentAngle+secondSegmentAngle)*PI/180);
+
+//    return m_firstSegmentLength*sin(firstSegmentAngle)
+//            +m_secondSegmentLength*sin(secondSegmentAngle-90+firstSegmentAngle)
+//            +m_correctionValue*sin(secondSegmentAngle-firstSegmentAngle);
 }
 
 void ScaraLogic::computeCartesianPositionByAnglesAndDistance()
@@ -165,9 +175,9 @@ void ScaraLogic::computeDistancePerStepMotor3()
 void ScaraLogic::motor1Homed()
 {
     if ( m_firstSegmentHomingOrientation == CW )
-        m_firstSegmentAngle = -m_firstSegmentCWLimitAngle;
+        m_firstSegmentAngle = m_firstSegmentCWLimitAngle+90;
     else if ( m_firstSegmentHomingOrientation == CCW )
-        m_firstSegmentAngle = 180+m_firstSegmentCCWLimitAngle;
+        m_firstSegmentAngle = -m_firstSegmentCCWLimitAngle-90;
 
     computeCartesianPositionByAnglesAndDistance();
 }
@@ -175,9 +185,9 @@ void ScaraLogic::motor1Homed()
 void ScaraLogic::motor2Homed()
 {
     if ( m_secondSegmentHomingOrientation == CW )
-        m_secondSegmentAngle = -m_secondSegmentCWLimitAngle;
+        m_secondSegmentAngle = m_secondSegmentCWLimitAngle+90;
     else if ( m_secondSegmentHomingOrientation == CCW )
-        m_secondSegmentAngle = 180+m_secondSegmentCCWLimitAngle;
+        m_secondSegmentAngle = -m_secondSegmentCCWLimitAngle-90;
 
     computeCartesianPositionByAnglesAndDistance();
 }
