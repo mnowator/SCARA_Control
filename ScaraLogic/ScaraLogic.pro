@@ -11,9 +11,11 @@ CONFIG += c++11
 TARGET = ScaraLogic
 TEMPLATE = lib
 
-SOURCES += scaralogic.cpp
+SOURCES += scaralogic.cpp \
+    steppermotorramp.cpp
 
-HEADERS += scaralogic.h
+HEADERS += scaralogic.h \
+    steppermotorramp.h
 
 unix {
     target.path = /usr/lib

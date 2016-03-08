@@ -590,10 +590,55 @@ void ManualControlDialog::on_thirdSegmentSpinBox_editingFinished()
     ui->commandPromptTextEdit->setTextCursor(cursor);
 }
 
+void ManualControlDialog::on_pickNPlacePushButton_clicked()
+{
+    QString command;
+
+    if ( ui->pickNPlacePushButton->text() == "Pick" )
+    {
+        emit sendCommand("SUCK");
+
+        command = "SUCK";
+
+        ui->pickNPlacePushButton->setText("Place");
+        ui->pickNPlacePushButton->setStyleSheet(disconnectButtonsTheme);
+    }
+    else
+    {
+        emit sendCommand("RSUCK");
+
+        command = "RUSCK";
+
+        ui->pickNPlacePushButton->setText("Pick");
+        ui->pickNPlacePushButton->setStyleSheet(connectButtonsTheme);
+    }
 
 
+    QString toSend = ownTextHTMLFormat % ">>> ";
+    QTextCursor cursor;
 
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
 
+    ui->commandPromptTextEdit->insertHtml(toSend);
+
+    toSend = dataHTMLFormat % command;
+    ui->commandPromptTextEdit->insertHtml(toSend);
+    ui->commandPromptTextEdit->insertPlainText("\n");
+
+    cursor = ui->commandPromptTextEdit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    ui->commandPromptTextEdit->setTextCursor(cursor);
+}
+
+void ManualControlDialog::on_pickNPlacePushButton_pressed()
+{
+}
+
+void ManualControlDialog::on_pickNPlacePushButton_released()
+{
+}
 
 
 

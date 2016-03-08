@@ -51,6 +51,12 @@ private slots:
     void on_secondSegmentSpinBox_editingFinished();
     void on_thirdSegmentSpinBox_editingFinished();
 
+    void on_pickNPlacePushButton_clicked();
+
+    void on_pickNPlacePushButton_pressed();
+
+    void on_pickNPlacePushButton_released();
+
 signals:
     void sendCommand(QString command);
     void establishConnection();
