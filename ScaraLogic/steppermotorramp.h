@@ -7,7 +7,7 @@ class StepperMotorRamp
 private:
     unsigned m_startVelocity = 0;
     unsigned m_stopVelocity = 0;
-    unsigned m_maximumVelocity = 0;
+    unsigned m_targetVelocity = 0;
     unsigned m_acceleration = 0;
     unsigned m_deceleration = 0;
     double m_rampDownTime = 0;
@@ -20,7 +20,7 @@ public:
 
     void setStartVelovity(unsigned velocity);
     void setStopVelocity(unsigned velocity);
-    void setMaximumVelocity(unsigned velocity);
+    void setTargetVelocity(unsigned velocity);
     void setAcceleration(unsigned acceleration);
     void setDeceleration(unsigned deceleration);
     void setRampDownTime(double time);

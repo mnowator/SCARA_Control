@@ -1,4 +1,5 @@
 #include "steppermotorramp.h"
+#include <cmath>
 
 StepperMotorRamp::StepperMotorRamp()
 {
@@ -6,8 +7,13 @@ StepperMotorRamp::StepperMotorRamp()
 }
 
 double StepperMotorRamp::accumulateTimeForSteps(unsigned steps)
+/* Calculation use geometric stange things xd*/
 {
+    double accumulatedTime = steps/m_targetVelocity;
+    double rampUpTime = (m_targetVelocity - m_startVelocity)/m_acceleration;
+    double rampDownTime = (m_targetVelocity - m_stopVelocity)/m_deceleration;
 
+    return accumulatedTime;
 }
 
 void StepperMotorRamp::setStartVelovity(unsigned velocity)
@@ -20,9 +26,9 @@ void StepperMotorRamp::setStopVelocity(unsigned velocity)
     m_stopVelocity = velocity;
 }
 
-void StepperMotorRamp::setMaximumVelocity(unsigned velocity)
+void StepperMotorRamp::setTargetVelocity(unsigned velocity)
 {
-    m_maximumVelocity = velocity;
+    m_targetVelocity = velocity;
 }
 
 void StepperMotorRamp::setAcceleration(unsigned acceleration)
