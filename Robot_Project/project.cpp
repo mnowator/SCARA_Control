@@ -231,9 +231,11 @@ void Project::doWork()
         return;
     }
 
-    qDebug() << "Homing motors...";
-    worker.homing();
-    qDebug() << "Motors homed.";
+//    qDebug() << "Homing motors...";
+//    worker.homing();
+//    qDebug() << "Motors homed.";
+
+    worker.moveToPoint(12,12,12);
 
     for ( unsigned i=0; i<10; ++i)
     {

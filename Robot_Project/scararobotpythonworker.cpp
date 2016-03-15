@@ -28,8 +28,35 @@ void ScaraRobotPythonWorker::homing()
     }
 }
 
-void ScaraRobotPythonWorker::moveXYSegmentAngles(double firstSegmentAngle, double secondSegmentAngle)
+void ScaraRobotPythonWorker::moveToPoint(double x, double y, double z)
 {
+    QStringList commands = m_logic->moveToPoint(x,y,z);
 
+    foreach ( QString command, commands)
+        m_communicator->sendCommand(command);
+
+    while ( true )
+    {
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getFirstSegmentMotorState() == NOT_USED &&
+             m_logic->getSecondSegmentMotorState() == NOT_USED &&
+             m_logic->getThirdSegmentMotorState() == NOT_USED )
+        {
+            break;
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
 

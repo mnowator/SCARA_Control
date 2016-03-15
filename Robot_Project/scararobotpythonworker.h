@@ -18,11 +18,8 @@ public:
 
 
     void homing();
-    void moveXYSegmentAngles(double firstSegmentAngle, double secondSegmentAngle);
 
-signals:
-
-public slots:
+    void moveToPoint(double x, double y, double z);
 };
 
 #endif // SCARAROBOTPYTHONWORKER_H

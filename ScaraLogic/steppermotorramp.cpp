@@ -1,19 +1,32 @@
 #include "steppermotorramp.h"
 #include <cmath>
 
-StepperMotorRamp::StepperMotorRamp()
+#include <QDebug>
+
+StepperMotorRamp::StepperMotorRamp(QObject *parent)
+    : QObject(parent)
 {
 
 }
 
-double StepperMotorRamp::accumulateTimeForSteps(unsigned steps)
-/* Calculation use geometric stange things xd*/
+StepperMotorRamp &StepperMotorRamp::operator ++()
 {
-    double accumulatedTime = steps/m_targetVelocity;
-    double rampUpTime = (m_targetVelocity - m_startVelocity)/m_acceleration;
-    double rampDownTime = (m_targetVelocity - m_stopVelocity)/m_deceleration;
+    ++m_accumulatedSteps;
+}
 
-    return accumulatedTime;
+StepperMotorRamp &StepperMotorRamp::operator --()
+{
+    if ( m_accumulatedSteps > 0 )
+        --m_accumulatedSteps;
+}
+
+double StepperMotorRamp::accumulatedTime()
+{
+    qDebug() << m_accumulatedSteps << "steps";
+
+    m_accumulatedTime = m_accumulatedSteps/m_targetVelocity;
+
+    return m_accumulatedTime;
 }
 
 void StepperMotorRamp::setStartVelovity(unsigned velocity)
@@ -63,7 +76,7 @@ unsigned StepperMotorRamp::getStopVelovity() const
 
 unsigned StepperMotorRamp::getMaxiumumVelocity() const
 {
-    return m_maximumVelocity;
+    return m_targetVelocity;
 }
 
 unsigned StepperMotorRamp::getAcceleration() const

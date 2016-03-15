@@ -11,12 +11,10 @@ double ScaraLogic::computeFirstSegmentAngleByStepsPosition(int stepsPos)
     if ( m_firstSegmentHomingOrientation == CW )
     {
         m_firstSegmentAngle = 90+m_firstSegmentCWLimitAngle+(stepsPos*m_motor1anglePerStep);
-        //m_firstSegmentAngle = (-stepsPos * m_motor1anglePerStep) - m_firstSegmentCWLimitAngle;
     }
     else if ( m_firstSegmentHomingOrientation == CCW )
     {
         m_firstSegmentAngle = -90-m_firstSegmentCCWLimitAngle+(stepsPos*m_motor1anglePerStep);
-        //m_firstSegmentAngle = 180+m_firstSegmentCCWLimitAngle -(stepsPos * m_motor1anglePerStep);
     }
 
 }
@@ -26,12 +24,10 @@ double ScaraLogic::computeSecondSegmentAngleByStepsPosition(int stepsPos)
     if ( m_secondSegmentHomingOrientation == CW )
     {
         m_secondSegmentAngle = 90+m_secondSegmentCWLimitAngle+(stepsPos*m_motor2anglePerStep);
-        //m_secondSegmentAngle = (-stepsPos * m_motor2anglePerStep) - m_secondSegmentCWLimitAngle;
     }
     else if ( m_secondSegmentHomingOrientation == CCW )
     {
         m_secondSegmentAngle = -90-m_secondSegmentCCWLimitAngle+(stepsPos*m_motor2anglePerStep);
-        //m_secondSegmentAngle = 180+m_secondSegmentCCWLimitAngle -(stepsPos * m_motor2anglePerStep);
     }
 }
 
@@ -39,20 +35,12 @@ double ScaraLogic::computeXCoordinate(double firstSegmentAngle, double secondSeg
 {    
     return m_firstSegmentLength*sin(firstSegmentAngle*PI/180)+
             m_secondSegmentLength*sin((firstSegmentAngle+secondSegmentAngle)*PI/180);
-
-//    return m_firstSegmentLength*cos(firstSegmentAngle)
-//            +m_secondSegmentLength*cos(secondSegmentAngle-90+firstSegmentAngle)
-//            +m_correctionValue*cos(secondSegmentAngle-firstSegmentAngle);
 }
 
 double ScaraLogic::computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle)
 {
     return m_firstSegmentLength*cos(firstSegmentAngle*PI/180)+
             m_secondSegmentLength*cos((firstSegmentAngle+secondSegmentAngle)*PI/180);
-
-//    return m_firstSegmentLength*sin(firstSegmentAngle)
-//            +m_secondSegmentLength*sin(secondSegmentAngle-90+firstSegmentAngle)
-//            +m_correctionValue*sin(secondSegmentAngle-firstSegmentAngle);
 }
 
 void ScaraLogic::computeCartesianPositionByAnglesAndDistance()
@@ -360,6 +348,26 @@ HOMING_STATE ScaraLogic::getSecondSegmentHomingState() const
 HOMING_STATE ScaraLogic::getThirdSegmentHomingState() const
 {
     return m_thirdSegmentHomingState;
+}
+
+MOTOR_STATE ScaraLogic::getFirstSegmentMotorState() const
+{
+    return m_firstSegmentMotorState;
+}
+
+MOTOR_STATE ScaraLogic::getSecondSegmentMotorState() const
+{
+    return m_secondSegmentMotorState;
+}
+
+MOTOR_STATE ScaraLogic::getThirdSegmentMotorState() const
+{
+    return m_thirdSegmentMotorState;
+}
+
+QStringList ScaraLogic::moveToPoint(double x, double y, double z)
+{
+
 }
 
 

@@ -5,6 +5,8 @@
 #include <QString>
 #include <QObject>
 
+#include <steppermotorramp.h>
+
 enum SWITCH_ORIENTATION
 {
     CW,
@@ -109,6 +111,10 @@ public:
     const QString firstSegmentHomingCommand = "HOMINGM2";
     const QString secondSegmentHomingCommand = "HOMINGM3";
     const QString thirdSegmentHomingCommand = "HOMINGM4";
+
+    const QString firstSegmentAbsoluteMoveCommand = "ABM2";
+    const QString secondSegmentAbsoluteMoveCommand = "ABM3";
+    const QString thirdSegmentAbsoluteMoveCommand = "ABM4";
     
     void processCommand(QString command);
 
@@ -165,6 +171,12 @@ public:
     HOMING_STATE getFirstSegmentHomingState() const;
     HOMING_STATE getSecondSegmentHomingState() const;
     HOMING_STATE getThirdSegmentHomingState() const;
+
+    MOTOR_STATE getFirstSegmentMotorState() const;
+    MOTOR_STATE getSecondSegmentMotorState() const;
+    MOTOR_STATE getThirdSegmentMotorState() const;
+
+    QStringList moveToPoint( double x, double y, double z);
 
 };
 
