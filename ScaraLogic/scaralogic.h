@@ -38,6 +38,10 @@ private:
     double m_y = 0;
     double m_z = 0;
 
+    int m_firstSegmentPosInSteps = 0;
+    int m_secondSegmentPosInSteps = 0;
+    int m_thirdSegmentPosInStpes = 0;
+
     double m_firstSegmentAngle = 0;
     double m_secondSegmentAngle = 0;
 
@@ -176,7 +180,7 @@ public:
     MOTOR_STATE getSecondSegmentMotorState() const;
     MOTOR_STATE getThirdSegmentMotorState() const;
 
-    QStringList moveToPoint( double x, double y, double z);
+    QStringList moveToPoint(double x, double y, double z, double e=0.1);
 
 };
 

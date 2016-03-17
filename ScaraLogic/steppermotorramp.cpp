@@ -24,7 +24,7 @@ double StepperMotorRamp::accumulatedTime()
 {
     qDebug() << m_accumulatedSteps << "steps";
 
-    m_accumulatedTime = m_accumulatedSteps/m_targetVelocity;
+    m_accumulatedTime = abs( m_accumulatedSteps/m_targetVelocity );
 
     return m_accumulatedTime;
 }
@@ -52,6 +52,11 @@ void StepperMotorRamp::setAcceleration(unsigned acceleration)
 void StepperMotorRamp::setDeceleration(unsigned deceleration)
 {
     m_deceleration = deceleration;
+}
+
+void StepperMotorRamp::setAcumulatedSteps(int steps)
+{
+    m_accumulatedSteps = steps;
 }
 
 void StepperMotorRamp::setRampDownTime(double time)

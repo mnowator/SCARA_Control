@@ -14,7 +14,7 @@ private:
     unsigned m_targetVelocity = 0;
     unsigned m_acceleration = 0;
     unsigned m_deceleration = 0;
-    unsigned m_accumulatedSteps = 0;
+    int m_accumulatedSteps = 0;
     unsigned m_accumulatedTime = 0;
     double m_rampDownTime = 0;
     double m_rampUpTime = 0;
@@ -32,6 +32,7 @@ public:
     void setTargetVelocity(unsigned velocity);
     void setAcceleration(unsigned acceleration);
     void setDeceleration(unsigned deceleration);
+    void setAcumulatedSteps(int steps);
     void setRampDownTime(double time);
     void setRampUpTime(double time);
 

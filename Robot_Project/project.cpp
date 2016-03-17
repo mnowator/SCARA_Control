@@ -235,72 +235,74 @@ void Project::doWork()
 //    worker.homing();
 //    qDebug() << "Motors homed.";
 
-    worker.moveToPoint(12,12,12);
+//    worker.testCommands();
 
-    for ( unsigned i=0; i<10; ++i)
-    {
-        qDebug() << i;
+    worker.moveToPoint(-200,-50,0);
 
-        QThread::currentThread()->msleep(1000);
-
-//        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
-//        m_ethernetCommunicationWidget->sendCommand("ABM33976");
-
-//        QThread::currentThread()->msleep(4000);
-
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-100");
-
-//        QThread::currentThread()->msleep(2000);
-
-//        m_ethernetCommunicationWidget->sendCommand("SUCK");
+//    for ( unsigned i=0; i<10; ++i)
+//    {
+//        qDebug() << i;
 
 //        QThread::currentThread()->msleep(1000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+////        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
+////        m_ethernetCommunicationWidget->sendCommand("ABM33976");
 
-//        QThread::currentThread()->msleep(2000);
+////        QThread::currentThread()->msleep(4000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM2-7855");
-//        m_ethernetCommunicationWidget->sendCommand("ABM313291");
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-100");
 
-//        QThread::currentThread()->msleep(4000);
+////        QThread::currentThread()->msleep(2000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-110");
+////        m_ethernetCommunicationWidget->sendCommand("SUCK");
 
-//        QThread::currentThread()->msleep(1000);
+////        QThread::currentThread()->msleep(1000);
 
-//        m_ethernetCommunicationWidget->sendCommand("RSUCK");
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
 
-//        QThread::currentThread()->msleep(2000);
+////        QThread::currentThread()->msleep(2000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+////        m_ethernetCommunicationWidget->sendCommand("ABM2-7855");
+////        m_ethernetCommunicationWidget->sendCommand("ABM313291");
 
-//        QThread::currentThread()->msleep(2000);
+////        QThread::currentThread()->msleep(4000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-125");
-//        QThread::currentThread()->msleep(2000);
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-110");
 
-//        m_ethernetCommunicationWidget->sendCommand("SUCK");
-//        QThread::currentThread()->msleep(1000);
+////        QThread::currentThread()->msleep(1000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+////        m_ethernetCommunicationWidget->sendCommand("RSUCK");
 
-//        QThread::currentThread()->msleep(2000);
+////        QThread::currentThread()->msleep(2000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
-//        m_ethernetCommunicationWidget->sendCommand("ABM33976");
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
 
-//        QThread::currentThread()->msleep(4000);
+////        QThread::currentThread()->msleep(2000);
 
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-95");
-//        QThread::currentThread()->msleep(1000);
-//        m_ethernetCommunicationWidget->sendCommand("RSUCK");
-//        QThread::currentThread()->msleep(1000);
-//        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
-//        QThread::currentThread()->msleep(1000);
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-125");
+////        QThread::currentThread()->msleep(2000);
+
+////        m_ethernetCommunicationWidget->sendCommand("SUCK");
+////        QThread::currentThread()->msleep(1000);
+
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+
+////        QThread::currentThread()->msleep(2000);
+
+////        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
+////        m_ethernetCommunicationWidget->sendCommand("ABM33976");
+
+////        QThread::currentThread()->msleep(4000);
+
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-95");
+////        QThread::currentThread()->msleep(1000);
+////        m_ethernetCommunicationWidget->sendCommand("RSUCK");
+////        QThread::currentThread()->msleep(1000);
+////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
+////        QThread::currentThread()->msleep(1000);
 
 
-    }
+//    }
 
     qDebug() << "Droping connection...";
     m_ethernetCommunicationWidget->dropConnection();

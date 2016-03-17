@@ -106,6 +106,15 @@ void EthernetCommunicationWidget::readyRead()
     while ( m_socket->bytesAvailable())
         data += m_socket->readAll();
 
+    QFile file("F:\data.txt");
+
+    file.open(QFile::ReadWrite  | QFile::Text | QFile::Append );
+
+    file.write(data.toStdString().c_str());
+    file.write("\n");
+
+    file.close();
+
     emit pushCommand(data.right(m_commandBytes-m_wastedBytes));
 }
 

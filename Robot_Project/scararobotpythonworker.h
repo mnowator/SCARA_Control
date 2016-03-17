@@ -19,6 +19,8 @@ public:
 
     void homing();
 
+    void testCommands();
+
     void moveToPoint(double x, double y, double z);
 };
 
