@@ -61,22 +61,27 @@ void ScaraRobotPythonWorker::moveToPoint(double x, double y, double z)
 {
     QStringList commands = m_logic->moveToPoint(x,y,0);
 
-    m_communicator->sendCommand(commands[0]);
-    m_communicator->sendCommand(commands[1]);
+//    m_communicator->sendCommand(commands[0]);
 
-    forever
-    {
+    qDebug() << commands[0];
 
-        QString receivedCommand = m_communicator->readNonBlocking();
+//    m_communicator->sendCommand(commands[1]);
 
-        m_logic->processCommand(receivedCommand);
+    qDebug() << commands[1];
 
-        if ( m_logic->getFirstSegmentMotorState() == NOT_USED &&
-             m_logic->getSecondSegmentMotorState() == NOT_USED)
-        {
-            break;
-        }
-    }
+//    forever
+//    {
+
+//        QString receivedCommand = m_communicator->readNonBlocking();
+
+//        m_logic->processCommand(receivedCommand);
+
+//        if ( m_logic->getFirstSegmentMotorState() == NOT_USED &&
+//             m_logic->getSecondSegmentMotorState() == NOT_USED)
+//        {
+//            break;
+//        }
+//    }
 }
 
 

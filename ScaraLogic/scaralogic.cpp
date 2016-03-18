@@ -384,8 +384,12 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
     double l_firstSegmentPosInSteps = m_firstSegmentPosInSteps;
     double l_secondSegmentPosInSteps = m_secondSegmentPosInSteps;
 
+    QList<QString> stepsHistory;
+
     while ( hypot(l_x-x, l_y-y) > e ) // test case
     {
+        QList<double> distances;
+
         // Steps after first segment move left
         int safsml = l_firstSegmentPosInSteps - 1;
         // Steps after first segment move right
@@ -395,58 +399,107 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
         // Steps after second segment move right
         int sassmr = l_secondSegmentPosInSteps + 1;
 
-       double safsml_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(safsml),
-                                            computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
-       double safsml_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(safsml),
-                                            computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
-       double safsml_distanceToTarget = hypot(safsml_x-x,safsml_y-y);
+
+        double safsml_distanceToTarget;
+
+        if ( (m_firstSegmentHomingOrientation == CW && safsml <= 0) ||
+             (m_firstSegmentHomingOrientation == CCW && safsml >= 0) )
+        {
+            double safsml_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(safsml),
+                                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+            double safsml_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(safsml),
+                                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+            safsml_distanceToTarget = hypot(safsml_x-x,safsml_y-y);
+            distances.append(safsml_distanceToTarget);
+        }
 
 
-       double safsmr_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(safsmr),
-                                            computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
-       double safsmr_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(safsmr),
-                                            computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
-       double safsmr_distanceToTarget = hypot(safsmr_x-x,safsmr_y-y);
+        double safsmr_distanceToTarget;
+
+        if ( (m_firstSegmentHomingOrientation == CW && safsmr <= 0) ||
+             (m_firstSegmentHomingOrientation == CCW && safsmr >= 0) )
+        {
+            double safsmr_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(safsmr),
+                                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+            double safsmr_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(safsmr),
+                                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+            safsmr_distanceToTarget = hypot(safsmr_x-x,safsmr_y-y);
+            distances.append(safsmr_distanceToTarget);
+        }
 
 
-       double sassml_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                            computeSecondSegmentAngleByStepsPosition(sassml));
-       double sassml_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                            computeSecondSegmentAngleByStepsPosition(sassml));
-       double sassml_distanceToTarget = hypot(sassml_x-x,sassml_y-y);
+        double sassml_distanceToTarget;
 
+        if ( (m_secondSegmentHomingOrientation == CW && sassml <= 0) ||
+             (m_secondSegmentHomingOrientation == CCW && sassml >= 0) )
+        {
+            double sassml_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                                 computeSecondSegmentAngleByStepsPosition(sassml));
+            double sassml_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                                 computeSecondSegmentAngleByStepsPosition(sassml));
+            sassml_distanceToTarget = hypot(sassml_x-x,sassml_y-y);
+            sassmlAllowed = true;
+            distances.append(sassml_distanceToTarget);
+        }
 
-       double sassmr_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                            computeSecondSegmentAngleByStepsPosition(sassmr));
-       double sassmr_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                            computeSecondSegmentAngleByStepsPosition(sassmr));
-       double sassmr_distanceToTarget = hypot(sassmr_x-x,sassmr_y-y);
+        double sassmr_distanceToTarget;
 
+        if ( (m_secondSegmentHomingOrientation == CW && sassmr <= 0) ||
+             (m_secondSegmentHomingOrientation == CCW && sassmr >= 0) )
+        {
+            double sassmr_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                                 computeSecondSegmentAngleByStepsPosition(sassmr));
+            double sassmr_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                                 computeSecondSegmentAngleByStepsPosition(sassmr));
+            sassmr_distanceToTarget = hypot(sassmr_x-x,sassmr_y-y);
+            distances.append(sassmr_distanceToTarget);
+        }
 
-       QList<double> distances;
+        double min = *std::min_element(distances.begin(),distances.end());
 
-       distances.append(safsml_distanceToTarget);
-       distances.append(safsmr_distanceToTarget);
-       distances.append(sassml_distanceToTarget);
-       distances.append(sassmr_distanceToTarget);
+        if ( (min == safsml_distanceToTarget) )
+        {
+            l_firstSegmentPosInSteps = safsml;
 
-       double min = *std::min_element(distances.begin(),distances.end());
+            if ( stepsHistory.length() == 3 )
+                stepsHistory.takeFirst();
 
-       if ( min == safsml_distanceToTarget )
-           l_firstSegmentPosInSteps = safsml;
-       else if ( min == safsmr_distanceToTarget)
-           l_firstSegmentPosInSteps = safsmr;
-       else if ( min == sassml_distanceToTarget )
-           l_secondSegmentPosInSteps = sassml;
-       else if ( min == sassmr_distanceToTarget )
-           l_secondSegmentPosInSteps = sassmr;
+            stepsHistory.append("SAFSML");
+        }
+        else if ( (min == safsmr_distanceToTarget) )
+        {
+            l_firstSegmentPosInSteps = safsmr;
 
-       l_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
-       l_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
-                                computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+            if ( stepsHistory.length() == 3 )
+                stepsHistory.takeFirst();
 
-       int t = 0;
+            stepsHistory.append("SAFSMR");
+        }
+        else if ( (min == sassml_distanceToTarget) )
+        {
+            l_secondSegmentPosInSteps = sassml;
+
+            if ( stepsHistory.length() == 3 )
+                stepsHistory.takeFirst();
+
+            stepsHistory.append("SASSML");
+        }
+        else if ( (min == sassmr_distanceToTarget) )
+        {
+            l_secondSegmentPosInSteps = sassmr;
+
+            if ( stepsHistory.length() == 3 )
+                stepsHistory.takeFirst();
+
+            stepsHistory.append("SASSMR");
+        }
+
+        l_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+        l_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(l_firstSegmentPosInSteps),
+                                 computeSecondSegmentAngleByStepsPosition(l_secondSegmentPosInSteps));
+
+        int t;
     }
 
     commands.append(firstSegmentAbsoluteMoveCommand+QString::number(l_firstSegmentPosInSteps));
