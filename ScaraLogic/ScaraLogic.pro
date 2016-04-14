@@ -8,14 +8,18 @@ QT       += core
 
 CONFIG += c++11
 
+QMAKE_LFLAGS_WINDOWS += -Wl,--heap,7500000000
+
 TARGET = ScaraLogic
 TEMPLATE = lib
 
 SOURCES += scaralogic.cpp \
-    steppermotorramp.cpp
+    steppermotorramp.cpp \
+    node.cpp
 
 HEADERS += scaralogic.h \
-    steppermotorramp.h
+    steppermotorramp.h \
+    node.h
 
 unix {
     target.path = /usr/lib

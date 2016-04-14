@@ -237,7 +237,7 @@ void Project::doWork()
 
 //    worker.testCommands();
 
-    worker.moveToPoint(0,200,0);
+    worker.moveToPoint(-200,200,10);
 
 //    for ( unsigned i=0; i<10; ++i)
 //    {

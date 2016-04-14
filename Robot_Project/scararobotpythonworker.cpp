@@ -63,11 +63,11 @@ void ScaraRobotPythonWorker::moveToPoint(double x, double y, double z)
 
 //    m_communicator->sendCommand(commands[0]);
 
-    qDebug() << commands[0];
+//    qDebug() << commands[0];
 
 //    m_communicator->sendCommand(commands[1]);
 
-    qDebug() << commands[1];
+//    qDebug() << commands[1];
 
 //    forever
 //    {
