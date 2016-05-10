@@ -35,62 +35,66 @@ bool Project::populateFromString(QString data)
 
         element = root.namedItem("LengthOfFirstSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentLength(element.text().toDouble());
+        {
+            m_scaraLogic->setFirstSegmentLength(element.text().replace(",",".").toDouble());
+        }
         else return false;
 
         element = root.namedItem("LengthOfSecondSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setSecondSegmentLength(element.text().toDouble());
+            m_scaraLogic->setSecondSegmentLength(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("CorrectionValue").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setCorrectionValue(element.text().toDouble());
+            m_scaraLogic->setCorrectionValue(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("FirstSegmentAngleOnCw").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentCWLimitAngle(element.text().toDouble());
+        {
+            m_scaraLogic->setFirstSegmentCWLimitAngle(element.text().replace(",",".").toDouble());
+        }
         else return false;
 
         element = root.namedItem("FirstSegmentAngleOnCCW").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setFirstSegmentCCWLimitAngle(element.text().toDouble());
+            m_scaraLogic->setFirstSegmentCCWLimitAngle(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("NumberOfStepsForFirstSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setMotor1maxSteps(element.text().toUInt());
+            m_scaraLogic->setMotor1maxSteps(element.text().replace(",",".").toUInt());
         else return false;
 
         element = root.namedItem("SecondSegmentAngleOnCw").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setSecondSegmentCWLimitAngle(element.text().toDouble());
+            m_scaraLogic->setSecondSegmentCWLimitAngle(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("SecondSegmentAngleOnCCW").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setSecondSegmentCCWLimitAngle(element.text().toDouble());
+            m_scaraLogic->setSecondSegmentCCWLimitAngle(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("NumberOfStepsForSecondSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setMotor2maxSteps(element.text().toUInt());
+            m_scaraLogic->setMotor2maxSteps(element.text().replace(",",".").toUInt());
         else return false;
 
         element = root.namedItem("LengthOfThirdSegment").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setThirdSegmentLength(element.text().toDouble());
+            m_scaraLogic->setThirdSegmentLength(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("DistanceBetweenTwoLimtsOnZ").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setDistanceBetweenTwoLimitsOnZ(element.text().toDouble());
+            m_scaraLogic->setDistanceBetweenTwoLimitsOnZ(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("NumberOfStepsBetweenLimitsOnZ").toElement();
         if ( !element.isNull() )
-            m_scaraLogic->setMotor3maxSteps(element.text().toDouble());
+            m_scaraLogic->setMotor3maxSteps(element.text().replace(",",".").toDouble());
         else return false;
 
         element = root.namedItem("FirstSegmentBeginOn").toElement();
@@ -231,13 +235,15 @@ void Project::doWork()
         return;
     }
 
-//    qDebug() << "Homing motors...";
-//    worker.homing();
-//    qDebug() << "Motors homed.";
+    qDebug() << "Homing motors...";
+    worker.homing();
+    qDebug() << "Motors homed.";
 
 //    worker.testCommands();
-
-    worker.moveToPoint(-200,200,10);
+    forever
+    {
+        worker.moveToPoint(-99.2124, 201.706, 10);
+    }
 
 //    for ( unsigned i=0; i<10; ++i)
 //    {

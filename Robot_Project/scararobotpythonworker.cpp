@@ -59,29 +59,121 @@ void ScaraRobotPythonWorker::testCommands()
 
 void ScaraRobotPythonWorker::moveToPoint(double x, double y, double z)
 {
-    QStringList commands = m_logic->moveToPoint(x,y,0);
+    QStringList commands;
 
-//    m_communicator->sendCommand(commands[0]);
+    commands.append("ABM2-3719");
+    commands.append("ABM34447");
 
-//    qDebug() << commands[0];
+    m_communicator->sendCommand(commands[0]);
+    m_communicator->sendCommand(commands[1]);
 
-//    m_communicator->sendCommand(commands[1]);
+    forever
+    {
 
-//    qDebug() << commands[1];
+        QString receivedCommand = m_communicator->readNonBlocking();
 
-//    forever
-//    {
+        m_logic->processCommand(receivedCommand);
 
-//        QString receivedCommand = m_communicator->readNonBlocking();
+        if ( m_logic->getFirstSegmentPosInSteps() == -3719 &&
+             m_logic->getSecondSegmentPosInSteps() == 4447 )
+        {
+            break;
+        }
+    }
 
-//        m_logic->processCommand(receivedCommand);
+    m_communicator->sendCommand("ABM4135");
+    QThread::currentThread()->msleep(500);
 
-//        if ( m_logic->getFirstSegmentMotorState() == NOT_USED &&
-//             m_logic->getSecondSegmentMotorState() == NOT_USED)
-//        {
-//            break;
-//        }
-//    }
+    forever
+    {
+
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getThirdSegmentPosInSteps() == 135 )
+        {
+            break;
+        }
+    }
+
+    m_communicator->sendCommand("ABM427");
+    QThread::currentThread()->msleep(500);
+
+    forever
+    {
+
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getThirdSegmentPosInSteps() == 27 )
+        {
+            break;
+        }
+    }
+
+
+
+
+
+
+
+
+
+    commands.clear();
+
+    commands.append("ABM2-5598");
+    commands.append("ABM31253");
+
+    m_communicator->sendCommand(commands[0]);
+    m_communicator->sendCommand(commands[1]);
+
+    forever
+    {
+
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getFirstSegmentPosInSteps() == -5598 &&
+             m_logic->getSecondSegmentPosInSteps() == 1253)
+        {
+            break;
+        }
+    }
+
+    m_communicator->sendCommand("ABM4145");
+    QThread::currentThread()->msleep(500);
+
+    forever
+    {
+
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getThirdSegmentPosInSteps() == 145 )
+        {
+            break;
+        }
+    }
+
+    m_communicator->sendCommand("ABM427");
+    QThread::currentThread()->msleep(350);
+
+    forever
+    {
+
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getThirdSegmentPosInSteps() == 27 )
+        {
+            break;
+        }
+    }
 }
 
 

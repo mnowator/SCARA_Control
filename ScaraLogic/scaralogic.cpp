@@ -150,6 +150,7 @@ void ScaraLogic::processCommand(QString command)
 
     m_firstSegmentPosInSteps = positions[0].toInt();
     m_secondSegmentPosInSteps = positions[1].toInt();
+    m_thirdSegmentPosInStpes = positions[2].toInt();
 
     m_firstSegmentAngle = computeFirstSegmentAngleByStepsPosition( positions[0].toInt() );
     m_secondSegmentAngle = computeSecondSegmentAngleByStepsPosition( positions[1].toInt() );
@@ -337,6 +338,21 @@ unsigned ScaraLogic::getMotor3maxSteps() const
     return m_motor3maxSteps;
 }
 
+int ScaraLogic::getFirstSegmentPosInSteps() const
+{
+    return m_firstSegmentPosInSteps;
+}
+
+int ScaraLogic::getSecondSegmentPosInSteps() const
+{
+    return m_secondSegmentPosInSteps;
+}
+
+int ScaraLogic::getThirdSegmentPosInSteps() const
+{
+    return m_thirdSegmentPosInStpes;
+}
+
 double ScaraLogic::getXCoordinate() const
 {
     return m_x;
@@ -388,14 +404,11 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
     motor2Homed();
     motor3Homed();
 
+    x = 149.588;
+    y = 296.829;
+
     QTime timer;
     timer.start();
-
-    QFile dataFile("data.dat");
-    QTextStream data(&dataFile);
-
-    dataFile.open(QFile::WriteOnly | QFile::Text );
-
 
     unsigned bestSolutionFirstSegmentSteps = abs(m_firstSegmentPosInSteps);
     unsigned bestSolutionSecondSegmentSteps = abs(m_secondSegmentPosInSteps);
@@ -421,11 +434,9 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
                 double l_x = computeXCoordinate(firstSegmentAngle, secondSegmentAngle);
                 double l_y = computeYCoordinate(firstSegmentAngle, secondSegmentAngle);
 
-                data << stepsForFirst << " " << stepsForSecond << " " << hypot(l_x - x, l_y -y) << " " << QString::number(std::max(abs(stepsForFirst)/1000.0, abs(stepsForSecond)/1000.0)) << "\n";
-
                 if ( hypot(l_x - x, l_y -y) <= e )
                 {
-                    double time = std::max(abs(stepsForFirst)/1000.0, abs(stepsForSecond)/1000.0);
+                    double time = std::max(abs(stepsForFirst)/2000.0, abs(stepsForSecond)/4000.0);
 
                     if ( time  < minTime || minTime == -1)
                     {
@@ -438,7 +449,57 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
         }
     }
 
-    dataFile.close();
+    qDebug() << bestSolutionFirstSegmentSteps << bestSolutionSecondSegmentSteps;
+
+    m_firstSegmentPosInSteps = bestSolutionFirstSegmentSteps;
+    m_secondSegmentPosInSteps = bestSolutionSecondSegmentSteps;
+    m_firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(m_firstSegmentPosInSteps);
+    m_secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(m_secondSegmentPosInSteps);
+    computeCartesianPositionByAnglesAndDistance();
+
+    x = -98.3187;
+    y = 190.108;
+
+    bestSolutionFirstSegmentSteps = abs(m_firstSegmentPosInSteps);
+    bestSolutionSecondSegmentSteps = abs(m_secondSegmentPosInSteps);
+
+    minTime = -1;
+
+    if ( hypot(m_x - x, m_y - y ) <= e )
+    {
+        qDebug() << "zajebiscie";
+    }
+    else
+    {
+        for ( unsigned i=0; i<=m_motor1maxSteps; ++i)
+        {
+            for ( unsigned j=0; j<=m_motor2maxSteps; ++j )
+            {
+                int stepsForFirst = m_firstSegmentHomingOrientation == CW ? -i : i;
+                int stepsForSecond = m_secondSegmentHomingOrientation == CW ? -j : j;
+
+                double firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(stepsForFirst);
+                double secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(stepsForSecond);
+
+                double l_x = computeXCoordinate(firstSegmentAngle, secondSegmentAngle);
+                double l_y = computeYCoordinate(firstSegmentAngle, secondSegmentAngle);
+
+                if ( hypot(l_x - x, l_y -y) <= e )
+                {
+                    double time = std::max(abs(stepsForFirst)/2000.0, abs(stepsForSecond)/4000.0);
+
+                    if ( time  < minTime || minTime == -1)
+                    {
+                        minTime = time;
+                        bestSolutionFirstSegmentSteps = i;
+                        bestSolutionSecondSegmentSteps = j;
+                    }
+                }
+            }
+        }
+    }
+
+    qDebug() << bestSolutionFirstSegmentSteps << bestSolutionSecondSegmentSteps;
 
     //        bool** closedNodes = new bool*[m_motor1maxSteps+1];
     //        double** openNodes = new double*[m_motor1maxSteps+1];
@@ -590,8 +651,6 @@ QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
 
     //            delete node;
     //        }
-
-    qDebug() << "Average time: " << timer.elapsed()/100;
 
     return QStringList();
 }

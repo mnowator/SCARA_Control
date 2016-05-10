@@ -7,4 +7,4 @@ SUBDIRS += \
     Communication_Layer \
     Robot_Project \   
     NWTR_Robotics_GUI \
-    NWTR_Robotics_IDE
+    NWTR_Robotics_IDE \

@@ -64,6 +64,8 @@ QString EthernetCommunicationWidget::readNonBlocking()
     return buffer.right(m_commandBytes-m_wastedBytes);
 }
 
+#include <QDebug>
+
 void EthernetCommunicationWidget::sendCommand(QString command)
 {
     if ( m_socket->state() != QAbstractSocket::ConnectedState )

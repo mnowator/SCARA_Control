@@ -167,6 +167,10 @@ public:
     unsigned getMotor1maxSteps() const;
     unsigned getMotor2maxSteps() const;
     unsigned getMotor3maxSteps() const;
+
+    int getFirstSegmentPosInSteps() const;
+    int getSecondSegmentPosInSteps() const;
+    int getThirdSegmentPosInSteps() const;
     
     double getXCoordinate() const;
     double getYCoordinate() const;
