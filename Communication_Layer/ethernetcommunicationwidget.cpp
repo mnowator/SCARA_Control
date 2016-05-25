@@ -60,6 +60,9 @@ QString EthernetCommunicationWidget::readNonBlocking()
     }
 
     buffer = m_socket->read(m_commandBytes);
+    m_socket->readAll();
+
+    qDebug() << "R:" << buffer.right(m_commandBytes-m_wastedBytes);
 
     return buffer.right(m_commandBytes-m_wastedBytes);
 }
@@ -96,6 +99,8 @@ void EthernetCommunicationWidget::sendCommand(QString command)
     {
         preparedCommand = preparedCommand.left(m_commandBytes);
     }
+
+    qDebug() << "S:" << preparedCommand;
 
     m_socket->write(preparedCommand.toStdString().c_str());
     m_socket->flush();

@@ -26,9 +26,7 @@ MOVE          = mv -f
 SUBTARGETS    =  \
 		sub-generator \
 		sub-src \
-		sub-extensions \
-		sub-tests \
-		sub-examples
+		sub-extensions
 
 
 sub-generator-qmake_all:  FORCE
@@ -160,92 +158,6 @@ sub-extensions-uninstall_subtargets-ordered: sub-src-uninstall_subtargets-ordere
 sub-extensions-uninstall_subtargets: FORCE
 	@test -d extensions/ || mkdir -p extensions/
 	cd extensions/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/extensions/extensions.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile uninstall
-sub-tests-qmake_all: sub-extensions-qmake_all FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile
-	cd tests/ && $(MAKE) -f Makefile qmake_all
-sub-tests: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile
-sub-tests-make_first-ordered: sub-extensions-make_first-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile 
-sub-tests-make_first: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile 
-sub-tests-all-ordered: sub-extensions-all-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile all
-sub-tests-all: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile all
-sub-tests-clean-ordered: sub-extensions-clean-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile clean
-sub-tests-clean: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile clean
-sub-tests-distclean-ordered: sub-extensions-distclean-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile distclean
-sub-tests-distclean: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile distclean
-sub-tests-install_subtargets-ordered: sub-extensions-install_subtargets-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile install
-sub-tests-install_subtargets: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile install
-sub-tests-uninstall_subtargets-ordered: sub-extensions-uninstall_subtargets-ordered  FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile uninstall
-sub-tests-uninstall_subtargets: FORCE
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile uninstall
-sub-examples-qmake_all: sub-tests-qmake_all FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile
-	cd examples/ && $(MAKE) -f Makefile qmake_all
-sub-examples: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile
-sub-examples-make_first-ordered: sub-tests-make_first-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile 
-sub-examples-make_first: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile 
-sub-examples-all-ordered: sub-tests-all-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile all
-sub-examples-all: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile all
-sub-examples-clean-ordered: sub-tests-clean-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile clean
-sub-examples-clean: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile clean
-sub-examples-distclean-ordered: sub-tests-distclean-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile distclean
-sub-examples-distclean: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile distclean
-sub-examples-install_subtargets-ordered: sub-tests-install_subtargets-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile install
-sub-examples-install_subtargets: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile install
-sub-examples-uninstall_subtargets-ordered: sub-tests-uninstall_subtargets-ordered  FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile uninstall
-sub-examples-uninstall_subtargets: FORCE
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile uninstall
 
 Makefile: ../PythonQt3.0/PythonQt.pro C:/Qt/5.4/mingw491_32/mkspecs/win32-g++/qmake.conf C:/Qt/5.4/mingw491_32/mkspecs/features/spec_pre.prf \
 		C:/Qt/5.4/mingw491_32/mkspecs/qdevice.pri \
@@ -483,15 +395,15 @@ C:/Qt/5.4/mingw491_32/mkspecs/features/lex.prf:
 qmake: FORCE
 	@$(QMAKE) -spec win32-g++ -o Makefile ../PythonQt3.0/PythonQt.pro
 
-qmake_all: sub-generator-qmake_all sub-src-qmake_all sub-extensions-qmake_all sub-tests-qmake_all sub-examples-qmake_all FORCE
+qmake_all: sub-generator-qmake_all sub-src-qmake_all sub-extensions-qmake_all FORCE
 
-make_first: sub-generator-make_first-ordered sub-src-make_first-ordered sub-extensions-make_first-ordered sub-tests-make_first-ordered sub-examples-make_first-ordered FORCE
-all: sub-generator-all-ordered sub-src-all-ordered sub-extensions-all-ordered sub-tests-all-ordered sub-examples-all-ordered FORCE
-clean: sub-generator-clean-ordered sub-src-clean-ordered sub-extensions-clean-ordered sub-tests-clean-ordered sub-examples-clean-ordered FORCE
-distclean: sub-generator-distclean-ordered sub-src-distclean-ordered sub-extensions-distclean-ordered sub-tests-distclean-ordered sub-examples-distclean-ordered FORCE
+make_first: sub-generator-make_first-ordered sub-src-make_first-ordered sub-extensions-make_first-ordered FORCE
+all: sub-generator-all-ordered sub-src-all-ordered sub-extensions-all-ordered FORCE
+clean: sub-generator-clean-ordered sub-src-clean-ordered sub-extensions-clean-ordered FORCE
+distclean: sub-generator-distclean-ordered sub-src-distclean-ordered sub-extensions-distclean-ordered FORCE
 	-$(DEL_FILE) Makefile
-install_subtargets: sub-generator-install_subtargets-ordered sub-src-install_subtargets-ordered sub-extensions-install_subtargets-ordered sub-tests-install_subtargets-ordered sub-examples-install_subtargets-ordered FORCE
-uninstall_subtargets: sub-generator-uninstall_subtargets-ordered sub-src-uninstall_subtargets-ordered sub-extensions-uninstall_subtargets-ordered sub-tests-uninstall_subtargets-ordered sub-examples-uninstall_subtargets-ordered FORCE
+install_subtargets: sub-generator-install_subtargets-ordered sub-src-install_subtargets-ordered sub-extensions-install_subtargets-ordered FORCE
+uninstall_subtargets: sub-generator-uninstall_subtargets-ordered sub-src-uninstall_subtargets-ordered sub-extensions-uninstall_subtargets-ordered FORCE
 
 sub-generator-debug_ordered:
 	@test -d generator/ || mkdir -p generator/
@@ -502,13 +414,7 @@ sub-src-debug_ordered: sub-generator-debug_ordered
 sub-extensions-debug_ordered: sub-src-debug_ordered 
 	@test -d extensions/ || mkdir -p extensions/
 	cd extensions/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/extensions/extensions.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile debug
-sub-tests-debug_ordered: sub-extensions-debug_ordered 
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile debug
-sub-examples-debug_ordered: sub-tests-debug_ordered 
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile debug
-debug: sub-generator-debug_ordered sub-src-debug_ordered sub-extensions-debug_ordered sub-tests-debug_ordered sub-examples-debug_ordered
+debug: sub-generator-debug_ordered sub-src-debug_ordered sub-extensions-debug_ordered
 
 sub-generator-release_ordered:
 	@test -d generator/ || mkdir -p generator/
@@ -519,13 +425,7 @@ sub-src-release_ordered: sub-generator-release_ordered
 sub-extensions-release_ordered: sub-src-release_ordered 
 	@test -d extensions/ || mkdir -p extensions/
 	cd extensions/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/extensions/extensions.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile release
-sub-tests-release_ordered: sub-extensions-release_ordered 
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile release
-sub-examples-release_ordered: sub-tests-release_ordered 
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile release
-release: sub-generator-release_ordered sub-src-release_ordered sub-extensions-release_ordered sub-tests-release_ordered sub-examples-release_ordered
+release: sub-generator-release_ordered sub-src-release_ordered sub-extensions-release_ordered
 
 sub-generator-check_ordered:
 	@test -d generator/ || mkdir -p generator/
@@ -536,13 +436,7 @@ sub-src-check_ordered: sub-generator-check_ordered
 sub-extensions-check_ordered: sub-src-check_ordered 
 	@test -d extensions/ || mkdir -p extensions/
 	cd extensions/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/extensions/extensions.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile check
-sub-tests-check_ordered: sub-extensions-check_ordered 
-	@test -d tests/ || mkdir -p tests/
-	cd tests/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/tests/tests.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile check
-sub-examples-check_ordered: sub-tests-check_ordered 
-	@test -d examples/ || mkdir -p examples/
-	cd examples/ && ( test -e Makefile || $(QMAKE) C:/Users/matiuszka/Desktop/SCARA_Control/PythonQt3.0/examples/examples.pro -spec win32-g++ -o Makefile ) && $(MAKE) -f Makefile check
-check: sub-generator-check_ordered sub-src-check_ordered sub-extensions-check_ordered sub-tests-check_ordered sub-examples-check_ordered
+check: sub-generator-check_ordered sub-src-check_ordered sub-extensions-check_ordered
 install: install_subtargets  FORCE
 
 uninstall:  uninstall_subtargets FORCE
