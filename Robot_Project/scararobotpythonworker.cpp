@@ -44,8 +44,6 @@ void ScaraRobotPythonWorker::XYmoveToPoint(double x, double y)
 {
     QStringList commands = m_logic->XYmoveToPoint(x,y);
 
-    qDebug() << commands;
-
     if ( commands.empty() )
         return;
 

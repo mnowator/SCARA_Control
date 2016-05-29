@@ -155,8 +155,6 @@ void ScaraLogic::processCommand(QString command)
     m_firstSegmentAngle = computeFirstSegmentAngleByStepsPosition( positions[0].toInt() );
     m_secondSegmentAngle = computeSecondSegmentAngleByStepsPosition( positions[1].toInt() );
 
-    qDebug() << m_firstSegmentAngle << m_secondSegmentAngle;
-
     computeCartesianPositionByAnglesAndDistance();
 }
 
@@ -561,7 +559,7 @@ QStringList ScaraLogic::XYmoveByAngles(double theta1, double theta2)
     if ( m_secondSegmentHomingOrientation == CW )
         theta2 += m_secondSegmentCWLimitAngle;
     else
-        theta2 = (180.0+m_secondSegmentCCWLimitAngle)-theta2;
+        theta2 = (90.0+m_secondSegmentCCWLimitAngle)-theta2;
 
     int firstSegmentSteps = std::abs(static_cast<int>( theta1/m_motor1anglePerStep ));
     int secondSemgentSteps = std::abs(static_cast<int>( theta2/m_motor2anglePerStep ));
