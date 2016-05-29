@@ -221,14 +221,12 @@ ProjectThreadState Project::getProjectThreadState() const
 
 void Project::doWork()
 {
-    QScriptEngine engine;
-
-    ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
 
     qDebug() << "Project thread started...";
     qDebug() << "Thread id: " << QThread::currentThreadId();
 
     qDebug() << "Connectiong to host...";
+
 
     if ( m_ethernetCommunicationWidget->establishConnection() )
     {
@@ -237,6 +235,9 @@ void Project::doWork()
                  << ":"
                  << m_ethernetCommunicationWidget->getPort()
                  << ".";
+
+        ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
+        QScriptEngine engine;
 
         QScriptValue scriptWorker = engine.newQObject(&worker);
 

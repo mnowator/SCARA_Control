@@ -9,8 +9,6 @@ ScaraRobotPythonWorker::ScaraRobotPythonWorker(EthernetCommunicationWidget *comm
 
 void ScaraRobotPythonWorker::homing()
 {
-    qDebug() << "homing";
-
     m_communicator->sendCommand(m_logic->firstSegmentHomingCommand);
     m_communicator->sendCommand(m_logic->secondSegmentHomingCommand);
     m_communicator->sendCommand(m_logic->thirdSegmentHomingCommand);
@@ -48,30 +46,30 @@ void ScaraRobotPythonWorker::XYmoveToPoint(double x, double y)
 
     qDebug() << commands;
 
-//    if ( commands.empty() )
-//        return;
+    if ( commands.empty() )
+        return;
 
-//    foreach( QString command, commands )
-//        m_communicator->sendCommand(command);
+    foreach( QString command, commands )
+        m_communicator->sendCommand(command);
 
-//    commands[2].replace(m_logic->firstSegmentAbsoluteMoveCommand,"");
-//    int firstSegmentPos = commands[2].toInt();
+    commands[2].replace(m_logic->firstSegmentAbsoluteMoveCommand,"");
+    int firstSegmentPos = commands[2].toInt();
 
-//    commands[3].replace(m_logic->secondSegmentAbsoluteMoveCommand,"");
-//    int secondSegmentPos = commands[3].toInt();
+    commands[3].replace(m_logic->secondSegmentAbsoluteMoveCommand,"");
+    int secondSegmentPos = commands[3].toInt();
 
-//    while ( true )
-//    {
-//        QString receivedCommand = m_communicator->readNonBlocking();
+    while ( true )
+    {
+        QString receivedCommand = m_communicator->readNonBlocking();
 
-//        m_logic->processCommand(receivedCommand);
+        m_logic->processCommand(receivedCommand);
 
-//        if ( m_logic->getFirstSegmentPosInSteps() == firstSegmentPos &&
-//             m_logic->getSecondSegmentPosInSteps() == secondSegmentPos )
-//        {
-//            break;
-//        }
-//    }
+        if ( m_logic->getFirstSegmentPosInSteps() == firstSegmentPos &&
+             m_logic->getSecondSegmentPosInSteps() == secondSegmentPos )
+        {
+            break;
+        }
+    }
 }
 
 
