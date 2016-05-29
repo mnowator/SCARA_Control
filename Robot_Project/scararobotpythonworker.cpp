@@ -30,7 +30,7 @@ void ScaraRobotPythonWorker::homing()
 
 void ScaraRobotPythonWorker::sleep(unsigned msec)
 {
-    QThread::currentThread()->sleep(msec);
+    QThread::currentThread()->msleep(msec);
 }
 
 void ScaraRobotPythonWorker::setSpeadBounderies(unsigned motor, unsigned lowerBound, unsigned upperBound)
@@ -83,6 +83,8 @@ void ScaraRobotPythonWorker::XYmoveToPoint(double x, double y)
 void ScaraRobotPythonWorker::ZmoveTo(double distance)
 {
     QStringList commands = m_logic->ZmoveTo(distance);
+
+    qDebug() << commands;
 
     foreach( QString command, commands )
         m_communicator->sendCommand(command);

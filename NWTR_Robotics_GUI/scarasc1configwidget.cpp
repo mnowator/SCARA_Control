@@ -307,7 +307,7 @@ void ScaraSC1ConfigWidget::saveChanges(QDomDocument &dom)
     root.replaceChild(newElement,root.namedItem("DistanceBetweenTwoLimtsOnZ"));
 
     newElement = dom.createElement("LengthOfThirdSegment");
-    newElement.appendChild(dom.createTextNode(ui->distanceBetweenLimintsOnZLineEdit->text()));
+    newElement.appendChild(dom.createTextNode(ui->lengthOfThirdSegmentLineEdit->text()));
     root.replaceChild(newElement,root.namedItem("LengthOfThirdSegment"));
 
     newElement = dom.createElement("NumberOfStepsBetweenLimitsOnZ");

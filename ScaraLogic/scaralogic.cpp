@@ -175,7 +175,7 @@ void ScaraLogic::computeAnglePerStepMotor2()
 
 void ScaraLogic::computeDistancePerStepMotor3()
 {
-    m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/m_motor3maxSteps;
+    m_motor3distPerStep = (m_thirdSegmentLength-m_distanceBetweenTwoLimitsOnZ)/(double)m_motor3maxSteps;
 }
 
 void ScaraLogic::motor1Homed()
@@ -221,9 +221,6 @@ void ScaraLogic::setSecondSegmentLength(double length)
 
 void ScaraLogic::setThirdSegmentLength(double length)
 {
-    if ( length < MIN_THIRD_SEGMENT_LENGTH )
-        throw Exception(QObject::tr("Third segment length is less than min value."));
-
     m_thirdSegmentLength = length;
 }
 
@@ -494,10 +491,14 @@ QStringList ScaraLogic::ZmoveTo(double distance)
     double startPos = m_thirdSegmentPosInStpes*m_motor3distPerStep;
     double distanceToTravel = distance-startPos;
 
+    int stepsToDo = 0;
+
     if ( distanceToTravel < 0 ) // then
-        commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(m_thirdSegmentPosInStpes-std::abs(distanceToTravel/m_motor3distPerStep)));
+        stepsToDo = m_thirdSegmentPosInStpes-((int)std::abs(distanceToTravel/m_motor3distPerStep));
     else
-        commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(m_thirdSegmentPosInStpes+std::abs(distanceToTravel/m_motor3distPerStep)));
+        stepsToDo = m_thirdSegmentPosInStpes+((int)std::abs(distanceToTravel/m_motor3distPerStep));
+
+    commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(stepsToDo));
 
     return commands;
 }
