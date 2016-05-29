@@ -135,6 +135,10 @@ public:
 
     const QString firstSegmentSpeedCommand = "VM2";
     const QString secondSegmentSpeedCommand = "VM3";
+    const QString thirdSegmentSpeedCommand = "VM4";
+
+    const QString pickCommand = "SUCK";
+    const QString placeCommand = "RSUCK";
     
     void processCommand(QString command);
 
@@ -206,6 +210,7 @@ public:
     QStringList XYmoveToPoint(double x, double y);
     QStringList XYmoveByAngles(double theta1, double theta2);
     QStringList XYmoveBySteps(int firstSegmentSteps, int secondSegmentSteps);
+    QStringList ZmoveTo(double distance);
 
 };
 

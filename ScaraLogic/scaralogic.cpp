@@ -417,8 +417,8 @@ QStringList ScaraLogic::XYmoveBySteps(int firstSegmentSteps, int secondSegmentSt
     unsigned firstSegmentAppropierateSpeed;
     unsigned secondSegmentAppropierateSpeed;
 
-    unsigned firstSegmentSteps2Do = std::abs(m_firstSegmentPosInSteps-firstSegmentSteps);
-    unsigned secondSegmentSteps2Do = std::abs(m_secondSegmentPosInSteps-secondSegmentSteps);
+    unsigned firstSegmentSteps2Do = std::abs(std::abs(m_firstSegmentPosInSteps)-firstSegmentSteps);
+    unsigned secondSegmentSteps2Do = std::abs(std::abs(m_secondSegmentPosInSteps)-secondSegmentSteps);
 
     double y1 = firstSegmentSteps2Do/(double)m_motor1lowerSpeedBound;
     double x1 = m_motor1lowerSpeedBound;
@@ -483,6 +483,21 @@ QStringList ScaraLogic::XYmoveBySteps(int firstSegmentSteps, int secondSegmentSt
     commands.append(secondSegmentSpeedCommand+QString::number(secondSegmentAppropierateSpeed));
     commands.append(firstSegmentAbsoluteMoveCommand+QString::number(firstSegmentSteps));
     commands.append(secondSegmentAbsoluteMoveCommand+QString::number(secondSegmentSteps));
+
+    return commands;
+}
+
+QStringList ScaraLogic::ZmoveTo(double distance)
+{
+    QStringList commands;
+
+    double startPos = m_thirdSegmentPosInStpes*m_motor3distPerStep;
+    double distanceToTravel = distance-startPos;
+
+    if ( distanceToTravel < 0 ) // then
+        commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(m_thirdSegmentPosInStpes-std::abs(distanceToTravel/m_motor3distPerStep)));
+    else
+        commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(m_thirdSegmentPosInStpes+std::abs(distanceToTravel/m_motor3distPerStep)));
 
     return commands;
 }

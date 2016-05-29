@@ -19,9 +19,13 @@ public:
 
 public slots:
     void homing();
+    void sleep(unsigned msec);
     void setSpeadBounderies(unsigned motor, unsigned lowerBound, unsigned upperBound);
+    void setThirdSegmentSeeed(unsigned speed);
     void XYmoveToPoint(double x, double y);
-
+    void ZmoveTo(double distance);
+    void pick();
+    void place();
 };
 
 #endif // SCARAROBOTPYTHONWORKER_H

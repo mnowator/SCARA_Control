@@ -28,6 +28,11 @@ void ScaraRobotPythonWorker::homing()
     }
 }
 
+void ScaraRobotPythonWorker::sleep(unsigned msec)
+{
+    QThread::currentThread()->sleep(msec);
+}
+
 void ScaraRobotPythonWorker::setSpeadBounderies(unsigned motor, unsigned lowerBound, unsigned upperBound)
 {
     if ( motor == 1 )
@@ -38,6 +43,11 @@ void ScaraRobotPythonWorker::setSpeadBounderies(unsigned motor, unsigned lowerBo
     {
         m_logic->setMotor2SpeedBounderies(lowerBound,upperBound);
     }
+}
+
+void ScaraRobotPythonWorker::setThirdSegmentSeeed(unsigned speed)
+{
+    m_communicator->sendCommand(m_logic->thirdSegmentSpeedCommand+QString::number(speed));
 }
 
 void ScaraRobotPythonWorker::XYmoveToPoint(double x, double y)
@@ -68,6 +78,39 @@ void ScaraRobotPythonWorker::XYmoveToPoint(double x, double y)
             break;
         }
     }
+}
+
+void ScaraRobotPythonWorker::ZmoveTo(double distance)
+{
+    QStringList commands = m_logic->ZmoveTo(distance);
+
+    foreach( QString command, commands )
+        m_communicator->sendCommand(command);
+
+    commands[0].replace(m_logic->thirdSegmentAbsoluteMoveCommand,"");
+    int stepsToDo = commands[0].toInt();
+
+    while ( true )
+    {
+        QString receivedCommand = m_communicator->readNonBlocking();
+
+        m_logic->processCommand(receivedCommand);
+
+        if ( m_logic->getThirdSegmentPosInSteps() == stepsToDo )
+        {
+            break;
+        }
+    }
+}
+
+void ScaraRobotPythonWorker::pick()
+{
+    m_communicator->sendCommand(m_logic->pickCommand);
+}
+
+void ScaraRobotPythonWorker::place()
+{
+    m_communicator->sendCommand(m_logic->placeCommand);
 }
 
 

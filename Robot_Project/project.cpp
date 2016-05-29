@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QDomDocument>
+#include <QtScript/QScriptEngine>
 
 #include "scararobotpythonworker.h"
 
@@ -216,9 +217,6 @@ ProjectThreadState Project::getProjectThreadState() const
     return m_projectThreadState;
 }
 
-#include <QPushButton>
-#include <QtScript/QScriptEngine>
-
 void Project::doWork()
 {
 
@@ -254,7 +252,7 @@ void Project::doWork()
             QScriptValue result = engine.evaluate(code);
 
             if ( engine.hasUncaughtException() )
-                qDebug() << "blad";
+                qDebug() << engine.uncaughtExceptionBacktrace() << engine.uncaughtExceptionLineNumber();
         }
         else
             return;
