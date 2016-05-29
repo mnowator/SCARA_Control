@@ -414,9 +414,6 @@ QStringList ScaraLogic::XYmoveBySteps(int firstSegmentSteps, int secondSegmentSt
 {
     QStringList commands;
 
-    firstSegmentSteps = 2000;
-    secondSegmentSteps = 2666;
-
     unsigned firstSegmentAppropierateSpeed;
     unsigned secondSegmentAppropierateSpeed;
 
@@ -475,6 +472,12 @@ QStringList ScaraLogic::XYmoveBySteps(int firstSegmentSteps, int secondSegmentSt
 //    qDebug() << x4 << y4;
 
 //    qDebug() << x << y;
+
+    if ( m_firstSegmentHomingOrientation == CW )
+        firstSegmentSteps *= -1;
+
+    if ( m_secondSegmentHomingOrientation == CW )
+        secondSegmentSteps *= -1;
 
     commands.append(firstSegmentSpeedCommand+QString::number(firstSegmentAppropierateSpeed));
     commands.append(secondSegmentSpeedCommand+QString::number(secondSegmentAppropierateSpeed));
@@ -548,9 +551,19 @@ QStringList ScaraLogic::XYmoveByAngles(double theta1, double theta2)
         return QStringList();
     }
 
+    if ( m_firstSegmentHomingOrientation == CW )
+        theta1 += m_firstSegmentCWLimitAngle;
+    else
+        theta1 = (180.0+m_firstSegmentCCWLimitAngle)-theta1;
 
-    int firstSegmentSteps = static_cast<int>( theta1/m_motor1anglePerStep );
-    int secondSemgentSteps = static_cast<int>( theta2/m_motor2anglePerStep );
+    if ( m_secondSegmentHomingOrientation == CW )
+        theta2 += m_secondSegmentCWLimitAngle;
+    else
+        theta2 = (180.0+m_secondSegmentCCWLimitAngle)-theta2;
+
+
+    int firstSegmentSteps = std::abs(static_cast<int>( theta1/m_motor1anglePerStep ));
+    int secondSemgentSteps = std::abs(static_cast<int>( theta2/m_motor2anglePerStep ));
 
     return XYmoveBySteps(firstSegmentSteps, secondSemgentSteps);
 }
