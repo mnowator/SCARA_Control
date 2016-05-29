@@ -14,7 +14,7 @@ PythonHighlighter::PythonHighlighter(QTextDocument* parent)
                        "for"    << "from"   << "global" << "if"     << "import"   << "in"       <<
                        "is"     << "lambda" << "not"    << "or"     << "pass"     << "print"    <<
                        "raise"  << "return" << "try"    << "while"  << "yield"    << "None"     <<
-                       "import"   << "from" << "as";
+                       "import"   << "function" << "as" << "var";
 
     foreach (const QString &pattern, keywordPatterns)
     {
@@ -38,7 +38,8 @@ PythonHighlighter::PythonHighlighter(QTextDocument* parent)
                       << "property" << "range" << "raw_input" << "reduce" << "reload" << "repr"
                       << "reversed" << "round" << "set" << "setattr" << "slice" << "sorted"
                       << "staticmethod" << "str" << "sum" << "super" << "tuple" << "type"
-                      << "unichr" << "unicode" << "vars" << "xrange" << "zip" << "self";
+                      << "unichr" << "unicode" << "vars" << "xrange" << "zip" << "self" << "scara"
+                      << "pick" << "ZmoveTo" << "sleep" << "place" << "XYmoveToPoint" << "setSpeadBounderies";
 
     foreach (const QString &pattern, functionPatterns)
     {
