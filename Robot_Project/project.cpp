@@ -225,27 +225,6 @@ void Project::doWork()
 
     ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
 
-    QScriptValue scriptWorker = engine.newQObject(&worker);
-
-    engine.globalObject().setProperty("scara",scriptWorker);
-
-    QFile file(m_scriptFilePath+m_scriptFileName);
-
-    if ( file.open(QFile::ReadOnly | QFile::Text) )
-    {
-        QTextStream textStream(&file);
-
-        QString code = textStream.readAll();
-
-        QScriptValue result = engine.evaluate(code);
-
-        if ( engine.hasUncaughtException() )
-            qDebug() << "blad";
-    }
-    else
-        return;
-
-
     qDebug() << "Project thread started...";
     qDebug() << "Thread id: " << QThread::currentThreadId();
 
@@ -258,6 +237,26 @@ void Project::doWork()
                  << ":"
                  << m_ethernetCommunicationWidget->getPort()
                  << ".";
+
+        QScriptValue scriptWorker = engine.newQObject(&worker);
+
+        engine.globalObject().setProperty("scara",scriptWorker);
+
+        QFile file(m_scriptFilePath+m_scriptFileName);
+
+        if ( file.open(QFile::ReadOnly | QFile::Text) )
+        {
+            QTextStream textStream(&file);
+
+            QString code = textStream.readAll();
+
+            QScriptValue result = engine.evaluate(code);
+
+            if ( engine.hasUncaughtException() )
+                qDebug() << "blad";
+        }
+        else
+            return;
     }
     else
     {

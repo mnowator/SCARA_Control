@@ -133,8 +133,8 @@ public:
     const QString secondSegmentAbsoluteMoveCommand = "ABM3";
     const QString thirdSegmentAbsoluteMoveCommand = "ABM4";
 
-    const QString firstSegmentSpeedCommand = "sped1:";
-    const QString secondSegmentSpeedCommand = "sped2:";
+    const QString firstSegmentSpeedCommand = "VM2";
+    const QString secondSegmentSpeedCommand = "VM3";
     
     void processCommand(QString command);
 

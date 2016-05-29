@@ -20,7 +20,7 @@ public:
 public slots:
     void homing();
     void setSpeadBounderies(unsigned motor, unsigned lowerBound, unsigned upperBound);
-    void moveToPoint(double x, double y);
+    void XYmoveToPoint(double x, double y);
 
 };
 

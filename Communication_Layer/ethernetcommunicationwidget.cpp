@@ -62,12 +62,8 @@ QString EthernetCommunicationWidget::readNonBlocking()
     buffer = m_socket->read(m_commandBytes);
     m_socket->readAll();
 
-    qDebug() << "R:" << buffer.right(m_commandBytes-m_wastedBytes);
-
     return buffer.right(m_commandBytes-m_wastedBytes);
 }
-
-#include <QDebug>
 
 void EthernetCommunicationWidget::sendCommand(QString command)
 {
@@ -100,8 +96,6 @@ void EthernetCommunicationWidget::sendCommand(QString command)
         preparedCommand = preparedCommand.left(m_commandBytes);
     }
 
-    qDebug() << "S:" << preparedCommand;
-
     m_socket->write(preparedCommand.toStdString().c_str());
     m_socket->flush();
 }
@@ -112,15 +106,6 @@ void EthernetCommunicationWidget::readyRead()
 
     while ( m_socket->bytesAvailable())
         data += m_socket->readAll();
-
-    QFile file("F:\data.txt");
-
-    file.open(QFile::ReadWrite  | QFile::Text | QFile::Append );
-
-    file.write(data.toStdString().c_str());
-    file.write("\n");
-
-    file.close();
 
     emit pushCommand(data.right(m_commandBytes-m_wastedBytes));
 }
