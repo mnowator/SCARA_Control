@@ -2,6 +2,7 @@
 #define SCARAROBOTPYTHONWORKER_H
 
 #include <QObject>
+#include <QDebug>
 
 #include "ethernetcommunicationwidget.h"
 #include "scaralogic.h"
@@ -14,14 +15,13 @@ private:
     ScaraLogic* m_logic;
 
 public:
-    explicit ScaraRobotPythonWorker(EthernetCommunicationWidget* communicator=0, ScaraLogic* logic=0, QObject *parent = 0);
+    ScaraRobotPythonWorker(EthernetCommunicationWidget* communicator=0, ScaraLogic* logic=0, QObject *parent = 0);
 
-
+public slots:
     void homing();
+    void setSpeadBounderies(unsigned motor, unsigned lowerBound, unsigned upperBound);
+    void moveToPoint(double x, double y);
 
-    void testCommands();
-
-    void moveToPoint(double x, double y, double z);
 };
 
 #endif // SCARAROBOTPYTHONWORKER_H

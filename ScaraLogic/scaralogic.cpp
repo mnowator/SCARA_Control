@@ -283,6 +283,18 @@ void ScaraLogic::setMotor2HomingSwitchOrientation(SWITCH_ORIENTATION so)
     m_secondSegmentHomingOrientation = so;
 }
 
+void ScaraLogic::setMotor1SpeedBounderies(unsigned lowerBound, unsigned upperBound)
+{
+    m_motor1lowerSpeedBound = lowerBound;
+    m_motor1upperSpeedBound = upperBound;
+}
+
+void ScaraLogic::setMotor2SpeedBounderies(unsigned lowerBound, unsigned upperBound)
+{
+    m_motor2upperSpeedBound = upperBound;
+    m_motor2lowerSpeedBound = lowerBound;
+}
+
 double ScaraLogic::getFirstSegmentLength() const
 {
     return m_firstSegmentLength;
@@ -398,261 +410,149 @@ MOTOR_STATE ScaraLogic::getThirdSegmentMotorState() const
     return m_thirdSegmentMotorState;
 }
 
-QStringList ScaraLogic::moveToPoint(double x, double y, double z, double e)
+QStringList ScaraLogic::XYmoveBySteps(int firstSegmentSteps, int secondSegmentSteps)
 {
-    motor1Homed();
-    motor2Homed();
-    motor3Homed();
+    QStringList commands;
 
-    x = 149.588;
-    y = 296.829;
+    firstSegmentSteps = 2000;
+    secondSegmentSteps = 2666;
 
-    QTime timer;
-    timer.start();
+    unsigned firstSegmentAppropierateSpeed;
+    unsigned secondSegmentAppropierateSpeed;
 
-    unsigned bestSolutionFirstSegmentSteps = abs(m_firstSegmentPosInSteps);
-    unsigned bestSolutionSecondSegmentSteps = abs(m_secondSegmentPosInSteps);
+    unsigned firstSegmentSteps2Do = std::abs(m_firstSegmentPosInSteps-firstSegmentSteps);
+    unsigned secondSegmentSteps2Do = std::abs(m_secondSegmentPosInSteps-secondSegmentSteps);
 
-    double minTime = -1;
+    double y1 = firstSegmentSteps2Do/(double)m_motor1lowerSpeedBound;
+    double x1 = m_motor1lowerSpeedBound;
 
-    if ( hypot(m_x - x, m_y - y ) <= e )
+    double y2 = firstSegmentSteps2Do/(double)m_motor1upperSpeedBound;
+    double x2 = m_motor1upperSpeedBound;
+
+    double y3 = secondSegmentSteps2Do/(double)m_motor2lowerSpeedBound;
+    double x3 = m_motor2lowerSpeedBound;
+
+    double y4 = secondSegmentSteps2Do/(double)m_motor2upperSpeedBound;
+    double x4 = m_motor2upperSpeedBound;
+
+    if ( y2 < y4 ) // first is faster
     {
-        qDebug() << "zajebiscie";
+        secondSegmentAppropierateSpeed = m_motor2upperSpeedBound;
+        firstSegmentAppropierateSpeed = firstSegmentSteps2Do/y4;
+
+        if ( firstSegmentAppropierateSpeed < m_motor1lowerSpeedBound)
+            firstSegmentAppropierateSpeed = m_motor1lowerSpeedBound;
     }
-    else
+    else if ( y2 > y4 ) // second is faster
     {
-        for ( unsigned i=0; i<=m_motor1maxSteps; ++i)
-        {
-            for ( unsigned j=0; j<=m_motor2maxSteps; ++j )
-            {
-                int stepsForFirst = m_firstSegmentHomingOrientation == CW ? -i : i;
-                int stepsForSecond = m_secondSegmentHomingOrientation == CW ? -j : j;
+        firstSegmentAppropierateSpeed = m_motor1upperSpeedBound;
+        secondSegmentAppropierateSpeed = secondSegmentSteps2Do/y2;
 
-                double firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(stepsForFirst);
-                double secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(stepsForSecond);
-
-                double l_x = computeXCoordinate(firstSegmentAngle, secondSegmentAngle);
-                double l_y = computeYCoordinate(firstSegmentAngle, secondSegmentAngle);
-
-                if ( hypot(l_x - x, l_y -y) <= e )
-                {
-                    double time = std::max(abs(stepsForFirst)/2000.0, abs(stepsForSecond)/4000.0);
-
-                    if ( time  < minTime || minTime == -1)
-                    {
-                        minTime = time;
-                        bestSolutionFirstSegmentSteps = i;
-                        bestSolutionSecondSegmentSteps = j;
-                    }
-                }
-            }
-        }
+        if ( secondSegmentAppropierateSpeed < m_motor2lowerSpeedBound )
+            secondSegmentAppropierateSpeed = m_motor2lowerSpeedBound;
     }
 
-    qDebug() << bestSolutionFirstSegmentSteps << bestSolutionSecondSegmentSteps;
+//    double d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+//    double pre = (x1*y2 - y1*x2), post = (x3*y4 - y3*x4);
+//    double x = ( pre * (x3 - x4) - (x1 - x2) * post ) / d;
+//    double y = ( pre * (y3 - y4) - (y1 - y2) * post ) / d;
 
-    m_firstSegmentPosInSteps = bestSolutionFirstSegmentSteps;
-    m_secondSegmentPosInSteps = bestSolutionSecondSegmentSteps;
-    m_firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(m_firstSegmentPosInSteps);
-    m_secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(m_secondSegmentPosInSteps);
-    computeCartesianPositionByAnglesAndDistance();
+//    if ( x < std::min(x1, x3) || x > std::max(x1, x2) ||
+//        x < std::min(x3, x4) || x > std::max(x3, x4) )
+//    {
+//        firstSegmentAppropierateSpeed = std::min( m_motor1upperSpeedBound, m_motor2upperSpeedBound);
+//        secondSegmentAppropierateSpeed = std::min( m_motor1upperSpeedBound, m_motor2upperSpeedBound);
+//    }
+//    else
+//    {
+//        firstSegmentAppropierateSpeed = firstSegmentSteps2Do/y;
+//        secondSegmentAppropierateSpeed = secondSegmentSteps2Do/y;
+//    }
 
-    x = -98.3187;
-    y = 190.108;
+//    qDebug() << x1 << y1;
+//    qDebug() << x2 << y2;
+//    qDebug() << x3 << y3;
+//    qDebug() << x4 << y4;
 
-    bestSolutionFirstSegmentSteps = abs(m_firstSegmentPosInSteps);
-    bestSolutionSecondSegmentSteps = abs(m_secondSegmentPosInSteps);
+//    qDebug() << x << y;
 
-    minTime = -1;
+    commands.append(firstSegmentSpeedCommand+QString::number(firstSegmentAppropierateSpeed));
+    commands.append(secondSegmentSpeedCommand+QString::number(secondSegmentAppropierateSpeed));
+    commands.append(firstSegmentAbsoluteMoveCommand+QString::number(firstSegmentSteps));
+    commands.append(secondSegmentAbsoluteMoveCommand+QString::number(secondSegmentSteps));
 
-    if ( hypot(m_x - x, m_y - y ) <= e )
+    return commands;
+}
+
+QStringList ScaraLogic::XYmoveToPoint(double x, double y)
+{
+    double theta2positive = std::acos((std::pow(x,2)+std::pow(y,2)-std::pow(m_firstSegmentLength,2)-std::pow(m_secondSegmentLength,2))/(2*m_firstSegmentLength*m_secondSegmentLength));
+    double theta2negative = -std::acos((std::pow(x,2)+std::pow(y,2)-std::pow(m_firstSegmentLength,2)-std::pow(m_secondSegmentLength,2))/(2*m_firstSegmentLength*m_secondSegmentLength));
+
+    if ( theta2positive*180/PI < -m_secondSegmentCWLimitAngle &&
+         theta2positive*180/PI > m_secondSegmentCCWLimitAngle+180 )
     {
-        qDebug() << "zajebiscie";
-    }
-    else
-    {
-        for ( unsigned i=0; i<=m_motor1maxSteps; ++i)
-        {
-            for ( unsigned j=0; j<=m_motor2maxSteps; ++j )
-            {
-                int stepsForFirst = m_firstSegmentHomingOrientation == CW ? -i : i;
-                int stepsForSecond = m_secondSegmentHomingOrientation == CW ? -j : j;
-
-                double firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(stepsForFirst);
-                double secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(stepsForSecond);
-
-                double l_x = computeXCoordinate(firstSegmentAngle, secondSegmentAngle);
-                double l_y = computeYCoordinate(firstSegmentAngle, secondSegmentAngle);
-
-                if ( hypot(l_x - x, l_y -y) <= e )
-                {
-                    double time = std::max(abs(stepsForFirst)/2000.0, abs(stepsForSecond)/4000.0);
-
-                    if ( time  < minTime || minTime == -1)
-                    {
-                        minTime = time;
-                        bestSolutionFirstSegmentSteps = i;
-                        bestSolutionSecondSegmentSteps = j;
-                    }
-                }
-            }
-        }
+        theta2positive = NAN;
     }
 
-    qDebug() << bestSolutionFirstSegmentSteps << bestSolutionSecondSegmentSteps;
+    if ( theta2negative*180/PI < -m_secondSegmentCWLimitAngle &&
+         theta2negative*180/PI > m_secondSegmentCCWLimitAngle+180 )
+    {
+        theta2negative = NAN;
+    }
 
-    //        bool** closedNodes = new bool*[m_motor1maxSteps+1];
-    //        double** openNodes = new double*[m_motor1maxSteps+1];
+    double theta1positive = std::atan2(((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*x) - (m_secondSegmentLength*std::sin(theta2positive)*y),
+                                   (m_secondSegmentLength*std::sin(theta2positive)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*y));
+    double theta1negative = std::atan2(((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*x) - (m_secondSegmentLength*std::sin(theta2negative)*y),
+                                   (m_secondSegmentLength*std::sin(theta2negative)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*y));
 
-    //        double xStart = m_x;
-    //        double yStart = m_y;
+    if ( theta1positive*180/PI < -m_firstSegmentCWLimitAngle &&
+         theta1positive*180/PI > m_firstSegmentCCWLimitAngle+180 )
+    {
+        theta1positive = NAN;
+    }
 
-    //        std::priority_queue<Node*> nodesPriorityQueue;
-
-    //        for ( unsigned i=0; i<m_motor1maxSteps+1; ++i)
-    //        {
-    //            closedNodes[i] = new bool[m_motor2maxSteps+1];
-    //            openNodes[i] = new double[m_motor2maxSteps+1];
-
-    //            for ( unsigned j=0; j<m_motor2maxSteps+1; ++j)
-    //            {
-    //                closedNodes[i][j] = false;
-    //                openNodes[i][j] = 0;
-    //            }
-    //        }
-
-    //        // Creating start node and pushing into priority queue.
-    //        Node* startNode = new Node(m_firstSegmentPosInSteps,m_secondSegmentPosInSteps );
-    //        startNode->setHScore( hypot(xStart-x,yStart-y) );
-    //        nodesPriorityQueue.push( startNode );
-    //        openNodes[abs(m_firstSegmentPosInSteps)][abs(m_secondSegmentPosInSteps)] = true;
-
-    //        while ( !nodesPriorityQueue.empty() )
-    //        {
-    //            // Get node with the best score.
-    //            Node* node = nodesPriorityQueue.top();
-    //            nodesPriorityQueue.pop();
-
-    //            openNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment())] = 0;
-    //            closedNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment())] = true;
-
-    //            // Test case.
-    //            double firstSegmentAngle = computeFirstSegmentAngleByStepsPosition(node->getStepsForFristSegment());
-    //            double secondSegmentAngle = computeSecondSegmentAngleByStepsPosition(node->getStepsForSecondSegment());
-    //            double xNode = computeXCoordinate(firstSegmentAngle,secondSegmentAngle);
-    //            double yNode = computeYCoordinate(firstSegmentAngle,secondSegmentAngle);
-
-    //            if ( hypot(xNode-x,yNode-y) < e ) // Then searching completed successfully.
-    //            {
-    ////                qDebug() << node->getStepsForFristSegment();
-    ////                qDebug() << node->getStepsForSecondSegment();
-
-    //                break;
-    //            }
-
-    //            // If test case failure, we have to contiune searching.
-    //            // To do this we have to generate nodes in all possible directions
-    //            // and push them into priority queue, to find the most efficient one.
-
-    //            // CCW step for first segment
-    //            if ( (m_firstSegmentHomingOrientation == CCW && node->getStepsForFristSegment() > 0) ||
-    //                 (m_firstSegmentHomingOrientation == CW && abs(node->getStepsForFristSegment()) < m_motor1maxSteps) )
-    //            {
-    //                if ( !closedNodes[abs(node->getStepsForFristSegment()-1)][abs(node->getStepsForSecondSegment())] &&
-    //                     openNodes[abs(node->getStepsForFristSegment()-1)][abs(node->getStepsForSecondSegment())] == 0)
-    //                {
-    //                    Node* ccwForFirstSegment = new Node(node->getStepsForFristSegment()-1,node->getStepsForSecondSegment());
-
-    //                    double new_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(ccwForFirstSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(ccwForFirstSegment->getStepsForSecondSegment()));
-    //                    double new_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(ccwForFirstSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(ccwForFirstSegment->getStepsForSecondSegment()));
-
-    //                    ccwForFirstSegment->setGScore(std::max(ccwForFirstSegment->getStepsForFristSegment()/1000.0,
-    //                                                           ccwForFirstSegment->getStepsForSecondSegment()/1000.0)); // Time from start node
-    //                    ccwForFirstSegment->setHScore(hypot(new_x-x,new_y-y)/1000.0); // Time to goal
-
-    //                    nodesPriorityQueue.push(ccwForFirstSegment);
-    //                    openNodes[abs(ccwForFirstSegment->getStepsForFristSegment())][abs(ccwForFirstSegment->getStepsForSecondSegment())] = ccwForFirstSegment->getScore();
-    //                }
-    //            }
+    if ( theta1negative*180/PI < -m_firstSegmentCWLimitAngle &&
+         theta1negative*180/PI > m_firstSegmentCCWLimitAngle+180 )
+    {
+        theta1negative = NAN;
+    }
 
 
-    //            // CW step for first segment
-    //            if ( (m_firstSegmentHomingOrientation == CCW && abs(node->getStepsForFristSegment()) < m_motor1maxSteps) ||
-    //                 (m_firstSegmentHomingOrientation == CW && node->getStepsForFristSegment() < 0) )
-    //            {
-    //                if ( !closedNodes[abs(node->getStepsForFristSegment()+1)][abs(node->getStepsForSecondSegment())] &&
-    //                     openNodes[abs(node->getStepsForFristSegment()+1)][abs(node->getStepsForSecondSegment())] == 0)
-    //                {
-    //                    Node* cwForFirstSegment = new Node(node->getStepsForFristSegment()+1,node->getStepsForSecondSegment());
+    if ( theta1positive != NAN && std::fabs(m_firstSegmentAngle-theta1positive ) < std::fabs(m_firstSegmentAngle-theta1negative ) )
+    {
+        // positive solution is better
+        return XYmoveByAngles(theta1positive*180/PI, theta2positive*180/PI);
+    }
+    else if ( theta1negative != NAN && std::fabs(m_firstSegmentAngle-theta1positive ) > std::fabs(m_firstSegmentAngle-theta1negative ))
+    {
+        // negative solution is better
+        return XYmoveByAngles(theta1negative*180/PI, theta2negative*180/PI);
+    }
 
-    //                    double new_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(cwForFirstSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(cwForFirstSegment->getStepsForSecondSegment()));
-    //                    double new_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(cwForFirstSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(cwForFirstSegment->getStepsForSecondSegment()));
-
-    //                    cwForFirstSegment->setGScore(std::max(cwForFirstSegment->getStepsForFristSegment()/1000.0,
-    //                                                          cwForFirstSegment->getStepsForSecondSegment()/1000.0)); // Time from start node
-    //                    cwForFirstSegment->setHScore(hypot(new_x-x,new_y-y)/1000.0); // Time to goal
-
-
-    //                    nodesPriorityQueue.push(cwForFirstSegment);
-    //                    openNodes[abs(cwForFirstSegment->getStepsForFristSegment())][abs(cwForFirstSegment->getStepsForSecondSegment())] = cwForFirstSegment->getScore();
-    //                }
-    //            }
-
-    //            // CCW step for second segment
-    //            if ( (m_secondSegmentHomingOrientation == CCW && node->getStepsForSecondSegment() > 0) ||
-    //                 (m_secondSegmentHomingOrientation == CW && abs(node->getStepsForSecondSegment()) < m_motor2maxSteps) )
-    //            {
-    //                if ( !closedNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment()-1)] &&
-    //                     openNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment())-1] == 0)
-    //                {
-    //                    Node* ccwForSecondSegment = new Node(node->getStepsForFristSegment(),node->getStepsForSecondSegment()-1);
-
-    //                    double new_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(ccwForSecondSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(ccwForSecondSegment->getStepsForSecondSegment()));
-    //                    double new_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(ccwForSecondSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(ccwForSecondSegment->getStepsForSecondSegment()));
-
-    //                    ccwForSecondSegment->setGScore(std::max(ccwForSecondSegment->getStepsForFristSegment()/1000.0,
-    //                                                          ccwForSecondSegment->getStepsForSecondSegment()/1000.0)); // Time from start node
-    //                    ccwForSecondSegment->setHScore(hypot(new_x-x,new_y-y)/1000.0); // Time to goal
-
-
-    //                    nodesPriorityQueue.push(ccwForSecondSegment);
-    //                    openNodes[abs(ccwForSecondSegment->getStepsForFristSegment())][abs(ccwForSecondSegment->getStepsForSecondSegment())] = ccwForSecondSegment->getScore();
-    //                }
-    //            }
-
-    //            // CW step for second segment
-    //            if ( (m_secondSegmentHomingOrientation == CCW && abs(node->getStepsForSecondSegment()) < m_motor2maxSteps) ||
-    //                 (m_secondSegmentHomingOrientation == CW && node->getStepsForSecondSegment() < 0) )
-    //            {
-    //                if ( !closedNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment()+1)] &&
-    //                     openNodes[abs(node->getStepsForFristSegment())][abs(node->getStepsForSecondSegment()+1)] == 0 )
-    //                {
-    //                    Node* cwForSecondSegment = new Node(node->getStepsForFristSegment(),node->getStepsForSecondSegment()+1);
-
-    //                    double new_x = computeXCoordinate(computeFirstSegmentAngleByStepsPosition(cwForSecondSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(cwForSecondSegment->getStepsForSecondSegment()));
-    //                    double new_y = computeYCoordinate(computeFirstSegmentAngleByStepsPosition(cwForSecondSegment->getStepsForFristSegment()),
-    //                                                      computeSecondSegmentAngleByStepsPosition(cwForSecondSegment->getStepsForSecondSegment()));
-
-    //                    cwForSecondSegment->setGScore(std::max(cwForSecondSegment->getStepsForFristSegment()/1000.0,
-    //                                                          cwForSecondSegment->getStepsForSecondSegment()/1000.0)); // Time from start node
-    //                    cwForSecondSegment->setHScore(hypot(new_x-x,new_y-y)/1000.0); // Time to goal
-
-    //                    nodesPriorityQueue.push(cwForSecondSegment);
-    //                    openNodes[abs(cwForSecondSegment->getStepsForFristSegment())][abs(cwForSecondSegment->getStepsForSecondSegment())] = cwForSecondSegment->getScore();
-    //                }
-    //            }
-
-    //            delete node;
-    //        }
-
+    // there is no solution
     return QStringList();
+}
+
+QStringList ScaraLogic::XYmoveByAngles(double theta1, double theta2)
+{
+    if ( theta1*180/PI < -m_firstSegmentCWLimitAngle &&
+         theta1*180/PI > m_firstSegmentCCWLimitAngle+180 )
+    {
+        return QStringList();
+    }
+
+    if ( theta2*180/PI < -m_secondSegmentCWLimitAngle &&
+         theta2*180/PI > m_secondSegmentCCWLimitAngle+180 )
+    {
+        return QStringList();
+    }
+
+
+    int firstSegmentSteps = static_cast<int>( theta1/m_motor1anglePerStep );
+    int secondSemgentSteps = static_cast<int>( theta2/m_motor2anglePerStep );
+
+    return XYmoveBySteps(firstSegmentSteps, secondSemgentSteps);
 }
 
 

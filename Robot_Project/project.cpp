@@ -5,7 +5,6 @@
 
 #include "scararobotpythonworker.h"
 
-
 Project::Project(QObject *parent)
     : QObject(parent)
 {
@@ -32,6 +31,13 @@ bool Project::populateFromString(QString data)
     {
         m_scaraLogic = new ScaraLogic(this);
         QDomElement element;
+
+        element = root.namedItem("MainProgramFile").toElement();
+        if ( !element.isNull() )
+        {
+            m_scriptFileName = element.text();
+        }
+        else return false;
 
         element = root.namedItem("LengthOfFirstSegment").toElement();
         if ( !element.isNull() )
@@ -174,6 +180,14 @@ bool Project::populateFromString(QString data)
     else
         return false;
 
+    QDomElement files = root.namedItem("Files").toElement();
+    for ( QDomElement file = files.firstChildElement("File"); !file.isNull(); file = file.nextSiblingElement("File") )
+    {
+        if ( file.namedItem("Name").toElement().text() == m_scriptFileName )
+            m_scriptFilePath = file.namedItem("Path").toElement().text();
+    }
+
+
     return true;
 }
 
@@ -202,11 +216,35 @@ ProjectThreadState Project::getProjectThreadState() const
     return m_projectThreadState;
 }
 
+#include <QPushButton>
+#include <QtScript/QScriptEngine>
+
 void Project::doWork()
 {
-    m_projectThreadState = Running;
+    QScriptEngine engine;
 
     ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
+
+    QScriptValue scriptWorker = engine.newQObject(&worker);
+
+    engine.globalObject().setProperty("scara",scriptWorker);
+
+    QFile file(m_scriptFilePath+m_scriptFileName);
+
+    if ( file.open(QFile::ReadOnly | QFile::Text) )
+    {
+        QTextStream textStream(&file);
+
+        QString code = textStream.readAll();
+
+        QScriptValue result = engine.evaluate(code);
+
+        if ( engine.hasUncaughtException() )
+            qDebug() << "blad";
+    }
+    else
+        return;
+
 
     qDebug() << "Project thread started...";
     qDebug() << "Thread id: " << QThread::currentThreadId();
@@ -235,80 +273,6 @@ void Project::doWork()
         return;
     }
 
-    qDebug() << "Homing motors...";
-    worker.homing();
-    qDebug() << "Motors homed.";
-
-//    worker.testCommands();
-    forever
-    {
-        worker.moveToPoint(-99.2124, 201.706, 10);
-    }
-
-//    for ( unsigned i=0; i<10; ++i)
-//    {
-//        qDebug() << i;
-
-//        QThread::currentThread()->msleep(1000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
-////        m_ethernetCommunicationWidget->sendCommand("ABM33976");
-
-////        QThread::currentThread()->msleep(4000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-100");
-
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("SUCK");
-
-////        QThread::currentThread()->msleep(1000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
-
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM2-7855");
-////        m_ethernetCommunicationWidget->sendCommand("ABM313291");
-
-////        QThread::currentThread()->msleep(4000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-110");
-
-////        QThread::currentThread()->msleep(1000);
-
-////        m_ethernetCommunicationWidget->sendCommand("RSUCK");
-
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
-
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-125");
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("SUCK");
-////        QThread::currentThread()->msleep(1000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
-
-////        QThread::currentThread()->msleep(2000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM2-3800");
-////        m_ethernetCommunicationWidget->sendCommand("ABM33976");
-
-////        QThread::currentThread()->msleep(4000);
-
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-95");
-////        QThread::currentThread()->msleep(1000);
-////        m_ethernetCommunicationWidget->sendCommand("RSUCK");
-////        QThread::currentThread()->msleep(1000);
-////        m_ethernetCommunicationWidget->sendCommand("ABM4-50");
-////        QThread::currentThread()->msleep(1000);
-
-
-//    }
 
     qDebug() << "Droping connection...";
     m_ethernetCommunicationWidget->dropConnection();

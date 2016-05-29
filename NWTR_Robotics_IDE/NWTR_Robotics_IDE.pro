@@ -21,6 +21,7 @@ INCLUDEPATH += ../NWTR_Robotics_GUI\
 ../Communication_Layer\
 ../ScaraLogic
 
+
 LIBS += -L../NWTR_Robotics_GUI/debug -lNWTR_Robotics_GUI\
 -L../Robot_Project/debug -lRobot_Project\
 -L../Communication_Layer/debug -lCommunication_Layer\

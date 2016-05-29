@@ -8,8 +8,6 @@ QT       += core
 
 CONFIG += c++11
 
-QMAKE_LFLAGS_WINDOWS += -Wl,--heap,7500000000
-
 TARGET = ScaraLogic
 TEMPLATE = lib
 

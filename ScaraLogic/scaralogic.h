@@ -25,6 +25,12 @@ enum MOTOR_STATE
     NOT_USED,
 };
 
+enum SOLUTION
+{
+    FOUND,
+    NOT_FOUND,
+};
+
 class Q_DECL_EXPORT ScaraLogic : public QObject
 {
     Q_OBJECT
@@ -65,6 +71,13 @@ private:
     double m_motor1anglePerStep;
     double m_motor2anglePerStep;
     double m_motor3distPerStep;
+
+    unsigned m_motor1lowerSpeedBound;
+    unsigned m_motor1upperSpeedBound;
+
+    unsigned m_motor2lowerSpeedBound;
+    unsigned m_motor2upperSpeedBound;
+
 
     SWITCH_ORIENTATION m_firstSegmentHomingOrientation;
     SWITCH_ORIENTATION m_secondSegmentHomingOrientation;
@@ -119,6 +132,9 @@ public:
     const QString firstSegmentAbsoluteMoveCommand = "ABM2";
     const QString secondSegmentAbsoluteMoveCommand = "ABM3";
     const QString thirdSegmentAbsoluteMoveCommand = "ABM4";
+
+    const QString firstSegmentSpeedCommand = "sped1:";
+    const QString secondSegmentSpeedCommand = "sped2:";
     
     void processCommand(QString command);
 
@@ -152,6 +168,9 @@ public:
     void setMotor1HomingSwitchOrientation(SWITCH_ORIENTATION so);
     void setMotor2HomingSwitchOrientation(SWITCH_ORIENTATION so);
 
+    void setMotor1SpeedBounderies(unsigned lowerBound, unsigned upperBound);
+    void setMotor2SpeedBounderies(unsigned lowerBound, unsigned upperBound);
+
     double getFirstSegmentLength() const;
     double getSecondSegmentLength() const;
     double getThirdSegmentLength() const;
@@ -184,7 +203,9 @@ public:
     MOTOR_STATE getSecondSegmentMotorState() const;
     MOTOR_STATE getThirdSegmentMotorState() const;
 
-    QStringList moveToPoint(double x, double y, double z, double e=0.1);
+    QStringList XYmoveToPoint(double x, double y);
+    QStringList XYmoveByAngles(double theta1, double theta2);
+    QStringList XYmoveBySteps(int firstSegmentSteps, int secondSegmentSteps);
 
 };
 

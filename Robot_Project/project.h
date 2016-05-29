@@ -45,6 +45,9 @@ private:
     EthernetCommunicationWidget* m_ethernetCommunicationWidget;
     ScaraLogic* m_scaraLogic;
 
+    QString m_scriptFileName;
+    QString m_scriptFilePath;
+
 signals:
     void sendProjectInfo(QString info);
     void sendCommandSignal(QString command);
