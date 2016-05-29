@@ -19,11 +19,11 @@ double ScaraLogic::computeFirstSegmentAngleByStepsPosition(int stepsPos)
 
     if ( m_firstSegmentHomingOrientation == CW )
     {
-        angle = 90+m_firstSegmentCWLimitAngle+(stepsPos*m_motor1anglePerStep);
+        angle = -m_firstSegmentCWLimitAngle-(stepsPos*m_motor1anglePerStep);
     }
     else if ( m_firstSegmentHomingOrientation == CCW )
     {
-        angle = -90-m_firstSegmentCCWLimitAngle+(stepsPos*m_motor1anglePerStep);
+        angle = -90-m_firstSegmentCCWLimitAngle+(stepsPos*m_motor1anglePerStep); // TODO
     }
 
     return angle;
@@ -39,7 +39,7 @@ double ScaraLogic::computeSecondSegmentAngleByStepsPosition(int stepsPos)
     }
     else if ( m_secondSegmentHomingOrientation == CCW )
     {
-        angle = -90-m_secondSegmentCCWLimitAngle+(stepsPos*m_motor2anglePerStep);
+        angle = 90+m_secondSegmentCCWLimitAngle-(stepsPos*m_motor2anglePerStep); // TODO
     }
 
     return angle;
@@ -47,14 +47,14 @@ double ScaraLogic::computeSecondSegmentAngleByStepsPosition(int stepsPos)
 
 double ScaraLogic::computeXCoordinate(double firstSegmentAngle, double secondSegmentAngle)
 {    
-    return m_firstSegmentLength*sin(firstSegmentAngle*PI/180)+
-            m_secondSegmentLength*sin((firstSegmentAngle+secondSegmentAngle)*PI/180);
+    return m_firstSegmentLength*std::cos(firstSegmentAngle*PI/180)+
+            m_secondSegmentLength*std::cos((firstSegmentAngle+secondSegmentAngle)*PI/180);
 }
 
 double ScaraLogic::computeYCoordinate(double firstSegmentAngle, double secondSegmentAngle)
 {
-    return m_firstSegmentLength*cos(firstSegmentAngle*PI/180)+
-            m_secondSegmentLength*cos((firstSegmentAngle+secondSegmentAngle)*PI/180);
+    return m_firstSegmentLength*std::sin(firstSegmentAngle*PI/180)+
+            m_secondSegmentLength*std::sin((firstSegmentAngle+secondSegmentAngle)*PI/180);
 }
 
 void ScaraLogic::computeCartesianPositionByAnglesAndDistance()
@@ -154,6 +154,8 @@ void ScaraLogic::processCommand(QString command)
 
     m_firstSegmentAngle = computeFirstSegmentAngleByStepsPosition( positions[0].toInt() );
     m_secondSegmentAngle = computeSecondSegmentAngleByStepsPosition( positions[1].toInt() );
+
+    qDebug() << m_firstSegmentAngle << m_secondSegmentAngle;
 
     computeCartesianPositionByAnglesAndDistance();
 }
@@ -504,10 +506,13 @@ QStringList ScaraLogic::XYmoveToPoint(double x, double y)
         theta2negative = NAN;
     }
 
-    double theta1positive = std::atan2(((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*x) - (m_secondSegmentLength*std::sin(theta2positive)*y),
-                                   (m_secondSegmentLength*std::sin(theta2positive)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*y));
-    double theta1negative = std::atan2(((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*x) - (m_secondSegmentLength*std::sin(theta2negative)*y),
-                                   (m_secondSegmentLength*std::sin(theta2negative)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*y));
+
+
+    double theta1positive = std::atan2((m_secondSegmentLength*std::sin(theta2positive)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*y),
+                                   ((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2positive)))*x) - (m_secondSegmentLength*std::sin(theta2positive)*y));
+
+    double theta1negative = std::atan2((m_secondSegmentLength*std::sin(theta2negative)*x)+((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*y),
+                                       ((m_firstSegmentLength+(m_secondSegmentLength*std::cos(theta2negative)))*x) - (m_secondSegmentLength*std::sin(theta2negative)*y));
 
     if ( theta1positive*180/PI < -m_firstSegmentCWLimitAngle &&
          theta1positive*180/PI > m_firstSegmentCCWLimitAngle+180 )
@@ -521,15 +526,23 @@ QStringList ScaraLogic::XYmoveToPoint(double x, double y)
         theta1negative = NAN;
     }
 
+    qDebug() << "C:" << m_firstSegmentAngle << m_secondSegmentAngle;
 
-    if ( theta1positive != NAN && std::fabs(m_firstSegmentAngle-theta1positive ) < std::fabs(m_firstSegmentAngle-theta1negative ) )
+    if ( theta1positive != NAN && std::fabs(m_secondSegmentAngle-theta2positive ) < std::fabs(m_secondSegmentAngle-theta2negative ) )
     {
         // positive solution is better
+
+        qDebug() << "czek" << computeXCoordinate(theta1positive*180/PI,theta2positive*180/PI) << computeYCoordinate(theta1positive*180/PI,theta2positive*180/PI);
+
+        qDebug() << "P:" << theta1positive*180/PI << theta2positive*180/PI;
         return XYmoveByAngles(theta1positive*180/PI, theta2positive*180/PI);
     }
-    else if ( theta1negative != NAN && std::fabs(m_firstSegmentAngle-theta1positive ) > std::fabs(m_firstSegmentAngle-theta1negative ))
+    else if ( theta1negative != NAN && std::fabs(m_secondSegmentAngle-theta2positive ) > std::fabs(m_secondSegmentAngle-theta2negative ))
     {
+        qDebug() << "czek" << computeXCoordinate(theta1negative*180/PI,theta2negative*180/PI) << computeYCoordinate(theta1negative*180/PI,theta2negative*180/PI);
+
         // negative solution is better
+        qDebug() << "N:" << theta1negative*180/PI << theta2negative*180/PI;
         return XYmoveByAngles(theta1negative*180/PI, theta2negative*180/PI);
     }
 
@@ -539,6 +552,8 @@ QStringList ScaraLogic::XYmoveToPoint(double x, double y)
 
 QStringList ScaraLogic::XYmoveByAngles(double theta1, double theta2)
 {
+    qDebug() << theta1 << theta2;
+
     if ( theta1*180/PI < -m_firstSegmentCWLimitAngle &&
          theta1*180/PI > m_firstSegmentCCWLimitAngle+180 )
     {
@@ -561,6 +576,7 @@ QStringList ScaraLogic::XYmoveByAngles(double theta1, double theta2)
     else
         theta2 = (180.0+m_secondSegmentCCWLimitAngle)-theta2;
 
+    qDebug() << theta1 << theta2;
 
     int firstSegmentSteps = std::abs(static_cast<int>( theta1/m_motor1anglePerStep ));
     int secondSemgentSteps = std::abs(static_cast<int>( theta2/m_motor2anglePerStep ));
