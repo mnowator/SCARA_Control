@@ -98,7 +98,7 @@ bool ScaraSC1ConfigWidget::populateFromDomElement(QDomElement const& root)
 
             if ( !name.isNull() )
             {
-                if ( name.text().endsWith(".py") )
+                if ( name.text().endsWith(".js") )
                     ui->mainProgramComboBox->addItem(QIcon(":/new/icons/pythonfile.png"),name.text());
                 else if ( name.text().endsWith(".pt") )
                     ui->mainPointsFileComboBox->addItem(QIcon(":/new/icons/pointsfile.png"),name.text());

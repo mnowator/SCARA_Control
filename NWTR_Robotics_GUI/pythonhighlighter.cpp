@@ -11,7 +11,7 @@ PythonHighlighter::PythonHighlighter(QTextDocument* parent)
 
     keywordPatterns << "and"    << "assert" << "break"  << "class"  << "continue" << "def"      <<
                        "del"    << "elif"   << "else"   << "except" << "exec"     << "finally"  <<
-                       "for"    << "from"   << "global" << "if"     << "import"   << "in"       <<
+                       "for"    << "global" << "if"     << "import"   << "in"       <<
                        "is"     << "lambda" << "not"    << "or"     << "pass"     << "print"    <<
                        "raise"  << "return" << "try"    << "while"  << "yield"    << "None"     <<
                        "import"   << "function" << "as" << "var" << "scara";

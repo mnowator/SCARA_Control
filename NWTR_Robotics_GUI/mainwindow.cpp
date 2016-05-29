@@ -202,7 +202,7 @@ bool MainWindow::lessThenTreeWidgetItem(QTreeWidgetItem *first, QTreeWidgetItem 
 
     if ( selfExtension == ".pro" )
         selfRating = 4;
-    else if ( selfExtension == ".py" )
+    else if ( selfExtension == ".js" )
         selfRating = 3;
     else if ( selfExtension == ".pt" )
         selfRating = 2;
@@ -211,7 +211,7 @@ bool MainWindow::lessThenTreeWidgetItem(QTreeWidgetItem *first, QTreeWidgetItem 
 
     if ( otherExtension == ".pro" )
         otherRating = 4;
-    else if ( otherExtension == ".py" )
+    else if ( otherExtension == ".js" )
         otherRating = 3;
     else if ( otherExtension == ".pt" )
         otherRating = 2;
@@ -530,9 +530,9 @@ void MainWindow::openProjectProjectOrFile()
     QDomElement root;
 
     QStringList filters;
-    filters << "Openable (*.pro *.py *.pt)"
+    filters << "Openable (*.pro *.js *.pt)"
             << "Project files (*.pro)"
-            << "Python files (*.py)"
+            << "Javascript files (*.js)"
             << "Points files (*.pt)"
             << "Any files (*)";
 
@@ -657,7 +657,7 @@ void MainWindow::openProjectProjectOrFile()
                 continue;
             }
 
-            if ( name.text().endsWith(".py") )
+            if ( name.text().endsWith(".js") )
                 fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
             else if ( name.text().endsWith(".pt") )
                 fileTreeWidgetItem->setIcon(0,*(new QIcon(":/new/icons/pointsfile.png")));
@@ -683,7 +683,7 @@ void MainWindow::openProjectProjectOrFile()
 
         file.close();
     }
-    else if ( fileName.endsWith(".py"))
+    else if ( fileName.endsWith(".js"))
     {
         // If file already is loaded
         for ( unsigned i=0; i<ui->fileEditor->count(); ++i )
@@ -1885,16 +1885,16 @@ void MainWindow::saveAsClicked(const QString &data)
     fileDialog.setAcceptMode(QFileDialog::AcceptSave);
 
     QStringList filters;
-    filters << "Openable (*.pro *.py *.pt)"
+    filters << "Openable (*.pro *.js *.pt)"
             << "Project files (*.pro)"
-            << "Python files (*.py)"
+            << "Javascript files (*.js)"
             << "Points files (*.pt)"
             << "Any files (*)";
 
     fileDialog.setNameFilters(filters);
 
-    if ( name.endsWith(".py") || name.endsWith(".py*") )
-        fileDialog.setDefaultSuffix(".py");
+    if ( name.endsWith(".js") || name.endsWith(".js*") )
+        fileDialog.setDefaultSuffix(".js");
     else if ( name.endsWith(".pro") || name.endsWith(".pro*"))
         fileDialog.setDefaultSuffix(".pro");
 
@@ -1994,7 +1994,7 @@ void MainWindow::saveAsClicked(const QString &data)
         }
 
         // If file is not opened, we have to load it
-        if ( name.endsWith(".py") )
+        if ( name.endsWith(".js") )
         {
             QString content = loadFile(path,name);
     
@@ -2248,7 +2248,7 @@ void MainWindow::addNewClicked(const QString &name)
         else return;
 
         if ( fileType == "Program ( Python File )")
-            fileName += ".py";
+            fileName += ".js";
         else if ( fileType == "Points ( .pt )")
             fileName += ".pt";
 
@@ -2288,7 +2288,7 @@ void MainWindow::addNewClicked(const QString &name)
         file->setText(1,projectPath);
         file->setText(2,fileName+'*');
 
-        if ( fileName.endsWith(".py") )
+        if ( fileName.endsWith(".js") )
             file->setIcon(0,*(new QIcon(":/new/icons/pythonfile.png")));
         else if ( fileName.endsWith(".pt") )
             file->setIcon(0,*(new QIcon(":/new/icons/pointsfile.png")));
@@ -2309,8 +2309,8 @@ void MainWindow::addExistClicked(const QString &name)
     QString fullPath, fullFileName, filePath;
 
     QStringList filters;
-    filters << "Openable (*.py *.pt)"
-            << "Python files (*.py)"
+    filters << "Openable (*.js *.pt)"
+            << "Javascript files (*.js)"
             << "Points files (*.pt)"
             << "Any files (*)";
 
@@ -2908,7 +2908,7 @@ void MainWindow::fileChanged(const QString &path)
 
     if ( fileName.endsWith(".pro") || fileName.endsWith(".pro*") )
         m_reloadFilesDialog->addFile(QIcon(":/new/icons/profile.png"), filePath, fileName);
-    else if ( fileName.endsWith(".py") || fileName.endsWith(".py*") )
+    else if ( fileName.endsWith(".js") || fileName.endsWith(".js*") )
         m_reloadFilesDialog->addFile(QIcon(":/new/icons/pythonfile.png"), filePath, fileName);
     else if ( fileName.endsWith(".pt") || fileName.endsWith(".pt*") )
         m_reloadFilesDialog->addFile(QIcon(":/new/icons/pointsfile.png"), filePath, fileName);
@@ -3008,7 +3008,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
             if (ui->fileEditor->tabText(idx)==item->text(0) ||
                     ui->fileEditor->tabText(idx)==item->text(2) )
             {
-                if ( name.endsWith(".py"))
+                if ( name.endsWith(".js"))
                 {
                     CodeEditor* codeEditor = dynamic_cast<CodeEditor*>(ui->fileEditor->widget(idx));
 
@@ -3037,7 +3037,7 @@ void MainWindow::projectExplorerDoubleClicked(QTreeWidgetItem *item, int column)
 
         if ( file.open(QIODevice::ReadWrite | QFile::Text))
         {
-            if ( name.endsWith(".py") )
+            if ( name.endsWith(".js") )
             {
                 CodeEditor* codeEditor = new CodeEditor(this);
                 QTextStream textStream(&file);
