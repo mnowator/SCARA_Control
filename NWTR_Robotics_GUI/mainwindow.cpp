@@ -2224,7 +2224,7 @@ void MainWindow::reloadClicked(const QString &data)
         }
 
     }
-    // at this moment i do not let situation where file that isnt current can call this function
+    // at this momment i do not let situation where file that isnt current, can call this function
 }
 
 
@@ -2247,7 +2247,7 @@ void MainWindow::addNewClicked(const QString &name)
         }
         else return;
 
-        if ( fileType == "Program ( Python File )")
+        if ( fileType == "Program ( Javascript File )")
             fileName += ".js";
         else if ( fileType == "Points ( .pt )")
             fileName += ".pt";

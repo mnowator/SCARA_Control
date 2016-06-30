@@ -93,10 +93,10 @@ bool PointsFileEditor::populateFromString(const QString &data)
 
     if ( !dom.setContent(data,false,&errorStr))
     {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
+//        QMessageBox msgBox(QMessageBox::Warning, tr("Error"), errorStr);
 
-        msgBox.setStyleSheet(currentErrorBoxTheme);
-        msgBox.exec();
+//        msgBox.setStyleSheet(currentErrorBoxTheme);
+//        msgBox.exec();
 
         return false;
     }

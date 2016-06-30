@@ -21,13 +21,11 @@ LIBS += -L../Communication_Layer/debug -lCommunication_Layer\
 
 SOURCES += \
     project.cpp \
-    scararobotpythonworker.cpp \
-    scararobotpythonworkerwrapper.cpp
+    scararobotpythonworker.cpp
 
 HEADERS += \
     project.h \
-    scararobotpythonworker.h \
-    scararobotpythonworkerwrapper.h
+    scararobotpythonworker.h
 
 unix {
     target.path = /usr/lib
