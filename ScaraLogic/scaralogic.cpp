@@ -292,6 +292,12 @@ void ScaraLogic::setMotor2SpeedBounderies(unsigned lowerBound, unsigned upperBou
     m_motor2lowerSpeedBound = lowerBound;
 }
 
+void ScaraLogic::setMotor3SpeedBounderies(unsigned lowerBound, unsigned upperBound)
+{
+    m_motor3upperSpeedBound = upperBound;
+    m_motor3lowerSpeedBound = lowerBound;
+}
+
 double ScaraLogic::getFirstSegmentLength() const
 {
     return m_firstSegmentLength;
@@ -501,6 +507,28 @@ QStringList ScaraLogic::ZmoveTo(double distance)
     commands.append(thirdSegmentAbsoluteMoveCommand+QString::number(stepsToDo));
 
     return commands;
+}
+
+QStringList ScaraLogic::moveMotorsToPos(int pos1, int pos2, int pos3)
+{
+    QStringList outputCommands;
+    unsigned speed1, speed2, speed3;
+
+    // 1. Ilosc krokow do przejscia bazuja na znanej pozycji
+    // Stad aktualne pozycje
+    this->m_firstSegmentPosInSteps;
+    this->m_secondSegmentPosInSteps;
+    this->m_thirdSegmentPosInStpes;
+
+    // 2. Obliczenie predkosci silnikow
+    outputCommands.append(this->firstSegmentSpeedCommand + QString::number(speed1));
+    outputCommands.append(this->secondSegmentSpeedCommand + QString::number(speed2));
+    outputCommands.append(this->thirdSegmentSpeedCommand + QString::number(speed3));
+    // 3. zlozenie komend do wyslania
+
+    outputCommands.append(this->firstSegmentAbsoluteMoveCommand + QString::number(pos1));
+    outputCommands.append(this->secondSegmentAbsoluteMoveCommand + QString::number(pos2));
+    outputCommands.append(this->thirdSegmentAbsoluteMoveCommand + QString::number(pos3));
 }
 
 QStringList ScaraLogic::XYmoveToPoint(double x, double y)

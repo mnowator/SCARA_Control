@@ -78,6 +78,9 @@ private:
     unsigned m_motor2lowerSpeedBound;
     unsigned m_motor2upperSpeedBound;
 
+    unsigned m_motor3lowerSpeedBound;
+    unsigned m_motor3upperSpeedBound;
+
 
     SWITCH_ORIENTATION m_firstSegmentHomingOrientation;
     SWITCH_ORIENTATION m_secondSegmentHomingOrientation;
@@ -174,6 +177,7 @@ public:
 
     void setMotor1SpeedBounderies(unsigned lowerBound, unsigned upperBound);
     void setMotor2SpeedBounderies(unsigned lowerBound, unsigned upperBound);
+    void setMotor3SpeedBounderies(unsigned lowerBound, unsigned upperBound);
 
     double getFirstSegmentLength() const;
     double getSecondSegmentLength() const;
@@ -211,6 +215,7 @@ public:
     QStringList XYmoveByAngles(double theta1, double theta2);
     QStringList XYmoveBySteps(int firstSegmentSteps, int secondSegmentSteps);
     QStringList ZmoveTo(double distance);
+    QStringList moveMotorsToPos(int pos1, int pos2, int pos3);
 
 };
 

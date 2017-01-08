@@ -234,7 +234,7 @@ void Project::doWork()
                  << m_ethernetCommunicationWidget->getPort()
                  << ".";
 
-        ScaraRobotPythonWorker worker(m_ethernetCommunicationWidget, m_scaraLogic);
+        ScaraRobotWrapper worker(m_ethernetCommunicationWidget, m_scaraLogic);
         QScriptEngine engine;
 
         QScriptValue scriptWorker = engine.newQObject(&worker);

@@ -7,7 +7,7 @@
 #include "ethernetcommunicationwidget.h"
 #include "scaralogic.h"
 
-class ScaraRobotPythonWorker : public QObject
+class ScaraRobotWrapper : public QObject
 {
     Q_OBJECT
 private:
@@ -15,7 +15,7 @@ private:
     ScaraLogic* m_logic;
 
 public:
-    ScaraRobotPythonWorker(EthernetCommunicationWidget* communicator=0, ScaraLogic* logic=0, QObject *parent = 0);
+    ScaraRobotWrapper(EthernetCommunicationWidget* communicator=0, ScaraLogic* logic=0, QObject *parent = 0);
 
 public slots:
     void homing();
@@ -26,6 +26,7 @@ public slots:
     void ZmoveTo(double distance);
     void pick();
     void place();
+    void moveMotorsToPos(int pos1, int pos2, int pos3);
 };
 
-#endif // SCARAROBOTPYTHONWORKER_H
+#endif
